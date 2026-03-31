@@ -2,6 +2,7 @@ import type { SpotifyTrack } from '@/types'
 
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
 const NOW_PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing'
+const RECENTLY_PLAYED_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=1'
 
 async function getAccessToken(): Promise<string> {
   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } = process.env
@@ -30,7 +31,7 @@ export async function getNowPlaying(): Promise<SpotifyTrack> {
 
     const res = await fetch(NOW_PLAYING_URL, {
       headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: 60 },
+      cache: 'no-store',
     })
 
     if (res.status === 204 || res.status > 400) {
@@ -45,6 +46,34 @@ export async function getNowPlaying(): Promise<SpotifyTrack> {
 
     return {
       isPlaying,
+      title: item.name,
+      artist: item.artists.map((a: { name: string }) => a.name).join(', '),
+      albumArt: item.album.images[0]?.url,
+      songUrl: item.external_urls.spotify,
+    }
+  } catch {
+    return { isPlaying: false }
+  }
+}
+
+export async function getRecentlyPlayed(): Promise<SpotifyTrack> {
+  try {
+    const token = await getAccessToken()
+
+    const res = await fetch(RECENTLY_PLAYED_URL, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    })
+
+    if (!res.ok) return { isPlaying: false }
+
+    const data = await res.json()
+    const item = data.items?.[0]?.track
+
+    if (!item) return { isPlaying: false }
+
+    return {
+      isPlaying: false,
       title: item.name,
       artist: item.artists.map((a: { name: string }) => a.name).join(', '),
       albumArt: item.album.images[0]?.url,

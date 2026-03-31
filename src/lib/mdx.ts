@@ -4,55 +4,64 @@ import matter from 'gray-matter'
 import readingTime from 'reading-time'
 import type { Project, BlogPost } from '@/types'
 
-const projectsDir = path.join(process.cwd(), 'src/content/projects')
-const blogDir = path.join(process.cwd(), 'src/content/blog')
+const BLOG_DIR = path.join(process.cwd(), 'src/content/blog')
+const PROJECTS_DIR = path.join(process.cwd(), 'src/content/projects')
 
-function slugFrom(filename: string) {
-  return filename.replace(/\.mdx?$/, '')
+// ── Blog ─────────────────────────────────────────────────────────────────
+
+export function getAllPosts(): BlogPost[] {
+  if (!fs.existsSync(BLOG_DIR)) return []
+  const files = fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith('.mdx'))
+  return files
+    .map((file) => {
+      const raw = fs.readFileSync(path.join(BLOG_DIR, file), 'utf-8')
+      const { data, content } = matter(raw)
+      const stats = readingTime(content)
+      return {
+        slug: file.replace('.mdx', ''),
+        title: data.title,
+        description: data.description,
+        date: data.date,
+        tag: data.tag,
+        readTime: stats.text,
+        published: data.published ?? false,
+      } as BlogPost
+    })
+    .filter((p) => p.published)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
+export function getLatestPost(): BlogPost | null {
+  const posts = getAllPosts()
+  return posts[0] ?? null
+}
+
+export function getPostBySlug(slug: string) {
+  const file = path.join(BLOG_DIR, `${slug}.mdx`)
+  if (!fs.existsSync(file)) return null
+  const raw = fs.readFileSync(file, 'utf-8')
+  const { data, content } = matter(raw)
+  const stats = readingTime(content)
+  return { ...data, slug, content, readTime: stats.text } as BlogPost & { content: string }
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────
+
 export function getAllProjects(): Project[] {
-  if (!fs.existsSync(projectsDir)) return []
+  if (!fs.existsSync(PROJECTS_DIR)) return []
   return fs
-    .readdirSync(projectsDir)
+    .readdirSync(PROJECTS_DIR)
     .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
     .map((filename) => {
-      const raw = fs.readFileSync(path.join(projectsDir, filename), 'utf-8')
+      const raw = fs.readFileSync(path.join(PROJECTS_DIR, filename), 'utf-8')
       const { data } = matter(raw)
-      return { slug: slugFrom(filename), ...data } as Project
+      return { slug: filename.replace(/\.mdx?$/, ''), ...data } as Project
     })
 }
 
 export function getProjectBySlug(slug: string): { meta: Project; content: string } {
-  const filepath = path.join(projectsDir, `${slug}.mdx`)
+  const filepath = path.join(PROJECTS_DIR, `${slug}.mdx`)
   const raw = fs.readFileSync(filepath, 'utf-8')
   const { data, content } = matter(raw)
   return { meta: { slug, ...data } as Project, content }
-}
-
-export function getAllBlogPosts(): BlogPost[] {
-  if (!fs.existsSync(blogDir)) return []
-  return fs
-    .readdirSync(blogDir)
-    .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
-    .map((filename) => {
-      const raw = fs.readFileSync(path.join(blogDir, filename), 'utf-8')
-      const { data, content } = matter(raw)
-      return {
-        slug: slugFrom(filename),
-        readTime: readingTime(content).text,
-        ...data,
-      } as BlogPost
-    })
-    .filter((post) => post.published)
-}
-
-export function getBlogPostBySlug(slug: string): { meta: BlogPost; content: string } {
-  const filepath = path.join(blogDir, `${slug}.mdx`)
-  const raw = fs.readFileSync(filepath, 'utf-8')
-  const { data, content } = matter(raw)
-  return {
-    meta: { slug, readTime: readingTime(content).text, ...data } as BlogPost,
-    content,
-  }
 }
