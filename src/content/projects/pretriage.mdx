@@ -1,0 +1,34 @@
+---
+title: "PreTriage"
+description: "AI-powered patient intake and triage system that reduces ER wait times by intelligently routing patients based on symptom severity."
+tags: ["Next.js", "TypeScript", "OpenAI", "Supabase", "Tailwind CSS"]
+status: "live"
+year: "2024"
+type: "case-study"
+liveUrl: "https://pretriage.app"
+githubUrl: "https://github.com/ernestsacdal/pretriage"
+coverImage: "/images/projects/pretriage.jpg"
+---
+
+## Overview
+
+PreTriage is an AI-first patient intake platform designed to streamline hospital emergency triage workflows. Patients complete a guided symptom assessment before arrival, allowing staff to prepare and prioritize care in advance.
+
+## Problem
+
+Emergency rooms face growing patient volume with static staff capacity. Traditional triage is done on-site, creating bottlenecks at the exact moment care is needed most.
+
+## Solution
+
+A conversational AI intake flow that collects structured symptom data, assigns a triage priority score, and surfaces a pre-populated patient card to ER staff before the patient walks in.
+
+## Technical Architecture
+
+- **Frontend:** Next.js App Router with streaming UI for the intake conversation
+- **AI Layer:** OpenAI GPT-4o with function calling for structured symptom extraction
+- **Database:** Supabase with row-level security per hospital tenant
+- **Real-time:** Supabase Realtime for live patient queue updates on staff dashboards
+
+## Outcome
+
+Deployed across 3 pilot clinics. Average check-in time reduced by 40%. Staff reported higher confidence in patient readiness scores.
