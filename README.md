@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
+
+Personal portfolio for Ernest Sacdal — Full-Stack Developer & AI Engineer.
+
+Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, and Framer Motion.
+
+---
+
+## Stack
+
+- **Next.js 16** — App Router, server components, static generation
+- **TypeScript** — strict mode throughout
+- **Tailwind CSS v4** — CSS-first config via `@theme {}` in `globals.css`
+- **Framer Motion** — scroll animations, page transitions, stagger grids
+- **MDX** — blog posts and project case studies in `src/content/`
+- **Lucide React** — icons
+- APIs: GitHub (contribution graph), Spotify (now playing), Anthropic Claude (chat popup)
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+See [Environment Variables](#environment-variables) below for details on each key.
+
+### 3. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+| Variable | Required | Description |
+|---|---|---|
+| `GITHUB_TOKEN` | Yes | Personal access token — [create one](https://github.com/settings/tokens) with `read:user` scope |
+| `GITHUB_USERNAME` | Yes | Your GitHub username |
+| `ANTHROPIC_API_KEY` | Yes | API key from [Anthropic Console](https://console.anthropic.com/settings/api-keys) — powers the chat popup |
+| `SPOTIFY_CLIENT_ID` | Optional | Spotify app client ID from [Developer Dashboard](https://developer.spotify.com/dashboard) |
+| `SPOTIFY_CLIENT_SECRET` | Optional | Spotify app client secret |
+| `SPOTIFY_REFRESH_TOKEN` | Optional | Long-lived refresh token ([guide](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)) |
 
-To learn more about Next.js, take a look at the following resources:
+> The site works without Spotify credentials — the card shows a graceful placeholder.  
+> GitHub and Anthropic keys are needed for the contribution graph and chat popup.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+  app/                  # Next.js App Router pages + API routes
+    api/chat/           # Claude-powered chat endpoint
+    api/github/         # GitHub contribution data
+    api/spotify/        # Spotify now-playing / recently-played
+    blog/               # Blog index + [slug] pages
+    projects/           # Projects index + [slug] pages
+  components/
+    bento/              # Bento grid cards (GitHub, Spotify, TechStack, etc.)
+    dock/               # Floating dock (Dock, TerminalPopup, ChatPopup)
+    sections/           # Page sections (Hero, BentoGrid, Projects, Blog, Footer)
+    ui/                 # Shared UI primitives (FadeIn, StaggerGrid, ReadingProgress)
+  content/
+    blog/               # MDX blog posts
+    projects/           # MDX project case studies
+  lib/                  # Data fetching utilities (github.ts, spotify.ts, mdx.ts, theme.tsx)
+  types/                # Shared TypeScript interfaces
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Content
+
+### Adding a blog post
+
+Create `src/content/blog/your-post-slug.mdx`:
+
+```mdx
+---
+title: Your Post Title
+description: A short description shown in cards.
+date: '2025-06-01'
+tag: Engineering
+published: true
+---
+
+Your content here.
+```
+
+### Adding a project
+
+Create `src/content/projects/your-project-slug.mdx`:
+
+```mdx
+---
+title: Project Name
+description: Short description.
+tags: ['Next.js', 'Python']
+status: live
+year: '2025'
+type: case-study
+liveUrl: https://example.com
+githubUrl: https://github.com/your-username/repo
+---
+
+Your case study content here.
+```
+
+Set `type: minimal` for a simple layout without MDX body content.
+
+---
+
+## Deployment
+
+Deploy on [Vercel](https://vercel.com) — add all environment variables in the project settings.
+
+```bash
+npm run build   # verify a clean build locally first
+```

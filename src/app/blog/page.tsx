@@ -1,6 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/mdx'
 import { BlogClientGrid } from '@/components/sections/BlogClientGrid'
+
+export const metadata: Metadata = {
+  title: 'Blog — Ernest Sacdal',
+  description: 'Writing on engineering, AI, and design by Ernest Sacdal.',
+  openGraph: {
+    title: 'Blog — Ernest Sacdal',
+    description: 'Writing on engineering, AI, and design by Ernest Sacdal.',
+  },
+}
 
 export default function BlogPage() {
   const posts = getAllPosts()

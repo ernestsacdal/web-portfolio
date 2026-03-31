@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
@@ -10,6 +11,22 @@ export async function generateStaticParams() {
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
+  if (!post) return {}
+  return {
+    title: `${post.title} — Ernest Sacdal`,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: 'article',
+      publishedTime: post.date,
+    },
+  }
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {

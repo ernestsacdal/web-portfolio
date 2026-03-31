@@ -1,6 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllProjects } from '@/lib/mdx'
 import { ProjectsClientGrid } from '@/components/sections/ProjectsClientGrid'
+
+export const metadata: Metadata = {
+  title: 'Projects — Ernest Sacdal',
+  description: 'Selected work by Ernest Sacdal — full-stack applications, AI systems, and mobile apps.',
+  openGraph: {
+    title: 'Projects — Ernest Sacdal',
+    description: 'Selected work by Ernest Sacdal — full-stack applications, AI systems, and mobile apps.',
+  },
+}
 
 export default function ProjectsPage() {
   const projects = getAllProjects()

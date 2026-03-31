@@ -100,6 +100,7 @@ export function SpotifyCard() {
             alt="Album art"
             width={48}
             height={48}
+            unoptimized
             style={{ borderRadius: 8, flexShrink: 0 }}
           />
         )}

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
@@ -8,14 +9,32 @@ export async function generateStaticParams() {
   return getAllProjects().map((p) => ({ slug: p.slug }))
 }
 
+interface ProjectPageProps {
+  params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+  const { slug } = await params
+  try {
+    const { meta } = getProjectBySlug(slug)
+    return {
+      title: `${meta.title} — Ernest Sacdal`,
+      description: meta.description,
+      openGraph: {
+        title: meta.title,
+        description: meta.description,
+        type: 'website',
+      },
+    }
+  } catch {
+    return {}
+  }
+}
+
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   live: { bg: 'rgba(52,199,89,0.12)', color: '#34C759', label: 'Live' },
   wip: { bg: 'rgba(0,113,227,0.12)', color: '#0071E3', label: 'WIP' },
   planning: { bg: 'var(--bg3)', color: 'var(--text2)', label: 'Planning' },
-}
-
-interface ProjectPageProps {
-  params: Promise<{ slug: string }>
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
