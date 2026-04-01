@@ -121,3 +121,13 @@ ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
 - `README.md` rewritten — setup guide, env var reference table, project structure, content authoring docs
 - All API cards have graceful fallbacks: GitHub shows empty heatmap, Spotify shows shimmer then placeholder
 - Build passes cleanly: 9 routes, all TypeScript clean
+
+### Phase 13 — Polish & Enhancements ✅
+- `src/app/icon.png` — custom logo replaces default Vercel favicon; Next.js App Router picks it up automatically
+- `src/components/bento/GithubCard.tsx` — complete rewrite: interactive hover tooltips with ordinal date formatting (e.g. "3 contributions on March 15th"), new utilities `getColor()`, `ordinalSuffix()`, `formatHoverLabel()`, `formatOrdinalDate()`, 5-level green scale (`#166534` → `#4ade80`), null-safe fallback
+- `src/components/bento/TechStackCard.tsx` — dual-row "belt" marquee: row 1 scrolls left (`animate-marquee`), row 2 scrolls right (`animate-marquee-reverse`), `LOOP_OFFSET` array for seamless wrap-around, 28 icons (was 12) with custom SVG paths for OpenAI and AWS, theme-aware fill via `useTheme()`, left/right mask gradient fade
+- `src/components/dock/Dock.tsx` — `/logo.png` added with `mix-blend-multiply dark:mix-blend-normal dark:invert`; nav link groups separated by dividers; mobile hides nav links (`hidden sm:flex`)
+- `src/components/sections/Footer.tsx` — same logo treatment as Dock
+- `src/components/sections/Hero.tsx` — LinkedIn icon replaced with custom SVG path (removed from simple-icons v16); `SocialLink` interface extended to distinguish `simpleIcon` vs `lucideIcon`
+- `src/components/sections/Projects.tsx` — full rewrite as client component: 3 hardcoded projects (PreTriage live, Portfolio v2 wip, TripView Clone planning), color-coded status badges, hover bg/border/arrow effects, `useRouter().push()` on click, Framer Motion stagger with 0.08s delay
+- Unused stubs (not in BentoGrid): `src/components/ui/Tag.tsx`, `src/components/ui/StatusBadge.tsx`, `src/components/bento/ServicesCard.tsx`, `src/components/bento/QuoteCard.tsx`
