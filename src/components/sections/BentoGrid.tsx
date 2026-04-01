@@ -5,10 +5,9 @@ import { BuildCard } from '@/components/bento/BuildCard'
 import { TechStackCard } from '@/components/bento/TechStackCard'
 import { LocationCard } from '@/components/bento/LocationCard'
 import { SpotifyCard } from '@/components/bento/SpotifyCard'
-import { ServicesCard } from '@/components/bento/ServicesCard'
 import { LatestPostCard } from '@/components/bento/LatestPostCard'
-import { QuoteCard } from '@/components/bento/QuoteCard'
-import { StaggerGrid, StaggerItem } from '@/components/ui/StaggerGrid'
+import { FeaturedProjectCard } from '@/components/bento/FeaturedProjectCard'
+import { ServicesMarqueeCard } from '@/components/bento/ServicesMarqueeCard'
 
 export async function BentoGrid() {
   const [githubData, latestPost] = await Promise.all([
@@ -21,42 +20,56 @@ export async function BentoGrid() {
       id="work"
       style={{ width: '100%', padding: '2rem 1.25rem 6rem', maxWidth: 1280, margin: '0 auto' }}
     >
-      <StaggerGrid
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-[10px]"
-        style={{ gridAutoFlow: 'dense' }}
+      {/* 36-column explicit-placement grid — matches Jesica's proportions */}
+      <div
+        className={[
+          'md:grid max-md:flex max-md:flex-col max-md:gap-3',
+          'grid-cols-[repeat(36,_minmax(0,_1fr))]',
+          'grid-rows-[repeat(15,_minmax(0,_1fr))]',
+          'gap-3',
+        ].join(' ')}
+        style={{ height: 720 }}
       >
-        <StaggerItem className="col-span-1 sm:col-span-2 md:col-span-3">
-          <GithubCard data={githubData} />
-        </StaggerItem>
-
-        <StaggerItem className="col-span-1">
-          <BuildCard />
-        </StaggerItem>
-
-        <StaggerItem className="col-span-1 sm:col-span-2">
-          <TechStackCard />
-        </StaggerItem>
-
-        <StaggerItem className="col-span-1">
+        {/* Left column — Location (tall) */}
+        <div className="col-start-1 col-end-11 row-start-1 row-end-[8]">
           <LocationCard />
-        </StaggerItem>
+        </div>
 
-        <StaggerItem className="col-span-1">
-          <QuoteCard />
-        </StaggerItem>
+        {/* Left column — Services marquee (compact strip) */}
+        <div className="col-start-1 col-end-11 row-start-[8] row-end-[10]">
+          <ServicesMarqueeCard />
+        </div>
 
-        <StaggerItem className="col-span-1 sm:col-span-2">
-          <SpotifyCard />
-        </StaggerItem>
+        {/* Center — Featured project (tall) */}
+        <div className="col-start-11 col-end-[24] row-start-1 row-end-[8]">
+          <FeaturedProjectCard />
+        </div>
 
-        <StaggerItem className="col-span-1 sm:col-span-2">
-          <ServicesCard />
-        </StaggerItem>
-
-        <StaggerItem className="col-span-1">
+        {/* Center — Latest post (compact strip) */}
+        <div className="col-start-11 col-end-[24] row-start-[8] row-end-[10]">
           <LatestPostCard post={latestPost} />
-        </StaggerItem>
-      </StaggerGrid>
+        </div>
+
+        {/* Right — Spotify (small top) */}
+        <div className="col-start-[24] col-end-[37] row-start-1 row-end-4">
+          <SpotifyCard />
+        </div>
+
+        {/* Right — Build CTA (tall bottom) */}
+        <div className="col-start-[24] col-end-[37] row-start-4 row-end-[10]">
+          <BuildCard />
+        </div>
+
+        {/* Bottom left — GitHub activity */}
+        <div className="col-start-1 col-end-[19] row-start-[10] row-end-[16]">
+          <GithubCard data={githubData} />
+        </div>
+
+        {/* Bottom right — Tech stack */}
+        <div className="col-start-[19] col-end-[37] row-start-[10] row-end-[16]">
+          <TechStackCard />
+        </div>
+      </div>
     </section>
   )
 }

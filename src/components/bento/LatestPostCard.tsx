@@ -8,58 +8,75 @@ interface LatestPostCardProps {
 export function LatestPostCard({ post }: LatestPostCardProps) {
   const tag = post?.tag ?? 'Coming soon'
   const title = post?.title ?? 'First post coming soon...'
-  const readTime = post?.readTime ?? '5 min read · Draft'
   const slug = post?.slug
 
   return (
     <div
       className="bento-card"
-      style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '0 1.25rem',
+      }}
     >
+      {/* Label */}
       <p
         style={{
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 500,
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
           color: 'var(--text2)',
+          flexShrink: 0,
         }}
       >
         Latest Post
       </p>
 
-      {/* Tag pill */}
+      {/* Divider */}
+      <div style={{ width: 1, height: 16, background: 'var(--border)', flexShrink: 0 }} />
+
+      {/* Tag */}
       <span
         style={{
-          display: 'inline-block',
-          padding: '3px 10px',
+          padding: '2px 8px',
           borderRadius: 50,
           background: 'rgba(0,113,227,0.12)',
           border: '1px solid rgba(0,113,227,0.25)',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 500,
           color: '#0071E3',
-          alignSelf: 'flex-start',
+          flexShrink: 0,
         }}
       >
         {tag}
       </span>
 
-      <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', lineHeight: 1.35, flex: 1 }}>
+      {/* Title */}
+      <p
+        style={{
+          fontSize: 13,
+          fontWeight: 600,
+          color: 'var(--text)',
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         {title}
       </p>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: 12, color: 'var(--text2)' }}>{readTime}</p>
-        {slug && (
-          <Link
-            href={`/blog/${slug}`}
-            style={{ fontSize: 16, color: 'var(--text2)', textDecoration: 'none' }}
-          >
-            →
-          </Link>
-        )}
-      </div>
+      {/* Arrow link */}
+      {slug && (
+        <Link
+          href={`/blog/${slug}`}
+          style={{ fontSize: 16, color: 'var(--text2)', textDecoration: 'none', flexShrink: 0 }}
+        >
+          →
+        </Link>
+      )}
     </div>
   )
 }
