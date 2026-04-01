@@ -79,6 +79,13 @@
     0%   { background-position: -400px 0; }
     100% { background-position: 400px 0; }
   }
+
+  --animate-marquee-vertical: marqueeVertical 6s linear infinite;
+
+  @keyframes marqueeVertical {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-50%); }
+  }
 }
 
 /* ── Semantic CSS variables ───────────────────────────────────────────── */
@@ -146,6 +153,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.25rem;
+  height: 100%;
   transition: transform 0.2s ease;
 }
 
