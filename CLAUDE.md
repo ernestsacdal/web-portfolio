@@ -68,20 +68,22 @@ ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
 - `@anthropic-ai/sdk` installed
 
 ### Phase 4 — Hero Section ✅
-- `src/components/sections/Hero.tsx` — staggered Framer Motion entrance (delays: 0 / 0.1 / 0.2 / 0.35s), availability badge, name, role/bio, social links + CV download
+- `src/components/sections/Hero.tsx` — staggered Framer Motion entrance (delays: 0 / 0.1 / 0.2 / 0.35s), pulsing availability badge, name with split color spans, role/bio with `clamp()` typography, social links with hover bg, CV download
 
 ### Phase 5 — Bento Grid ✅
-- `src/components/sections/BentoGrid.tsx` — async server component, 4-column responsive grid with `grid-auto-flow: dense`
+- `src/components/sections/BentoGrid.tsx` — 36-column explicit CSS grid, 3-column layout with varied row heights (720px tall), mobile falls back to flex column; imports all 8 cards
+- `src/components/bento/FeaturedProjectCard.tsx` — featured project showcase (PreTriage), live badge, tech tags (FastAPI, Next.js, Groq, AI), link to full project page
+- `src/components/bento/LocationMap.tsx` — `react-leaflet` MapContainer centered on Sydney, theme-aware CartoDB tile layers (Voyager light / Dark All dark), all map controls disabled, non-interactive
+- `src/components/bento/LocationCard.tsx` — dynamically imports `LocationMap` (prevents SSR issues), 3-ring pulsing dot overlay centered over map using `animate-ping`
+- `src/components/bento/ServicesMarqueeCard.tsx` — vertically scrolling CSS marquee of 3 services (duplicated for seamless loop), `maskImage` top/bottom fade, uses `animate-marquee-vertical`
+- `src/components/bento/LatestPostCard.tsx` — horizontal layout, tag badge, truncated title, conditional arrow link (only when `slug` exists)
 - `src/components/bento/GithubCard.tsx` — 52×7 contribution heatmap, 5-level color scale, null-safe (shows empty grid when token not set)
 - `src/components/bento/BuildCard.tsx` — static "Let's Build" CTA card
-- `src/components/bento/TechStackCard.tsx` — infinite marquee of 12 simple-icons brand icons
-- `src/components/bento/LocationCard.tsx` — live clock ticking every second in Sydney timezone (`Intl.DateTimeFormat`)
+- `src/components/bento/TechStackCard.tsx` — infinite horizontal marquee of 12 simple-icons brand icons
 - `src/components/bento/SpotifyCard.tsx` — polls `/api/spotify` every 30s, shimmer skeleton, "coming soon" fallback when env not set, sound bar animation
-- `src/components/bento/ServicesCard.tsx` — services list
-- `src/components/bento/LatestPostCard.tsx` — links to latest published MDX post
-- `src/components/bento/QuoteCard.tsx` — static quote
 - `src/app/api/github/route.ts` — revalidates hourly
 - `src/app/api/spotify/route.ts` — force-dynamic, falls back to recently played
+- `src/app/globals.css` — added `@variant dark`, `--animate-marquee-vertical` token, `@keyframes marqueeVertical` (translateY 0 → -50% over 6s)
 
 ### Phase 6 — Projects ✅
 - `src/components/sections/Projects.tsx` — homepage featured rows, hover state, staggered motion
