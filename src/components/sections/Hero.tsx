@@ -25,10 +25,12 @@ export function Hero() {
       id="home"
       style={{
         width: '100%',
+        minHeight: '100svh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '9rem 1.25rem 5rem',
+        justifyContent: 'center',
+        padding: '0 1.25rem',
       }}
     >
       <div
