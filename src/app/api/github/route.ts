@@ -13,8 +13,7 @@ export async function GET() {
       {
         contributions: [],
         totalContributions: 0,
-        mostUsedLanguage: 'TypeScript',
-        lastPushed: new Date().toISOString(),
+        lastPushed: null,
       },
       { status: 500 },
     )

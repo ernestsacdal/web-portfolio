@@ -65,6 +65,7 @@ export function Blog() {
   return (
     <section
       id="blog"
+      className="min-h-screen flex flex-col justify-center"
       style={{ width: '100%', padding: '2rem 1.25rem 6rem', maxWidth: 1280, margin: '0 auto' }}
     >
       <FadeIn>

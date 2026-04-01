@@ -30,8 +30,7 @@ export interface SpotifyTrack {
 }
 
 export interface GithubData {
-  contributions: number[][]
+  contributions: { date: string; count: number; level: number }[]
   totalContributions: number
-  mostUsedLanguage: string
-  lastPushed: string
+  lastPushed: string | null
 }
