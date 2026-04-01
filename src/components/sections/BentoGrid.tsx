@@ -17,7 +17,8 @@ export async function BentoGrid() {
 
   return (
     <section
-      id="work"
+      id="bento"
+      className="min-h-screen flex flex-col justify-center"
       style={{ width: '100%', padding: '2rem 1.25rem 6rem', maxWidth: 1280, margin: '0 auto' }}
     >
       {/* 36-column explicit-placement grid — matches Jesica's proportions */}
