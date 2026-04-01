@@ -4,21 +4,21 @@ import { ThemeProvider } from '@/lib/theme'
 import { Dock } from '@/components/dock/Dock'
 
 export const metadata: Metadata = {
-  title: 'Ernest Surname — Full-Stack Developer & AI Engineer',
+  title: 'Mikhail',
   description:
-    'Full-Stack Developer & AI Engineer based in Sydney, Australia. Building intelligent systems, automation pipelines, and products people actually use.',
+    'Software Engineer based in Sydney, Australia. Building intelligent systems, automation pipelines, and products people actually use.',
   openGraph: {
-    title: 'Ernest Surname — Full-Stack Developer & AI Engineer',
-    description: 'Full-Stack Developer & AI Engineer based in Sydney, Australia.',
+    title: 'Ernest Mikhail Sacdal — Software Engineer',
+    description: 'Software Engineer based in Sydney, Australia.',
     url: 'https://yourdomainhere.com',
-    siteName: 'Ernest Surname',
+    siteName: 'Ernest Mikhail Sacdal',
     locale: 'en_AU',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ernest Surname — Full-Stack Developer & AI Engineer',
-    description: 'Full-Stack Developer & AI Engineer based in Sydney, Australia.',
+    title: 'Ernest Mikhail Sacdal — Software Engineer',
+    description: 'Software Engineer based in Sydney, Australia.',
   },
   robots: {
     index: true,

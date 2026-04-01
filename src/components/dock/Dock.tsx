@@ -2,16 +2,17 @@
 
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
+import { House, LayoutGrid, Briefcase, FileText, Mail, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
 import { TerminalPopup } from './TerminalPopup'
 import { ChatPopup } from './ChatPopup'
 
 const NAV_LINKS = [
-  { label: 'Home', id: 'home' },
-  { label: 'Work', id: 'work' },
-  { label: 'Blog', id: 'blog' },
-  { label: 'Contact', id: 'contact' },
+  { label: 'Home',     id: 'home',     icon: House      },
+  { label: 'Bento',    id: 'bento',    icon: LayoutGrid },
+  { label: 'Projects', id: 'projects', icon: Briefcase  },
+  { label: 'Blog',     id: 'blog',     icon: FileText   },
+  { label: 'Contact',  id: 'contact',  icon: Mail       },
 ]
 
 function scrollTo(id: string) {
@@ -58,6 +59,7 @@ export function Dock() {
       </AnimatePresence>
 
       <div
+        className="bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
         style={{
           position: 'fixed',
           bottom: 20,
@@ -69,42 +71,26 @@ export function Dock() {
           gap: 4,
           padding: '10px 18px',
           borderRadius: 50,
-          backdropFilter: 'blur(24px) saturate(180%)',
-          background: isDark ? 'rgba(20,20,20,0.75)' : 'rgba(255,255,255,0.75)',
-          border: `1px solid ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`,
-          boxShadow: isDark
-            ? '0 8px 40px rgba(0,0,0,0.35)'
-            : '0 8px 40px rgba(0,0,0,0.12)',
         }}
       >
         {/* Logo */}
-        <span
-          style={{
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            fontSize: 14,
-            color: isDark ? '#F5F5F7' : '#1D1D1F',
-            padding: '0 6px',
-            userSelect: 'none',
-          }}
-        >
-          E·S
-        </span>
+        <img
+          src="/logo.png"
+          alt="EMS"
+          className="h-9 w-auto mix-blend-multiply dark:mix-blend-normal dark:invert"
+          style={{ display: 'block' }}
+        />
 
         <div style={dividerStyle} />
 
         {/* Nav links — hidden on mobile */}
-        {NAV_LINKS.map(({ label, id }) => (
+        {NAV_LINKS.map(({ label, id, icon: Icon }) => (
           <button
             key={id}
             onClick={() => scrollTo(id)}
+            title={label}
             className="hidden sm:flex"
-            style={{
-              ...btnBase,
-              fontSize: 13,
-              fontWeight: 500,
-              padding: '5px 10px',
-            }}
+            style={{ ...btnBase, padding: '6px 8px' }}
             onMouseEnter={(e) => {
               const el = e.currentTarget
               el.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
@@ -116,7 +102,7 @@ export function Dock() {
               el.style.color = isDark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.65)'
             }}
           >
-            {label}
+            <Icon size={16} />
           </button>
         ))}
 

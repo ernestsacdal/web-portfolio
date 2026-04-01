@@ -26,17 +26,12 @@ export function Footer() {
         }}
       >
         {/* Logo */}
-        <span
-          style={{
-            fontSize: 22,
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            color: 'var(--text)',
-            userSelect: 'none',
-          }}
-        >
-          E·S
-        </span>
+        <img
+          src="/logo.png"
+          alt="EMS"
+          className="h-14 w-auto mix-blend-multiply dark:mix-blend-normal dark:invert"
+          style={{ display: 'block' }}
+        />
 
         {/* Nav links */}
         <nav style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
@@ -53,7 +48,7 @@ export function Footer() {
         {/* Copyright + built with */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <p style={{ fontSize: 12, color: 'var(--text2)', margin: 0 }}>
-            © 2025 Ernest Sacdal
+            © 2025 Ernest Mikhail Sacdal
           </p>
           <p style={{ fontSize: 12, color: 'var(--text2)', margin: 0 }}>
             Built with Next.js · Deployed on Vercel
