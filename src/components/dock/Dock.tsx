@@ -38,7 +38,7 @@ export function Dock() {
     background: 'transparent',
     cursor: 'pointer',
     borderRadius: 8,
-    padding: '6px 8px',
+    padding: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -90,7 +90,7 @@ export function Dock() {
             onClick={() => scrollTo(id)}
             title={label}
             className="hidden sm:flex"
-            style={{ ...btnBase, padding: '6px 8px' }}
+            style={{ ...btnBase }}
             onMouseEnter={(e) => {
               const el = e.currentTarget
               el.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'

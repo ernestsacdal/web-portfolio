@@ -22,6 +22,7 @@ export function LatestPostCard({ post }: LatestPostCardProps) {
     >
       {/* Label */}
       <p
+        className="hidden sm:block"
         style={{
           fontSize: 10,
           fontWeight: 500,
@@ -35,7 +36,7 @@ export function LatestPostCard({ post }: LatestPostCardProps) {
       </p>
 
       {/* Divider */}
-      <div style={{ width: 1, height: 16, background: 'var(--border)', flexShrink: 0 }} />
+      <div className="hidden sm:block" style={{ width: 1, height: 16, background: 'var(--border)', flexShrink: 0 }} />
 
       {/* Tag */}
       <span
@@ -72,7 +73,7 @@ export function LatestPostCard({ post }: LatestPostCardProps) {
       {slug && (
         <Link
           href={`/blog/${slug}`}
-          style={{ fontSize: 16, color: 'var(--text2)', textDecoration: 'none', flexShrink: 0 }}
+          style={{ fontSize: 16, color: 'var(--text2)', textDecoration: 'none', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 44, minHeight: 44 }}
         >
           →
         </Link>

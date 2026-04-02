@@ -133,6 +133,7 @@ export function Projects() {
               onClick={() => router.push(`/projects/${project.slug}`)}
               onMouseEnter={() => setHoveredSlug(project.slug)}
               onMouseLeave={() => setHoveredSlug(null)}
+              className="project-row"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '2.5rem 1fr auto',
@@ -147,6 +148,7 @@ export function Projects() {
               }}
             >
               <span
+                className="project-row-number"
                 style={{
                   fontSize: 12,
                   fontWeight: 500,
@@ -205,7 +207,11 @@ export function Projects() {
                   paddingTop: 2,
                   transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
                   transition: 'transform 0.2s ease',
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 44,
+                  minHeight: 44,
                 }}
               >
                 ↗

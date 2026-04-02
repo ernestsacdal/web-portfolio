@@ -148,8 +148,8 @@ function StartScreen({ onPlay }: { onPlay: () => void }) {
         onClick={onPlay}
         style={{
           marginTop: 4,
-          width: 40,
-          height: 40,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
           background: HUMAN_HEX,
           border: 'none',
