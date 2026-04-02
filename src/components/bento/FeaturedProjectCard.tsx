@@ -8,7 +8,7 @@ export function FeaturedProjectCard() {
       className="bento-card"
       style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
     >
-      {/* Label */}
+      {/* Label
       <p
         style={{
           fontSize: 11,
@@ -19,10 +19,10 @@ export function FeaturedProjectCard() {
         }}
       >
         Featured Project
-      </p>
+      </p> */}
 
       {/* Title + live badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.15 }}>
           PreTriage
         </p>
@@ -54,9 +54,9 @@ export function FeaturedProjectCard() {
           />
           Live
         </span>
-      </div>
+      </div> */}
 
-      {/* Description */}
+      {/* Description
       <p
         style={{
           fontSize: 13,
@@ -67,10 +67,10 @@ export function FeaturedProjectCard() {
       >
         AI-powered patient pre-triage system that assesses symptoms and prioritises care using LLMs.
         Reduces nursing workload at the point of care.
-      </p>
+      </p> */}
 
       {/* Tags */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {TAGS.map((tag) => (
           <span
             key={tag}
@@ -86,15 +86,15 @@ export function FeaturedProjectCard() {
             {tag}
           </span>
         ))}
-      </div>
+      </div> */}
 
-      {/* Link */}
+      {/* Link
       <Link
         href="/projects/pretriage"
         style={{ fontSize: 13, fontWeight: 500, color: '#0071E3', textDecoration: 'none' }}
       >
         → View project
-      </Link>
+      </Link> */}
     </div>
   )
 }

@@ -2,6 +2,16 @@ const SERVICES = [
   { title: 'Full-Stack Development', subtitle: 'End-to-end web applications' },
   { title: 'AI & LLM Integration', subtitle: 'Intelligent product features' },
   { title: 'Automation Pipelines', subtitle: 'Workflows that actually scale' },
+  { title: 'API Design & Integration', subtitle: 'Clean, documented, reliable' },
+  { title: 'Database Architecture', subtitle: 'Structured for performance' },
+  { title: 'Auth & Access Control', subtitle: 'Secure from day one' },
+  { title: 'Cloud Deployment', subtitle: 'Ship fast, stay available' },
+  { title: 'Real-Time Features', subtitle: 'Live updates, zero lag' },
+  { title: 'CMS & Content Tools', subtitle: 'Edit without a developer' },
+  { title: 'Performance Optimization', subtitle: 'Sub-second load times' },
+  { title: 'UI/UX Implementation', subtitle: 'Designs that feel as good as they look' },
+  { title: 'Team Collaboration', subtitle: 'Embedded or async, built around you' },
+  { title: 'Code Review & Audits', subtitle: 'Find the gaps before they cost you' },
 ]
 
 export function ServicesCard() {

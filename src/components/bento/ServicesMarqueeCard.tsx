@@ -4,6 +4,16 @@ const SERVICES = [
   'Full-Stack Development',
   'AI & LLM Integration',
   'Automation Pipelines',
+  'API Design & Integration',
+  'Database Architecture',
+  'Auth & Access Control',
+  'Cloud Deployment',
+  'Real-Time Features',
+  'CMS & Content Tools',
+  'Performance Optimization',
+  'UI/UX Implementation',
+  'Team Collaboration',
+  'Code Review & Audits',
 ]
 
 const MARQUEE_ITEMS = [...SERVICES, ...SERVICES]
