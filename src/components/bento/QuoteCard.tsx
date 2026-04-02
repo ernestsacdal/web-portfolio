@@ -19,7 +19,7 @@ export function QuoteCard() {
           color: 'var(--text)',
           lineHeight: 1.3,
           textAlign: 'center',
-          whiteSpace: 'nowrap',
+          textWrap: 'balance',
         }}
       >
         Pressure is a privilege

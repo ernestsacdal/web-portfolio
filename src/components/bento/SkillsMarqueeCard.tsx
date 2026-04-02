@@ -22,7 +22,7 @@ export function SkillsMarqueeCard() {
   return (
     <div
       className="bento-card"
-      style={{ overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column' }}
+      style={{ overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', minWidth: 0 }}
     >
       {/* Animated green dot — top-left */}
       <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 1 }}>
@@ -52,6 +52,8 @@ export function SkillsMarqueeCard() {
                 fontSize: 18,
                 fontWeight: 400,
                 color: 'var(--text2)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
                 letterSpacing: '-0.02em',
                 lineHeight: 1,

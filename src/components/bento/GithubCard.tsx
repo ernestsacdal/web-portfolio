@@ -73,21 +73,21 @@ export function GithubCard({ data }: GithubCardProps) {
           style={{
             direction: 'ltr',
             display: 'flex',
-            gap: 4,
+            gap: 'clamp(2px, 0.5vw, 4px)',
             width: 'max-content',
             margin: '0 auto',
           }}
         >
           {weeks.map((week, wi) => (
-            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(2px, 0.5vw, 4px)' }}>
               {week.map((day, di) => (
                 <div
                   key={di}
                   onMouseEnter={() => setHoverLabel(formatHoverLabel(day.date, day.count))}
                   onMouseLeave={() => setHoverLabel(null)}
                   style={{
-                    width: 16,
-                    height: 16,
+                    width: 'clamp(10px, 2vw, 16px)',
+                    height: 'clamp(10px, 2vw, 16px)',
                     borderRadius: 3,
                     background: getColor(day.level),
                     flexShrink: 0,
