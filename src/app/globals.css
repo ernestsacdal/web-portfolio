@@ -138,7 +138,7 @@
     }
   }
 
-  --animate-marquee-vertical: marqueeVertical 6s linear infinite;
+  --animate-marquee-vertical: marqueeVertical 10s linear infinite;
 
   @keyframes marqueeVertical {
     from {
