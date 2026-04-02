@@ -1,19 +1,15 @@
 import { getGithubData } from '@/lib/github'
-import { getLatestPost } from '@/lib/mdx'
 import { GithubCard } from '@/components/bento/GithubCard'
 import { BuildCard } from '@/components/bento/BuildCard'
 import { TechStackCard } from '@/components/bento/TechStackCard'
 import { LocationCard } from '@/components/bento/LocationCard'
 import { SpotifyCard } from '@/components/bento/SpotifyCard'
-import { LatestPostCard } from '@/components/bento/LatestPostCard'
+import { QuoteCard } from '@/components/bento/QuoteCard'
 import { FeaturedProjectCard } from '@/components/bento/FeaturedProjectCard'
-import { ServicesMarqueeCard } from '@/components/bento/ServicesMarqueeCard'
+import { SkillsMarqueeCard } from '@/components/bento/SkillsMarqueeCard'
 
 export async function BentoGrid() {
-  const [githubData, latestPost] = await Promise.all([
-    getGithubData().catch(() => null),
-    Promise.resolve(getLatestPost()),
-  ])
+  const githubData = await getGithubData().catch(() => null)
 
   return (
     <section
@@ -36,9 +32,9 @@ export async function BentoGrid() {
           <LocationCard />
         </div>
 
-        {/* Left column — Services marquee (compact strip) */}
+        {/* Left column — Spotify now playing (compact strip) */}
         <div className="col-start-1 col-end-11 row-start-[8] row-end-[10]">
-          <ServicesMarqueeCard />
+          <SpotifyCard />
         </div>
 
         {/* Center — Featured project (tall) */}
@@ -46,14 +42,14 @@ export async function BentoGrid() {
           <FeaturedProjectCard />
         </div>
 
-        {/* Center — Latest post (compact strip) */}
+        {/* Center — Quote (compact strip) */}
         <div className="col-start-11 col-end-[24] row-start-[8] row-end-[10]">
-          <LatestPostCard post={latestPost} />
+          <QuoteCard />
         </div>
 
-        {/* Right — Spotify (small top) */}
+        {/* Right — Skills marquee (small top) */}
         <div className="col-start-[24] col-end-[37] row-start-1 row-end-4">
-          <SpotifyCard />
+          <SkillsMarqueeCard />
         </div>
 
         {/* Right — Build CTA (tall bottom) */}
