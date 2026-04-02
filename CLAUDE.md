@@ -146,3 +146,12 @@ GROQ_API_KEY          # Optional — Groq free tier, used for Connect 4 AI; fall
 - `src/components/bento/FeaturedProjectCard.tsx` — content temporarily commented out (renders empty card); pending redesign
 - `src/components/bento/ServicesCard.tsx` — 13-service grid stub (Full-Stack, AI/LLM, Automation, API Design, DB Architecture, Auth, Cloud, Real-Time, CMS, Performance, UI/UX, Team Collaboration, Code Review); exists but not wired into BentoGrid
 - `src/app/globals.css` — `--animate-marquee-vertical` duration updated to 10s (was 6s)
+
+### Phase 16 — Responsive & Accessibility ✅
+- `src/app/globals.css` — Leaflet tile-gap fixes, `.bento-grid-desktop` clamp height media query, `.project-row-number` mobile hide, footer-link 44px touch target
+- `src/components/sections/BentoGrid.tsx` — 3-tier responsive: mobile (flex column) → tablet (2-col grid) → desktop (36-col explicit placement); `lg:` prefix for all grid placements
+- Popups (`ChatPopup`, `TerminalPopup`) use `min()` for fluid width/height on small screens
+- Grid columns across Blog, BlogClientGrid, ProjectsClientGrid use `minmax(min(X, 100%), 1fr)` to prevent horizontal overflow
+- Touch targets increased to ≥44px on: Hero social links, BuildCard play button, Dock buttons, ChatPopup send button, LatestPostCard arrow, Projects arrow
+- Filter pill padding increased from 7px to 10px vertical for better tap targets
+- `QuoteCard` uses `text-wrap: balance`; `GithubCard` heatmap uses `clamp()` sizing; `SkillsMarqueeCard` handles text overflow
