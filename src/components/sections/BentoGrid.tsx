@@ -20,50 +20,52 @@ export async function BentoGrid() {
       {/* 36-column explicit-placement grid — matches Jesica's proportions */}
       <div
         className={[
-          'md:grid max-md:flex max-md:flex-col max-md:gap-3',
-          'grid-cols-[repeat(36,_minmax(0,_1fr))]',
-          'grid-rows-[repeat(15,_minmax(0,_1fr))]',
+          'bento-grid-desktop',
+          'max-md:flex max-md:flex-col max-md:gap-4',
+          'md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:gap-3 md:max-lg:auto-rows-[minmax(180px,auto)]',
+          'lg:grid',
+          'lg:grid-cols-[repeat(36,_minmax(0,_1fr))]',
+          'lg:grid-rows-[repeat(15,_minmax(0,_1fr))]',
           'gap-3',
         ].join(' ')}
-        style={{ height: 720 }}
       >
         {/* Left column — Location (tall) */}
-        <div className="col-start-1 col-end-11 row-start-1 row-end-[8]">
+        <div className="min-h-[200px] lg:min-h-0 lg:col-start-1 lg:col-end-11 lg:row-start-1 lg:row-end-[8]">
           <LocationCard />
         </div>
 
         {/* Left column — Spotify now playing (compact strip) */}
-        <div className="col-start-1 col-end-11 row-start-[8] row-end-[10]">
+        <div className="min-h-[80px] lg:min-h-0 lg:col-start-1 lg:col-end-11 lg:row-start-[8] lg:row-end-[10]">
           <SpotifyCard />
         </div>
 
         {/* Center — Featured project (tall) */}
-        <div className="col-start-11 col-end-[24] row-start-1 row-end-[8]">
+        <div className="min-h-[160px] lg:min-h-0 lg:col-start-11 lg:col-end-[24] lg:row-start-1 lg:row-end-[8]">
           <FeaturedProjectCard />
         </div>
 
         {/* Center — Quote (compact strip) */}
-        <div className="col-start-11 col-end-[24] row-start-[8] row-end-[10]">
+        <div className="min-h-[80px] lg:min-h-0 lg:col-start-11 lg:col-end-[24] lg:row-start-[8] lg:row-end-[10]">
           <QuoteCard />
         </div>
 
         {/* Right — Skills marquee (small top) */}
-        <div className="col-start-[24] col-end-[37] row-start-1 row-end-4">
+        <div className="min-h-[160px] lg:min-h-0 lg:col-start-[24] lg:col-end-[37] lg:row-start-1 lg:row-end-5">
           <SkillsMarqueeCard />
         </div>
 
         {/* Right — Build CTA (tall bottom) */}
-        <div className="col-start-[24] col-end-[37] row-start-4 row-end-[10]">
+        <div className="min-h-[200px] lg:min-h-0 lg:col-start-[24] lg:col-end-[37] lg:row-start-5 lg:row-end-[10]">
           <BuildCard />
         </div>
 
         {/* Bottom left — GitHub activity */}
-        <div className="col-start-1 col-end-[19] row-start-[10] row-end-[16]">
+        <div className="min-h-[200px] lg:min-h-0 md:max-lg:col-span-2 lg:col-start-1 lg:col-end-[19] lg:row-start-[10] lg:row-end-[16]">
           <GithubCard data={githubData} />
         </div>
 
         {/* Bottom right — Tech stack */}
-        <div className="col-start-[19] col-end-[37] row-start-[10] row-end-[16]">
+        <div className="min-h-[160px] lg:min-h-0 md:max-lg:col-span-2 lg:col-start-[19] lg:col-end-[37] lg:row-start-[10] lg:row-end-[16]">
           <TechStackCard />
         </div>
       </div>
