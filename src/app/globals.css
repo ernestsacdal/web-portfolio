@@ -273,8 +273,53 @@ body {
   text-decoration: none;
   font-size: 13px;
   transition: color 0.2s ease;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .footer-link:hover {
   color: var(--text);
+}
+
+/* ── Leaflet map fixes ────────────────────────────────────────────────── */
+
+.leaflet-container {
+  background: var(--bg2);
+}
+
+.dark .leaflet-container {
+  background: #1a1c20;
+}
+
+.leaflet-tile-pane {
+  will-change: transform;
+}
+
+.leaflet-tile {
+  border: none !important;
+  outline: none !important;
+}
+
+.leaflet-tile-pane img {
+  image-rendering: -webkit-optimize-contrast;
+  will-change: transform;
+  width: 256.5px !important;
+  height: 256.5px !important;
+}
+
+/* ── Responsive helpers ──────────────────────────────────────────────── */
+
+/* BentoGrid desktop height */
+@media (min-width: 64rem) {
+  .bento-grid-desktop {
+    height: clamp(600px, 56vw, 720px);
+  }
+}
+
+/* Project row number hidden on mobile */
+@media (max-width: 39.999rem) {
+  .project-row-number {
+    display: none;
+  }
 }
