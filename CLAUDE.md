@@ -36,6 +36,7 @@ SPOTIFY_CLIENT_ID     # Optional — Spotify Developer Dashboard
 SPOTIFY_CLIENT_SECRET # Optional — Spotify Developer Dashboard
 SPOTIFY_REFRESH_TOKEN # Optional — long-lived refresh token
 ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
+GROQ_API_KEY          # Optional — Groq free tier, used for Connect 4 AI; falls back to minimax if absent
 ```
 
 ## API route conventions
@@ -43,6 +44,7 @@ ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
 - `/api/github` — `export const revalidate = 3600` (ISR, hourly)
 - `/api/spotify` — `export const dynamic = 'force-dynamic'` (no-store, live polling)
 - `/api/chat` — `force-dynamic`, Anthropic SDK, `claude-sonnet-4-0`, 300 max tokens
+- `/api/connect4` — `force-dynamic`, POST, accepts board state + AI color, returns chosen column + source (`'groq'` | `'minimax'`)
 
 ## Build phases
 
@@ -130,4 +132,17 @@ ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
 - `src/components/sections/Footer.tsx` — same logo treatment as Dock
 - `src/components/sections/Hero.tsx` — LinkedIn icon replaced with custom SVG path (removed from simple-icons v16); `SocialLink` interface extended to distinguish `simpleIcon` vs `lucideIcon`
 - `src/components/sections/Projects.tsx` — full rewrite as client component: 3 hardcoded projects (PreTriage live, Portfolio v2 wip, TripView Clone planning), color-coded status badges, hover bg/border/arrow effects, `useRouter().push()` on click, Framer Motion stagger with 0.08s delay
-- Unused stubs (not in BentoGrid): `src/components/ui/Tag.tsx`, `src/components/ui/StatusBadge.tsx`, `src/components/bento/ServicesCard.tsx`, `src/components/bento/QuoteCard.tsx`
+- Unused stubs (not in BentoGrid): `src/components/ui/Tag.tsx`, `src/components/ui/StatusBadge.tsx`, `src/components/bento/ServicesCard.tsx`
+
+### Phase 14 — Connect 4 Mini-Game (BuildCard) ✅
+- `src/components/bento/BuildCard.tsx` — full rewrite as `'use client'` Connect 4 game (Human vs Hybrid AI); 30px cells, 3px gap, 7×6 board centered via flex; start screen with play button shown before game loads (optimization); Apple system colors: `#0A84FF` (human/blue), `#FF453A` (AI/red); column hover highlight, win-pulse animation on winning 4 cells; ⓘ info overlay explaining hybrid engine; ↺ restart resets to start screen
+- `src/app/api/connect4/route.ts` — `force-dynamic` POST endpoint; proxies board state to Groq `llama-3.1-8b-instant` with 2s `AbortController` timeout; validates Groq suggestion with minimax depth-5 (overrides blunders); falls back to minimax depth-7 with alpha-beta pruning if Groq unavailable or times out
+- AI hybrid rules (priority order): 1) immediate win (minimax depth-1) → play it; 2) block opponent win → block it; 3) Groq strategic suggestion → validate with minimax → play if sound; 4) fallback full minimax depth-7
+- `GROQ_API_KEY` added to `.env.local` (gitignored) and as empty placeholder in `.env.example`; game falls back to pure minimax if key absent
+
+### Phase 15 — Bento Grid Refinement ✅
+- `src/components/bento/SkillsMarqueeCard.tsx` — new card: animated vertical marquee of skills/services list, green pulse dot in top-left, CSS mask gradient fade top/bottom, `animate-marquee-vertical` (10s loop); placed at right column row-start-1/row-end-4 in BentoGrid
+- `src/components/sections/BentoGrid.tsx` — grid refined to 36-column × 15-row explicit placement; SkillsMarqueeCard replaces ServicesMarqueeCard in the active grid; ServicesMarqueeCard kept as unused stub
+- `src/components/bento/FeaturedProjectCard.tsx` — content temporarily commented out (renders empty card); pending redesign
+- `src/components/bento/ServicesCard.tsx` — 13-service grid stub (Full-Stack, AI/LLM, Automation, API Design, DB Architecture, Auth, Cloud, Real-Time, CMS, Performance, UI/UX, Team Collaboration, Code Review); exists but not wired into BentoGrid
+- `src/app/globals.css` — `--animate-marquee-vertical` duration updated to 10s (was 6s)
