@@ -79,10 +79,10 @@ export function ChatPopup({ onClose: _onClose }: ChatPopupProps) {
       style={{
         position: 'fixed',
         bottom: 74,
-        right: 'max(20px, calc(50% - 480px))',
+        right: 'max(12px, calc(50% - 480px))',
         zIndex: 49,
-        width: 320,
-        height: 420,
+        width: 'min(320px, calc(100vw - 24px))',
+        height: 'min(420px, calc(100svh - 100px))',
         borderRadius: 22,
         backdropFilter: 'blur(24px) saturate(180%)',
         display: 'flex',
@@ -219,7 +219,7 @@ export function ChatPopup({ onClose: _onClose }: ChatPopupProps) {
             border: 'none',
             outline: 'none',
             borderRadius: 10,
-            padding: '7px 10px',
+            padding: '10px 12px',
             fontSize: 13,
             color: isDark ? '#F5F5F7' : '#1D1D1F',
             fontFamily: 'inherit',
@@ -231,9 +231,9 @@ export function ChatPopup({ onClose: _onClose }: ChatPopupProps) {
           style={{
             background: '#0071E3',
             border: 'none',
-            borderRadius: 8,
-            width: 30,
-            height: 30,
+            borderRadius: 12,
+            width: 44,
+            height: 44,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -243,7 +243,7 @@ export function ChatPopup({ onClose: _onClose }: ChatPopupProps) {
             flexShrink: 0,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
             <path d="M7 1L13 7L7 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M1 7H13" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
           </svg>

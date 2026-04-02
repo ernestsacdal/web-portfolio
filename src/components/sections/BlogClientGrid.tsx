@@ -48,7 +48,7 @@ export function BlogClientGrid({ posts }: BlogClientGridProps) {
               key={tag}
               onClick={() => setActiveTag(tag)}
               style={{
-                padding: '7px 16px',
+                padding: '10px 16px',
                 borderRadius: 50,
                 border: `1px solid ${isActive ? 'transparent' : 'var(--border)'}`,
                 background: isActive ? '#0071E3' : 'transparent',
@@ -72,7 +72,7 @@ export function BlogClientGrid({ posts }: BlogClientGridProps) {
         animate="visible"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))',
           gap: 10,
         }}
       >

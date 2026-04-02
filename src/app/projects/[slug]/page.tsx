@@ -204,7 +204,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {/* Links */}
         {(meta.liveUrl || meta.githubUrl) && (
-          <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
+          <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {meta.liveUrl && (
               <a
                 href={meta.liveUrl}
@@ -318,7 +318,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </div>
 
       {/* Links */}
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {meta.liveUrl && (
           <a
             href={meta.liveUrl}

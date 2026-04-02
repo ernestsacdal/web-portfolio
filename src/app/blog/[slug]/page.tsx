@@ -135,13 +135,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </Link>
 
           {(prev || next) && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 16,
-              }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 {prev && (
                   <Link href={`/blog/${prev.slug}`} style={{ textDecoration: 'none' }}>
@@ -150,7 +144,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </Link>
                 )}
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div className="sm:text-right">
                 {next && (
                   <Link href={`/blog/${next.slug}`} style={{ textDecoration: 'none' }}>
                     <p style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Next →</p>

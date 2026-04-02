@@ -34,7 +34,7 @@ export function Footer() {
         />
 
         {/* Nav links */}
-        <nav style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+        <nav style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
           {NAV_LINKS.map(({ label, id }) => (
             <a key={id} href={`#${id}`} className="footer-link">
               {label}

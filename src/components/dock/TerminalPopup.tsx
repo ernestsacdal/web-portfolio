@@ -75,7 +75,7 @@ export function TerminalPopup({ onClose }: TerminalPopupProps) {
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 49,
-        width: 360,
+        width: 'min(360px, calc(100vw - 32px))',
         background: 'rgba(28, 28, 28, 0.95)',
         backdropFilter: 'blur(20px)',
         borderRadius: 16,
