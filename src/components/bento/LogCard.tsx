@@ -1,0 +1,409 @@
+'use client'
+
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { onLog } from '@/lib/logEvents'
+import type { LogEventDetail } from '@/lib/logEvents'
+
+// Module-level guard: survives React StrictMode double-mount without double-firing
+let startupFired = false
+
+// ─── Types ──────────────────────────────────────────────────────────────────────
+type LogType = 'SYS' | 'GAME' | 'API' | 'AI' | 'USER'
+
+type LogEntry = {
+  id: number
+  timestamp: string
+  type: LogType
+  message: string
+  sub?: string
+}
+
+// ─── Constants ──────────────────────────────────────────────────────────────────
+const TYPE_COLORS: Record<LogType, string> = {
+  SYS:  'var(--text2)',
+  GAME: '#0A84FF',
+  API:  '#30D158',
+  AI:   '#FF453A',
+  USER: '#FF9F0A',
+}
+
+const FLOW_NODES = ['User', 'Frontend', 'API', 'AI Engine', 'Response'] as const
+const MAX_LOGS = 13
+
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+function getTimestamp(): string {
+  const d = new Date()
+  return [d.getHours(), d.getMinutes(), d.getSeconds()]
+    .map(n => String(n).padStart(2, '0'))
+    .join(':')
+}
+
+// ─── Sub-components ─────────────────────────────────────────────────────────────
+function LogView({ logs, logEndRef }: { logs: LogEntry[]; logEndRef: React.RefObject<HTMLDivElement | null> }) {
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 2 }}>
+      {logs.length === 0 && (
+        <div style={{ fontSize: 10, color: 'var(--text2)', opacity: 0.5, marginTop: 8 }}>
+          Waiting for events...
+        </div>
+      )}
+      {logs.map(entry => (
+        <div
+          key={entry.id}
+          style={{ animation: 'logFadeIn 0.2s ease forwards', opacity: 0, flexShrink: 0 }}
+        >
+          <div style={{ display: 'flex', gap: 6, alignItems: 'baseline', flexWrap: 'nowrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text2)', flexShrink: 0, opacity: 0.7 }}>
+              [{entry.timestamp}]
+            </span>
+            <span style={{
+              fontSize: 9,
+              fontWeight: 700,
+              color: TYPE_COLORS[entry.type],
+              flexShrink: 0,
+              letterSpacing: '0.03em',
+            }}>
+              [{entry.type}]
+            </span>
+            <span style={{ fontSize: 10, color: 'var(--text)', lineHeight: 1.4, wordBreak: 'break-word' }}>
+              {entry.message}
+            </span>
+          </div>
+          {entry.sub && (
+            <div style={{ fontSize: 9, color: 'var(--text2)', paddingLeft: 12, marginTop: 1, opacity: 0.8 }}>
+              {entry.sub}
+            </div>
+          )}
+        </div>
+      ))}
+      <div ref={logEndRef} />
+    </div>
+  )
+}
+
+function FlowView({ flowStep }: { flowStep: number }) {
+  const accentColor = '#0A84FF'
+  return (
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      gap: 16,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {FLOW_NODES.map((label, i) => {
+          const isActive = i <= flowStep
+          const isCurrent = i === flowStep
+          const isDone = i < flowStep
+          return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
+              {i > 0 && (
+                <div style={{
+                  width: 22,
+                  height: 2,
+                  background: isActive ? accentColor : 'var(--bg3)',
+                  transition: 'background 0.25s ease',
+                  flexShrink: 0,
+                }} />
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+                <div style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  background: isActive ? accentColor : 'var(--bg3)',
+                  border: `2px solid ${isActive ? accentColor : 'var(--border)'}`,
+                  transition: 'background 0.25s ease, border-color 0.25s ease',
+                  animation: isCurrent ? 'flowGlow 0.9s ease-in-out infinite' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {isDone && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+                <span style={{
+                  fontSize: 8,
+                  color: isActive ? 'var(--text)' : 'var(--text2)',
+                  letterSpacing: '0.03em',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  transition: 'color 0.2s ease',
+                  fontFamily: 'var(--font-mono)',
+                  maxWidth: 46,
+                  lineHeight: 1.3,
+                }}>
+                  {label}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ fontSize: 9, color: 'var(--text2)', letterSpacing: '0.06em', opacity: 0.7 }}>
+        {flowStep < 0 ? '' :
+         flowStep === 0 ? 'Receiving input...' :
+         flowStep === 1 ? 'Processing move...' :
+         flowStep === 2 ? 'Routing to AI...' :
+         flowStep === 3 ? 'Evaluating board...' :
+                          'Returning response'}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────────
+export function LogCard() {
+  const [mode, setMode] = useState<'log' | 'flow'>('log')
+  const [logs, setLogs] = useState<LogEntry[]>([])
+  const [flowStep, setFlowStep] = useState(-1)
+
+  const logEndRef    = useRef<HTMLDivElement>(null)
+  const timeoutIds   = useRef<ReturnType<typeof setTimeout>[]>([])
+  const queueRef     = useRef<Array<() => Promise<void>>>([])
+  const processingRef = useRef(false)
+  const mountedRef   = useRef(true)
+  const entryId      = useRef(0)
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  const sleep = useCallback((ms: number) => new Promise<void>(resolve => {
+    const id = setTimeout(resolve, ms)
+    timeoutIds.current.push(id)
+  }), [])
+
+  const addLog = useCallback((entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
+    if (!mountedRef.current) return
+    const id = ++entryId.current
+    setLogs(prev => {
+      const next = [...prev, { ...entry, id, timestamp: getTimestamp() }]
+      return next.length > MAX_LOGS ? next.slice(next.length - MAX_LOGS) : next
+    })
+  }, [])
+
+  // ── Queue ─────────────────────────────────────────────────────────────────────
+  const processQueue = useCallback(async () => {
+    if (processingRef.current) return
+    processingRef.current = true
+    while (queueRef.current.length > 0) {
+      await queueRef.current.shift()!()
+    }
+    processingRef.current = false
+  }, [])
+
+  const addToQueue = useCallback((task: () => Promise<void>) => {
+    queueRef.current.push(task)
+    if (!processingRef.current) processQueue()
+  }, [processQueue])
+
+  // ── Flow animation ────────────────────────────────────────────────────────────
+  const runFlowAnimation = useCallback(async () => {
+    setMode('flow')
+    for (let i = 0; i <= 4; i++) {
+      setFlowStep(i)
+      await sleep(280)
+    }
+    await sleep(300)
+    setFlowStep(-1)
+    setMode('log')
+  }, [sleep])
+
+  // ── Startup logs (once) ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (startupFired) return
+    startupFired = true
+    const t1 = setTimeout(() => addLog({
+      type: 'SYS',
+      message: 'Page rendered → /',
+      sub: '↳ app: 104ms • next: 3ms',
+    }), 400)
+    const t2 = setTimeout(() => addLog({ type: 'SYS', message: 'App ready' }), 900)
+    timeoutIds.current.push(t1, t2)
+  }, [addLog])
+
+  // ── Ambient background logs ───────────────────────────────────────────────────
+  useEffect(() => {
+    function scheduleSpotify() {
+      const delay = 28_000 + Math.random() * 4_000
+      const id = setTimeout(() => {
+        if (!mountedRef.current) return
+        const latency = Math.floor(Math.random() * 600 + 200)
+        addLog({ type: 'API', message: `GET /spotify → 200 OK (${latency}ms)` })
+        scheduleSpotify()
+      }, delay)
+      timeoutIds.current.push(id)
+    }
+    function scheduleGithub() {
+      const delay = 55_000 + Math.random() * 10_000
+      const id = setTimeout(() => {
+        if (!mountedRef.current) return
+        addLog({ type: 'API', message: 'GET /github → 304 Not Modified' })
+        scheduleGithub()
+      }, delay)
+      timeoutIds.current.push(id)
+    }
+    scheduleSpotify()
+    scheduleGithub()
+  }, [addLog])
+
+  // ── Event listener ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    return onLog((detail: LogEventDetail) => {
+      switch (detail.type) {
+        case 'game:start':
+          addToQueue(async () => {
+            addLog({ type: 'GAME', message: 'Connect 4 started' })
+          })
+          break
+
+        case 'game:move':
+          if (detail.player === 'human') {
+            addToQueue(async () => {
+              addLog({ type: 'GAME', message: `You placed → col ${detail.col + 1}` })
+            })
+            addToQueue(runFlowAnimation)
+          }
+          break
+
+        case 'api:done':
+          addToQueue(async () => {
+            const ok = detail.status === 200 ? '200 OK' : `${detail.status} Error`
+            addLog({
+              type: 'API',
+              message: `POST ${detail.path} → ${ok} (${detail.latencyMs}ms)`,
+              ...(detail.fallback ? { sub: '↳ fallback: local minimax' } : {}),
+            })
+            await sleep(200)
+            addLog({ type: 'AI', message: `Placed → col ${detail.aiCol + 1} (${detail.latencyMs}ms)` })
+          })
+          break
+
+        case 'game:end': {
+          const msg =
+            detail.winner === 'human_win' ? 'You win! 🎉' :
+            detail.winner === 'ai_win'    ? 'AI wins.' :
+                                            'Draw.'
+          addToQueue(async () => { addLog({ type: 'GAME', message: msg }) })
+          break
+        }
+      }
+    })
+  }, [addLog, addToQueue, runFlowAnimation, sleep])
+
+  // ── Cleanup ───────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+      timeoutIds.current.forEach(clearTimeout)
+    }
+  }, [])
+
+  // ── Render ────────────────────────────────────────────────────────────────────
+  return (
+    <div
+      className="bento-card"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 14,
+        height: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        fontFamily: 'var(--font-mono)',
+      }}
+    >
+      {/* ── Header ── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexShrink: 0,
+        marginBottom: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: '#30D158',
+            display: 'block',
+            animation: 'statusPulse 2s ease-in-out infinite',
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: 'var(--text2)' }}>
+            SYSTEM LOG
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {(['log', 'flow'] as const).map(m => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              style={{
+                fontSize: 9,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                padding: '3px 9px',
+                borderRadius: 20,
+                border: `1px solid ${mode === m ? '#0A84FF' : 'var(--border)'}`,
+                background: mode === m ? '#0A84FF' : 'transparent',
+                color: mode === m ? '#fff' : 'var(--text2)',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-mono)',
+                textTransform: 'uppercase',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Body ── */}
+      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {mode === 'log'
+          ? <LogView logs={logs} logEndRef={logEndRef} />
+          : <FlowView flowStep={flowStep} />
+        }
+      </div>
+
+      {/* ── Footer ── */}
+      <div style={{
+        flexShrink: 0,
+        display: 'flex',
+        gap: 10,
+        marginTop: 10,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+      }}>
+        {(Object.entries(TYPE_COLORS) as [LogType, string][]).map(([type, color]) => (
+          <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'block', flexShrink: 0 }} />
+            <span style={{ fontSize: 9, color: 'var(--text2)', letterSpacing: '0.06em', opacity: 0.7 }}>{type}</span>
+          </span>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes logFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes flowGlow {
+          0%, 100% { box-shadow: 0 0 8px #0A84FF88; }
+          50%       { box-shadow: 0 0 20px #0A84FFCC; }
+        }
+        @keyframes statusPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.5; transform: scale(0.85); }
+        }
+      `}</style>
+    </div>
+  )
+}

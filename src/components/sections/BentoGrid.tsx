@@ -5,7 +5,7 @@ import { TechStackCard } from '@/components/bento/TechStackCard'
 import { LocationCard } from '@/components/bento/LocationCard'
 import { SpotifyCard } from '@/components/bento/SpotifyCard'
 import { QuoteCard } from '@/components/bento/QuoteCard'
-import { FeaturedProjectCard } from '@/components/bento/FeaturedProjectCard'
+import { LogCard } from '@/components/bento/LogCard'
 import { SkillsMarqueeCard } from '@/components/bento/SkillsMarqueeCard'
 
 export async function BentoGrid() {
@@ -39,7 +39,7 @@ export async function BentoGrid() {
 
         {/* Center — Featured project (tall) */}
         <div className="col-start-11 col-end-[24] row-start-1 row-end-[8] max-md:h-[200px] max-md:overflow-hidden">
-          <FeaturedProjectCard />
+          <LogCard />
         </div>
 
         {/* Center — Quote (compact strip) */}

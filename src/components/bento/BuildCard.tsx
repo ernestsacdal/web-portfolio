@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { emitLog } from '@/lib/logEvents'
 
 const COLS = 7
 const ROWS = 6
@@ -200,6 +201,8 @@ export function BuildCard() {
 
   const triggerAiMove = useCallback(async (b: Board) => {
     setAiThinking(true)
+    const startTime = Date.now()
+    emitLog({ type: 'api:start', path: '/connect4', method: 'POST' })
     try {
       const res = await fetch('/api/connect4', {
         method: 'POST',
@@ -207,17 +210,21 @@ export function BuildCard() {
         body: JSON.stringify({ board: b, aiColor: AI_COLOR }),
       })
       const { col } = await res.json() as { col: number }
+      emitLog({ type: 'api:done', path: '/connect4', status: 200, latencyMs: Date.now() - startTime, aiCol: col })
       const next = dropPiece(b, col, AI_COLOR)
       if (!next) return
       const resolved = resolveStatus(next)
       setBoard(next); setStatus(resolved.status); setWinCells(resolved.winCells)
+      if (resolved.status !== 'playing') emitLog({ type: 'game:end', winner: resolved.status })
       if (resolved.status === 'playing') setIsHumanTurn(true)
     } catch {
       const col = localBestCol(b, AI_COLOR)
+      emitLog({ type: 'api:done', path: '/connect4', status: 0, latencyMs: Date.now() - startTime, aiCol: col, fallback: true })
       const next = dropPiece(b, col, AI_COLOR)
       if (!next) return
       const resolved = resolveStatus(next)
       setBoard(next); setStatus(resolved.status); setWinCells(resolved.winCells)
+      if (resolved.status !== 'playing') emitLog({ type: 'game:end', winner: resolved.status })
       if (resolved.status === 'playing') setIsHumanTurn(true)
     } finally {
       setAiThinking(false)
@@ -230,6 +237,8 @@ export function BuildCard() {
     if (!next) return
     const resolved = resolveStatus(next)
     setBoard(next); setStatus(resolved.status); setWinCells(resolved.winCells)
+    emitLog({ type: 'game:move', player: 'human', col })
+    if (resolved.status !== 'playing') emitLog({ type: 'game:end', winner: resolved.status })
     if (resolved.status === 'playing') setIsHumanTurn(false)
   }, [board, isHumanTurn, status, aiThinking, resolveStatus])
 
@@ -305,7 +314,7 @@ export function BuildCard() {
 
       {/* ── Body: start screen OR board ── */}
       {!started ? (
-        <StartScreen onPlay={() => setStarted(true)} />
+        <StartScreen onPlay={() => { setStarted(true); emitLog({ type: 'game:start' }) }} />
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div
