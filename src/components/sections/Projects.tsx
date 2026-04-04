@@ -38,10 +38,40 @@ const PROJECTS = [
   },
 ]
 
-const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  live: { bg: 'rgba(52,199,89,0.12)', color: '#34C759', label: 'Live' },
-  wip: { bg: 'rgba(0,113,227,0.12)', color: '#0071E3', label: 'WIP' },
-  planning: { bg: 'var(--bg3)', color: 'var(--text2)', label: 'Planning' },
+const STATUS_LABEL: Record<string, string> = {
+  live: 'Live',
+  wip: 'WIP',
+  planning: 'Planning',
+  nda: 'NDA',
+}
+
+function StatusLabel({ status }: { status: string }) {
+  return (
+    <span
+      style={{
+        fontSize: 11,
+        color: 'var(--text2)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        flexShrink: 0,
+      }}
+    >
+      {status === 'live' && (
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: '#4ade80',
+            flexShrink: 0,
+            display: 'inline-block',
+          }}
+        />
+      )}
+      {STATUS_LABEL[status] ?? status}
+    </span>
+  )
 }
 
 const fadeUp = {
@@ -60,7 +90,11 @@ const container = {
 
 export function Projects() {
   const router = useRouter()
+  const [featuredHovered, setFeaturedHovered] = useState(false)
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
+
+  const featured = PROJECTS[0]
+  const rest = PROJECTS.slice(1)
 
   return (
     <section
@@ -114,105 +148,159 @@ export function Projects() {
         </Link>
       </motion.div>
 
-      {/* Rows — staggered */}
       <motion.div
         variants={container}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-80px' }}
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
       >
-        {PROJECTS.map((project, i) => {
-          const isHovered = hoveredSlug === project.slug
-          const badge = STATUS_STYLE[project.status]
-
-          return (
-            <motion.div
-              key={project.slug}
-              variants={fadeUp}
-              onClick={() => router.push(`/projects/${project.slug}`)}
-              onMouseEnter={() => setHoveredSlug(project.slug)}
-              onMouseLeave={() => setHoveredSlug(null)}
+        {/* Featured card */}
+        <motion.div
+          variants={fadeUp}
+          onClick={() => router.push(`/projects/${featured.slug}`)}
+          onMouseEnter={() => setFeaturedHovered(true)}
+          onMouseLeave={() => setFeaturedHovered(false)}
+          style={{
+            position: 'relative',
+            background: 'rgba(255,255,255,0.04)',
+            border: `0.5px solid ${featuredHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
+            borderRadius: 12,
+            padding: 22,
+            cursor: 'pointer',
+            transition: 'border-color 0.2s ease',
+          }}
+        >
+          {/* Eyebrow + arrow row */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 14,
+            }}
+          >
+            <span
               style={{
-                display: 'grid',
-                gridTemplateColumns: '2.5rem 1fr auto',
-                alignItems: 'start',
-                gap: 12,
-                padding: '16px 12px',
-                borderRadius: 12,
-                border: `1px solid ${isHovered ? 'var(--border)' : 'transparent'}`,
-                background: isHovered ? 'var(--bg2)' : 'transparent',
-                cursor: 'pointer',
-                transition: 'background 0.2s ease, border-color 0.2s ease',
+                fontSize: 10,
+                fontWeight: 500,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: 'var(--text2)',
               }}
             >
-              <span
+              Featured · {featured.year}
+            </span>
+            <span
+              style={{
+                fontSize: 16,
+                color: 'var(--text2)',
+                transform: featuredHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
+                transition: 'transform 0.2s ease',
+                display: 'inline-block',
+              }}
+            >
+              ↗
+            </span>
+          </div>
+
+          {/* Title + status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>
+              {featured.title}
+            </span>
+            <StatusLabel status={featured.status} />
+          </div>
+
+          {/* Description */}
+          <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.55, margin: '0 0 10px' }}>
+            {featured.description}
+          </p>
+
+          {/* Tags — plain text */}
+          <p style={{ fontSize: 11, color: 'var(--text2)', margin: 0 }}>
+            {featured.tags.join('  ·  ')}
+          </p>
+        </motion.div>
+
+        {/* Numbered list */}
+        <motion.div variants={fadeUp} style={{ display: 'flex', flexDirection: 'column' }}>
+          {rest.map((project, i) => {
+            const isHovered = hoveredSlug === project.slug
+
+            return (
+              <div
+                key={project.slug}
+                onClick={() => router.push(`/projects/${project.slug}`)}
+                onMouseEnter={() => setHoveredSlug(project.slug)}
+                onMouseLeave={() => setHoveredSlug(null)}
                 style={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: 'var(--text2)',
-                  paddingTop: 3,
-                  fontVariantNumeric: 'tabular-nums',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                  padding: '12px 8px',
+                  borderBottom: '0.5px solid rgba(255,255,255,0.05)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease',
+                  background: isHovered ? 'rgba(255,255,255,0.03)' : 'transparent',
+                  borderRadius: 6,
                 }}
               >
-                0{i + 1}
-              </span>
+                {/* Index */}
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: 'var(--text2)',
+                    fontVariantNumeric: 'tabular-nums',
+                    flexShrink: 0,
+                    width: '2rem',
+                    paddingTop: 2,
+                  }}
+                >
+                  0{i + 2}
+                </span>
 
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>
-                    {project.title}
-                  </span>
+                {/* Title + tags column */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>
+                      {project.title}
+                    </span>
+                    <StatusLabel status={project.status} />
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--text2)', margin: 0 }}>
+                    {project.tags.join('  ·  ')}
+                  </p>
+                </div>
+
+                {/* Year + arrow */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    flexShrink: 0,
+                    paddingTop: 2,
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: 'var(--text2)' }}>{project.year}</span>
                   <span
                     style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      padding: '2px 8px',
-                      borderRadius: 50,
-                      background: badge.bg,
-                      color: badge.color,
+                      fontSize: 16,
+                      color: 'var(--text2)',
+                      transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
+                      transition: 'transform 0.2s ease',
+                      display: 'inline-block',
                     }}
                   >
-                    {badge.label}
+                    ↗
                   </span>
-                  <span style={{ fontSize: 12, color: 'var(--text2)' }}>{project.year}</span>
-                </div>
-                <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.55, margin: 0 }}>
-                  {project.description}
-                </p>
-                <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontSize: 11,
-                        color: 'var(--text2)',
-                        background: 'var(--bg3)',
-                        padding: '3px 8px',
-                        borderRadius: 50,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
                 </div>
               </div>
-
-              <span
-                style={{
-                  fontSize: 18,
-                  color: 'var(--text2)',
-                  paddingTop: 2,
-                  transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
-                  transition: 'transform 0.2s ease',
-                  display: 'inline-block',
-                }}
-              >
-                ↗
-              </span>
-            </motion.div>
-          )
-        })}
+            )
+          })}
+        </motion.div>
       </motion.div>
     </section>
   )
