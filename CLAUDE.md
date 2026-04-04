@@ -76,8 +76,8 @@ src/
 │   └── api/chat | github | spotify | connect4
 ├── components/
 │   ├── bento/               — all bento cards (see grid table above)
-│   ├── dock/                — Dock, TerminalPopup, ChatPopup
-│   ├── sections/            — Hero, BentoGrid, Projects, Blog, Footer
+│   ├── dock/                — Dock (useNavHandler, theme toggle, popups), TerminalPopup, ChatPopup
+│   ├── sections/            — Hero, BentoGrid, Projects (home), ProjectsClientGrid (/projects page), ProjectLinkButton, Blog, Footer
 │   └── ui/                  — FadeIn, StaggerGrid, ReadingProgress, PageTransition
 ├── content/
 │   ├── projects/pretriage.mdx
@@ -112,3 +112,11 @@ src/
 - `src/lib/logEvents.ts` — discriminated union event bus (`emitLog` / `onLog`); SSR-safe; event types: `game:start`, `game:move`, `game:end`, `api:start`, `api:done`, `user:action`
 - `src/components/bento/LogCard.tsx` — two modes: **log** (monospace terminal feed, max 13 entries, `logFadeIn` animation) and **flow** (5-node pipeline: User → Frontend → API → AI Engine → Response, 280ms/step); queue system serializes overlapping events; module-level `startupFired` guard for StrictMode; ambient Spotify/GitHub logs on randomized intervals
 - `src/components/bento/BuildCard.tsx` — now emits 6 log events at game start, human move, API call start/done (with real latency), and game end
+
+### Phase 17 — Projects Page & Navigation Refinement ✅
+- `src/components/sections/ProjectLinkButton.tsx` — reusable bordered button for project footer links (live demo / GitHub); opens in new tab; hover brightens border + text
+- `src/components/sections/ProjectsClientGrid.tsx` — filterable table-style grid for `/projects`; tabs: All · AI/ML · Full-Stack · Client; regex tag matching; empty-state fallback; StatusLabel sub-component
+- `src/components/sections/Projects.tsx` — home section with hard-coded featured card (eyebrow, status dot, tags) + numbered list; Framer Motion stagger; StatusLabel
+- `src/components/dock/Dock.tsx` — `useNavHandler()` hook: scrolls to section on homepage, pushes anchor route on other pages; Sun/Moon theme toggle; TerminalPopup + ChatPopup via AnimatePresence
+- `src/app/projects/page.tsx` — server component fetching all projects via `getAllProjects()`, delegates to ProjectsClientGrid
+- `src/app/projects/[slug]/page.tsx` — uses ProjectLinkButton for footer liveUrl/githubUrl links
