@@ -1,27 +1,60 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import Link from 'next/link'
 import type { Project } from '@/types'
 
-const FILTER_TAGS = ['All', 'AI', 'Full-Stack', 'Mobile', 'Backend']
+const FILTER_TABS = ['All', 'AI / ML', 'Full-Stack', 'Client']
 
-const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  live: { bg: 'rgba(52,199,89,0.12)', color: '#34C759', label: 'Live' },
-  wip: { bg: 'rgba(0,113,227,0.12)', color: '#0071E3', label: 'WIP' },
-  planning: { bg: 'var(--bg3)', color: 'var(--text2)', label: 'Planning' },
+const STATUS_LABEL: Record<string, string> = {
+  live: 'Live',
+  wip: 'WIP',
+  planning: 'Planning',
+  nda: 'NDA',
 }
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
+function StatusLabel({ status }: { status: string }) {
+  return (
+    <span
+      style={{
+        fontSize: 11,
+        color: 'var(--text2)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        flexShrink: 0,
+      }}
+    >
+      {status === 'live' && (
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: '#4ade80',
+            flexShrink: 0,
+            display: 'inline-block',
+          }}
+        />
+      )}
+      {STATUS_LABEL[status] ?? status}
+    </span>
+  )
 }
 
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+function filterProjects(projects: Project[], activeTab: string): Project[] {
+  if (activeTab === 'All') return projects
+  if (activeTab === 'AI / ML')
+    return projects.filter((p) =>
+      p.tags.some((t) => /^ai$|ml/i.test(t) || t.toLowerCase() === 'ai'),
+    )
+  if (activeTab === 'Full-Stack')
+    return projects.filter((p) =>
+      p.tags.some((t) => /full.?stack|next\.?js|fastapi/i.test(t)),
+    )
+  if (activeTab === 'Client')
+    return projects.filter((p) => p.tags.some((t) => /client/i.test(t)))
+  return projects
 }
 
 interface ProjectsClientGridProps {
@@ -29,144 +62,132 @@ interface ProjectsClientGridProps {
 }
 
 export function ProjectsClientGrid({ projects }: ProjectsClientGridProps) {
-  const router = useRouter()
-  const [activeTag, setActiveTag] = useState('All')
+  const [activeTab, setActiveTab] = useState('All')
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
 
-  const filtered =
-    activeTag === 'All'
-      ? projects
-      : projects.filter((p) =>
-          p.tags.some((t) => t.toLowerCase().includes(activeTag.toLowerCase())),
-        )
+  const filtered = filterProjects(projects, activeTab)
 
   return (
     <>
       {/* Filter pills */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
-        {FILTER_TAGS.map((tag) => {
-          const isActive = activeTag === tag
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
+        {FILTER_TABS.map((tab) => {
+          const isActive = activeTab === tab
           return (
             <button
-              key={tag}
-              onClick={() => setActiveTag(tag)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
               style={{
-                padding: '7px 16px',
+                padding: '6px 14px',
                 borderRadius: 50,
-                border: `1px solid ${isActive ? 'transparent' : 'var(--border)'}`,
-                background: isActive ? '#0071E3' : 'transparent',
-                color: isActive ? '#fff' : 'var(--text2)',
-                fontSize: 13,
+                border: `0.5px solid ${isActive ? 'var(--border)' : 'var(--border)'}`,
+                background: isActive ? 'var(--bg2)' : 'transparent',
+                color: isActive ? 'var(--text)' : 'var(--text2)',
+                fontSize: 12,
                 fontWeight: 500,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.15s ease',
               }}
             >
-              {tag}
+              {tab}
             </button>
           )
         })}
       </div>
 
-      {/* Grid */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="visible"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: 10,
-        }}
-      >
-        {filtered.map((project) => {
-          const badge = STATUS_STYLE[project.status]
+      {/* Rows */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {filtered.map((project, i) => {
           const isHovered = hoveredSlug === project.slug
+          const category = project.tags[0] ?? ''
 
           return (
-            <motion.div
+            <Link
               key={project.slug}
-              variants={item}
-              onClick={() => router.push(`/projects/${project.slug}`)}
+              href={`/projects/${project.slug}`}
               onMouseEnter={() => setHoveredSlug(project.slug)}
               onMouseLeave={() => setHoveredSlug(null)}
               style={{
-                background: 'var(--bg2)',
-                border: `1px solid ${isHovered ? 'var(--border)' : 'transparent'}`,
-                borderRadius: '1.25rem',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-                transition: 'transform 0.2s ease, border-color 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 10px',
+                borderBottom: '0.5px solid var(--border)',
+                background: isHovered ? 'var(--bg2)' : 'transparent',
+                transition: 'background 0.15s ease',
+                textDecoration: 'none',
+                borderRadius: 4,
               }}
             >
-              {/* Cover image area */}
-              <div
+              <span
                 style={{
-                  width: '100%',
-                  aspectRatio: '16/9',
-                  background: 'var(--bg3)',
-                  overflow: 'hidden',
-                  position: 'relative',
+                  fontSize: 11,
+                  color: 'var(--text2)',
+                  fontVariantNumeric: 'tabular-nums',
+                  flexShrink: 0,
+                  width: '2.5rem',
                 }}
               >
-                {project.coverImage && (
-                  <Image
-                    src={project.coverImage}
-                    alt={project.title}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                )}
-              </div>
+                {String(i + 1).padStart(2, '0')}
+              </span>
 
-              {/* Card body */}
-              <div style={{ padding: '1rem 1.25rem 1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>
-                    {project.title}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      padding: '2px 8px',
-                      borderRadius: 50,
-                      background: badge.bg,
-                      color: badge.color,
-                    }}
-                  >
-                    {badge.label}
-                  </span>
-                </div>
-                <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.55, margin: '0 0 12px' }}>
-                  {project.description}
-                </p>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontSize: 11,
-                        color: 'var(--text2)',
-                        background: 'var(--bg3)',
-                        padding: '3px 8px',
-                        borderRadius: 50,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: 'var(--text)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {project.title}
+              </span>
+
+              <StatusLabel status={project.status} />
+
+              <span style={{ flex: 1 }} />
+
+              <span
+                style={{
+                  fontSize: 11,
+                  color: 'var(--text2)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {category}
+              </span>
+
+              <span
+                style={{
+                  fontSize: 11,
+                  color: 'var(--text2)',
+                  whiteSpace: 'nowrap',
+                  minWidth: '2.5rem',
+                  textAlign: 'right',
+                }}
+              >
+                {project.year}
+              </span>
+
+              <span
+                style={{
+                  fontSize: 14,
+                  color: 'var(--text2)',
+                  transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
+                  transition: 'transform 0.2s ease',
+                  display: 'inline-block',
+                  flexShrink: 0,
+                }}
+              >
+                ↗
+              </span>
+            </Link>
           )
         })}
-      </motion.div>
+      </div>
 
       {filtered.length === 0 && (
-        <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center', padding: '3rem 0' }}>
-          No projects found for &ldquo;{activeTag}&rdquo;.
+        <p style={{ color: 'var(--text2)', fontSize: 13, textAlign: 'center', padding: '3rem 0' }}>
+          No projects in &ldquo;{activeTab}&rdquo;.
         </p>
       )}
     </>
