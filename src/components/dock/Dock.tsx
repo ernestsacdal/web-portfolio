@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import { House, LayoutGrid, Briefcase, FileText, Mail, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
@@ -15,13 +16,22 @@ const NAV_LINKS = [
   { label: 'Contact',  id: 'contact',  icon: Mail       },
 ]
 
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+function useNavHandler() {
+  const pathname = usePathname()
+  const router = useRouter()
+  return (id: string) => {
+    if (pathname === '/') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      router.push(`/#${id}`)
+    }
+  }
 }
 
 export function Dock() {
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
+  const navigate = useNavHandler()
 
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
@@ -87,7 +97,7 @@ export function Dock() {
         {NAV_LINKS.map(({ label, id, icon: Icon }) => (
           <button
             key={id}
-            onClick={() => scrollTo(id)}
+            onClick={() => navigate(id)}
             title={label}
             className="hidden sm:flex"
             style={{ ...btnBase, padding: '6px 8px' }}
