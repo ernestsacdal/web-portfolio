@@ -74,8 +74,8 @@ export function Hero() {
             gap: 8,
             padding: '6px 14px',
             borderRadius: 50,
-            background: 'rgba(0,113,227,0.12)',
-            border: '1px solid rgba(0,113,227,0.3)',
+            background: 'transparent',
+            border: '0.5px solid rgba(255,255,255,0.12)',
             fontSize: 12,
             fontWeight: 500,
             color: '#0071E3',
@@ -92,7 +92,7 @@ export function Hero() {
               display: 'inline-block',
             }}
           />
-          Available for project collabs
+          Open to opportunities
         </motion.div>
 
         {/* Name */}
@@ -103,7 +103,7 @@ export function Hero() {
           variants={fadeUp}
           style={{
             fontSize: 'clamp(2.8rem, 9vw, 5.5rem)',
-            fontWeight: 700,
+            fontWeight: 600,
             letterSpacing: '-0.03em',
             lineHeight: 1.04,
             margin: 0,
@@ -159,7 +159,7 @@ export function Hero() {
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 10,
+            gap: 24,
             justifyContent: 'center',
             marginTop: 4,
           }}
@@ -175,30 +175,25 @@ export function Hero() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
+                color: 'color-mix(in srgb, var(--text) 50%, transparent)',
                 textDecoration: 'none',
-                background: 'transparent',
-                transition: 'background 0.2s ease',
+                transition: 'color 0.2s ease',
                 cursor: 'pointer',
                 flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--bg2)'
+                e.currentTarget.style.color = 'color-mix(in srgb, var(--text) 90%, transparent)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'color-mix(in srgb, var(--text) 50%, transparent)'
               }}
             >
               {simpleIcon && (
-                <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor" aria-hidden="true">
                   <path d={simpleIcon.path} />
                 </svg>
               )}
-              {LucideIcon && <LucideIcon size={16} strokeWidth={1.75} />}
+              {LucideIcon && <LucideIcon size={18} strokeWidth={1.75} />}
             </a>
           ))}
         </motion.div>
