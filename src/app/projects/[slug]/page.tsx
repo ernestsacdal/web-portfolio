@@ -1,10 +1,32 @@
 import type { Metadata } from 'next'
+import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllProjects, getProjectBySlug } from '@/lib/mdx'
 import { ProjectLinkButton } from '@/components/sections/ProjectLinkButton'
+
+function deriveCategory(tags: string[]): string {
+  if (tags.some((t) => /^ai$|ml/i.test(t) || t.toLowerCase() === 'ai')) return 'AI / ML'
+  if (tags.some((t) => /full.?stack|next\.?js|fastapi/i.test(t))) return 'Full-Stack'
+  if (tags.some((t) => /client/i.test(t))) return 'Client'
+  return tags[0] ?? ''
+}
+
+function InlineList({ children }: { children: React.ReactNode }) {
+  const items = React.Children.toArray(children).filter(React.isValidElement)
+  return (
+    <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.75, margin: 0 }}>
+      {items.map((item, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && ' — '}
+          {(item as React.ReactElement<{ children: React.ReactNode }>).props.children}
+        </React.Fragment>
+      ))}
+    </p>
+  )
+}
 
 export async function generateStaticParams() {
   return getAllProjects().map((p) => ({ slug: p.slug }))
@@ -55,15 +77,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <p
         style={{
           fontSize: 10,
-          fontWeight: 500,
+          fontWeight: 400,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--text2)',
+          color: 'color-mix(in srgb, var(--text) 30%, transparent)',
           marginBottom: 12,
           margin: '0 0 12px',
         }}
       >
-        {meta.tags[0]} · {meta.year}
+        {deriveCategory(meta.tags)} · {meta.year}
       </p>
 
       {/* Title */}
@@ -107,7 +129,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <p
           style={{
             fontSize: 10,
-            fontWeight: 500,
+            fontWeight: 400,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
             color: 'var(--text2)',
@@ -126,7 +148,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <p
           style={{
             fontSize: 10,
-            fontWeight: 500,
+            fontWeight: 400,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
             color: 'var(--text2)',
@@ -140,13 +162,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </p>
       </div>
 
-      {/* What I built — case study MDX only */}
-      {isCaseStudy && (
+      {/* What I built — case study MDX only, hidden if content is empty */}
+      {isCaseStudy && content && content.trim() && (
         <div style={{ marginBottom: 40 }}>
           <p
             style={{
               fontSize: 10,
-              fontWeight: 500,
+              fontWeight: 400,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'var(--text2)',
@@ -156,13 +178,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             What I Built
           </p>
           <div className="prose">
-            <MDXRemote source={content} />
+            <MDXRemote source={content} components={{ ul: InlineList }} />
           </div>
         </div>
       )}
 
-      {/* Screenshot — only if coverImage exists */}
-      {meta.coverImage && (
+      {/* Screenshot — only if coverImage is a valid non-empty string */}
+      {meta.coverImage && meta.coverImage.trim() !== '' && (
         <div
           style={{
             width: '100%',
