@@ -92,6 +92,7 @@ export function Projects() {
   const router = useRouter()
   const [featuredHovered, setFeaturedHovered] = useState(false)
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
+  const [viewAllHovered, setViewAllHovered] = useState(false)
 
   const featured = PROJECTS[0]
   const rest = PROJECTS.slice(1)
@@ -119,10 +120,10 @@ export function Projects() {
           <p
             style={{
               fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: '0.1em',
+              fontWeight: 400,
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: 'var(--text2)',
+              color: 'color-mix(in srgb, var(--text) 30%, transparent)',
               marginBottom: 6,
             }}
           >
@@ -131,7 +132,7 @@ export function Projects() {
           <h2
             style={{
               fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
-              fontWeight: 700,
+              fontWeight: 500,
               letterSpacing: '-0.025em',
               color: 'var(--text)',
               margin: 0,
@@ -142,9 +143,19 @@ export function Projects() {
         </div>
         <Link
           href="/projects"
-          style={{ fontSize: 13, fontWeight: 500, color: '#0071E3', textDecoration: 'none' }}
+          onMouseEnter={() => setViewAllHovered(true)}
+          onMouseLeave={() => setViewAllHovered(false)}
+          style={{
+            fontSize: 13,
+            fontWeight: 400,
+            color: viewAllHovered
+              ? 'color-mix(in srgb, var(--text) 70%, transparent)'
+              : 'color-mix(in srgb, var(--text) 40%, transparent)',
+            textDecoration: 'none',
+            transition: 'color 0.15s ease',
+          }}
         >
-          View all →
+          View all ›
         </Link>
       </motion.div>
 
@@ -183,24 +194,25 @@ export function Projects() {
             <span
               style={{
                 fontSize: 10,
-                fontWeight: 500,
-                letterSpacing: '0.1em',
+                fontWeight: 400,
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--text2)',
+                color: 'color-mix(in srgb, var(--text) 30%, transparent)',
               }}
             >
               Featured · {featured.year}
             </span>
             <span
               style={{
-                fontSize: 16,
-                color: 'var(--text2)',
-                transform: featuredHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
-                transition: 'transform 0.2s ease',
+                fontSize: 13,
+                color: featuredHovered
+                  ? 'color-mix(in srgb, var(--text) 50%, transparent)'
+                  : 'color-mix(in srgb, var(--text) 20%, transparent)',
+                transition: 'color 0.2s ease',
                 display: 'inline-block',
               }}
             >
-              ↗
+              ›
             </span>
           </div>
 
@@ -287,14 +299,15 @@ export function Projects() {
                   <span style={{ fontSize: 11, color: 'var(--text2)' }}>{project.year}</span>
                   <span
                     style={{
-                      fontSize: 16,
-                      color: 'var(--text2)',
-                      transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
-                      transition: 'transform 0.2s ease',
+                      fontSize: 13,
+                      color: isHovered
+                        ? 'color-mix(in srgb, var(--text) 50%, transparent)'
+                        : 'color-mix(in srgb, var(--text) 20%, transparent)',
+                      transition: 'color 0.2s ease',
                       display: 'inline-block',
                     }}
                   >
-                    ↗
+                    ›
                   </span>
                 </div>
               </div>

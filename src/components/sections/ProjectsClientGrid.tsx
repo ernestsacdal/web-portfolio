@@ -64,6 +64,7 @@ interface ProjectsClientGridProps {
 export function ProjectsClientGrid({ projects }: ProjectsClientGridProps) {
   const [activeTab, setActiveTab] = useState('All')
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null)
 
   const filtered = filterProjects(projects, activeTab)
 
@@ -77,16 +78,24 @@ export function ProjectsClientGrid({ projects }: ProjectsClientGridProps) {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
+              onMouseEnter={() => setHoveredTab(tab)}
+              onMouseLeave={() => setHoveredTab(null)}
               style={{
                 padding: '6px 14px',
-                borderRadius: 50,
-                border: `0.5px solid ${isActive ? 'var(--border)' : 'var(--border)'}`,
-                background: isActive ? 'var(--bg2)' : 'transparent',
-                color: isActive ? 'var(--text)' : 'var(--text2)',
+                borderRadius: 6,
+                border: isActive
+                  ? '0.5px solid color-mix(in srgb, var(--text) 20%, transparent)'
+                  : '0.5px solid transparent',
+                background: 'transparent',
+                color: isActive
+                  ? 'color-mix(in srgb, var(--text) 80%, transparent)'
+                  : hoveredTab === tab
+                    ? 'color-mix(in srgb, var(--text) 60%, transparent)'
+                    : 'color-mix(in srgb, var(--text) 35%, transparent)',
                 fontSize: 12,
-                fontWeight: 500,
+                fontWeight: 400,
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'color 0.15s ease',
               }}
             >
               {tab}
@@ -170,15 +179,16 @@ export function ProjectsClientGrid({ projects }: ProjectsClientGridProps) {
 
               <span
                 style={{
-                  fontSize: 14,
-                  color: 'var(--text2)',
-                  transform: isHovered ? 'translate(3px, -3px)' : 'translate(0, 0)',
-                  transition: 'transform 0.2s ease',
+                  fontSize: 13,
+                  color: isHovered
+                    ? 'color-mix(in srgb, var(--text) 50%, transparent)'
+                    : 'color-mix(in srgb, var(--text) 20%, transparent)',
+                  transition: 'color 0.15s ease',
                   display: 'inline-block',
                   flexShrink: 0,
                 }}
               >
-                ↗
+                ›
               </span>
             </Link>
           )

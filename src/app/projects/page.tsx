@@ -21,10 +21,10 @@ export default function ProjectsPage() {
         <p
           style={{
             fontSize: 11,
-            fontWeight: 500,
+            fontWeight: 400,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--text2)',
+            color: 'color-mix(in srgb, var(--text) 30%, transparent)',
             marginBottom: 6,
           }}
         >
@@ -33,7 +33,7 @@ export default function ProjectsPage() {
         <h1
           style={{
             fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
-            fontWeight: 700,
+            fontWeight: 500,
             letterSpacing: '-0.025em',
             color: 'var(--text)',
             margin: 0,
