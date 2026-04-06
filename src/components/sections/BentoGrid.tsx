@@ -32,9 +32,9 @@ export async function BentoGrid() {
           <LocationCard />
         </div>
 
-        {/* Left column — Spotify now playing (compact strip) */}
+        {/* Left column — Quote (compact strip) */}
         <div className="col-start-1 col-end-11 row-start-[8] row-end-[10] max-md:h-[100px] max-md:overflow-hidden">
-          <SpotifyCard />
+          <QuoteCard />
         </div>
 
         {/* Center — Featured project (tall) */}
@@ -42,9 +42,9 @@ export async function BentoGrid() {
           <LogCard />
         </div>
 
-        {/* Center — Quote (compact strip) */}
+        {/* Center — Spotify now playing (compact strip) */}
         <div className="col-start-11 col-end-[24] row-start-[8] row-end-[10] max-md:h-[72px] max-md:overflow-hidden">
-          <QuoteCard />
+          <SpotifyCard />
         </div>
 
         {/* Right — Skills marquee (small top) */}
