@@ -74,8 +74,8 @@ export function Hero() {
             gap: 8,
             padding: '6px 14px',
             borderRadius: 50,
-            background: 'transparent',
-            border: '0.5px solid rgba(255,255,255,0.12)',
+            background: 'color-mix(in srgb, var(--text) 4%, transparent)',
+            border: '0.5px solid color-mix(in srgb, var(--text) 15%, transparent)',
             fontSize: 12,
             fontWeight: 500,
             color: '#0071E3',
@@ -123,7 +123,8 @@ export function Hero() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 8,
+            gap: 20,
+            marginTop: -14,
           }}
         >
           <p
@@ -133,6 +134,7 @@ export function Hero() {
               maxWidth: 500,
               margin: 0,
               lineHeight: 1.5,
+              fontWeight: 500,
             }}
           >
             Software Engineer
@@ -144,9 +146,11 @@ export function Hero() {
               maxWidth: 500,
               margin: 0,
               lineHeight: 1.5,
+              fontWeight: 300,
             }}
           >
-            Building intelligent systems, automation pipelines, and products people actually use.
+            Ideas engineered into software that ships.{' '}
+            <span style={{ fontStyle: 'italic', fontSize: '0.85em', opacity: 0.45, display: 'block' }}>Sometimes it thinks.</span>
           </p>
         </motion.div>
 

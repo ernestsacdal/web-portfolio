@@ -3,17 +3,16 @@
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
-import { House, LayoutGrid, Briefcase, FileText, Mail, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
+import { House, LayoutGrid, Briefcase, FileText, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
 import { TerminalPopup } from './TerminalPopup'
 import { ChatPopup } from './ChatPopup'
 
 const NAV_LINKS = [
-  { label: 'Home',     id: 'home',     icon: House      },
-  { label: 'Bento',    id: 'bento',    icon: LayoutGrid },
-  { label: 'Projects', id: 'projects', icon: Briefcase  },
-  { label: 'Blog',     id: 'blog',     icon: FileText   },
-  { label: 'Contact',  id: 'contact',  icon: Mail       },
+  { label: 'Home', id: 'home', icon: House },
+  { label: 'Bento', id: 'bento', icon: LayoutGrid },
+  { label: 'Projects', id: 'projects', icon: Briefcase },
+  { label: 'Blog', id: 'blog', icon: FileText },
 ]
 
 function useNavHandler() {
@@ -79,20 +78,10 @@ export function Dock() {
           display: 'flex',
           alignItems: 'center',
           gap: 4,
-          padding: '10px 18px',
+          padding: '10px 24px',
           borderRadius: 50,
         }}
       >
-        {/* Logo */}
-        <img
-          src="/logo.png"
-          alt="EMS"
-          className="h-9 w-auto mix-blend-multiply dark:mix-blend-normal dark:invert"
-          style={{ display: 'block' }}
-        />
-
-        <div style={dividerStyle} />
-
         {/* Nav links — hidden on mobile */}
         {NAV_LINKS.map(({ label, id, icon: Icon }) => (
           <button
@@ -112,7 +101,7 @@ export function Dock() {
               el.style.color = isDark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.65)'
             }}
           >
-            <Icon size={16} />
+            <Icon size={18} />
           </button>
         ))}
 
@@ -130,7 +119,7 @@ export function Dock() {
             e.currentTarget.style.background = 'transparent'
           }}
         >
-          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         {/* Terminal */}
@@ -153,7 +142,7 @@ export function Dock() {
             if (!terminalOpen) e.currentTarget.style.background = 'transparent'
           }}
         >
-          <Terminal size={16} />
+          <Terminal size={18} />
         </button>
 
         {/* Chat */}
@@ -173,7 +162,7 @@ export function Dock() {
             if (!chatOpen) e.currentTarget.style.background = 'transparent'
           }}
         >
-          <MessageCircle size={16} />
+          <MessageCircle size={18} />
         </button>
       </div>
     </>
