@@ -183,27 +183,54 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       )}
 
-      {/* Screenshot — only if coverImage is a valid non-empty string */}
-      {meta.coverImage && meta.coverImage.trim() !== '' && (
-        <div
-          style={{
-            width: '100%',
-            aspectRatio: '16/9',
-            borderRadius: '0.75rem',
-            overflow: 'hidden',
-            position: 'relative',
-            marginBottom: 40,
-          }}
-        >
-          <Image
-            src={meta.coverImage}
-            alt={meta.title}
-            fill
-            style={{ objectFit: 'cover' }}
-            priority
-          />
-        </div>
-      )}
+      {/* Screenshots gallery */}
+      {(() => {
+        const shots = meta.screenshots?.length
+          ? meta.screenshots
+          : meta.coverImage?.trim()
+            ? [meta.coverImage]
+            : []
+        if (!shots.length) return null
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }}>
+            {shots.map((src, i) => (
+              <div
+                key={src}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '16/9',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                }}
+              >
+                <Image
+                  src={src}
+                  alt={`${meta.title} screenshot ${i + 1}`}
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'top center' }}
+                  priority={i === 0}
+                />
+                {/* Gradient overlay to obscure the Next.js dev badge at bottom-left */}
+                {meta.badgeCover && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: 56,
+                      height: 56,
+                      background:
+                        'linear-gradient(135deg, rgba(0,0,0,0.65) 0%, transparent 100%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )
+      })()}
 
       {/* Footer */}
       {(meta.liveUrl || meta.githubUrl) && (

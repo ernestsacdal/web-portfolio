@@ -67,31 +67,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           ← Blog
         </Link>
 
-        {/* Tag pill */}
+        {/* Tag */}
         {post.tag && (
-          <div style={{ marginBottom: 16 }}>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '3px 10px',
-                borderRadius: 50,
-                background: 'rgba(0,113,227,0.12)',
-                border: '1px solid rgba(0,113,227,0.25)',
-                fontSize: 11,
-                fontWeight: 500,
-                color: '#0071E3',
-              }}
-            >
-              {post.tag}
-            </span>
-          </div>
+          <p
+            style={{
+              fontSize: 10,
+              fontWeight: 400,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'color-mix(in srgb, var(--text) 30%, transparent)',
+              marginBottom: 16,
+            }}
+          >
+            {post.tag}
+          </p>
         )}
 
         {/* Title */}
         <h1
           style={{
             fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
-            fontWeight: 700,
+            fontWeight: 500,
             letterSpacing: '-0.03em',
             color: 'var(--text)',
             lineHeight: 1.15,
