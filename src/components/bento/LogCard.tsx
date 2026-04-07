@@ -4,9 +4,6 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { onLog } from '@/lib/logEvents'
 import type { LogEventDetail } from '@/lib/logEvents'
 
-// Module-level guard: survives React StrictMode double-mount without double-firing
-let startupFired = false
-
 // ─── Types ──────────────────────────────────────────────────────────────────────
 type LogType = 'SYS' | 'GAME' | 'API' | 'AI' | 'USER'
 
@@ -164,12 +161,16 @@ export function LogCard() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [flowStep, setFlowStep] = useState(-1)
 
-  const logEndRef    = useRef<HTMLDivElement>(null)
-  const timeoutIds   = useRef<ReturnType<typeof setTimeout>[]>([])
-  const queueRef     = useRef<Array<() => Promise<void>>>([])
-  const processingRef = useRef(false)
-  const mountedRef   = useRef(true)
-  const entryId      = useRef(0)
+  const logEndRef       = useRef<HTMLDivElement>(null)
+  const timeoutIds      = useRef<ReturnType<typeof setTimeout>[]>([])
+  const queueRef        = useRef<Array<() => Promise<void>>>([])
+  const processingRef   = useRef(false)
+  const mountedRef      = useRef(true)
+  const entryId         = useRef(0)
+  const startupFiredRef = useRef(false)
+  // Flow animation sync — resolver is called by api:done to unblock the AI Engine hold
+  const flowResolverRef = useRef<(() => void) | null>(null)
+  const apiDoneRef      = useRef(false)
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   const sleep = useCallback((ms: number) => new Promise<void>(resolve => {
@@ -202,21 +203,45 @@ export function LogCard() {
   }, [processQueue])
 
   // ── Flow animation ────────────────────────────────────────────────────────────
+  // Steps quickly to AI Engine, then holds until api:done fires, then completes.
   const runFlowAnimation = useCallback(async () => {
+    apiDoneRef.current = false
     setMode('flow')
-    for (let i = 0; i <= 4; i++) {
+    // User → Frontend → API: fast (these are local/immediate)
+    for (let i = 0; i <= 2; i++) {
       setFlowStep(i)
-      await sleep(280)
+      await sleep(100)
     }
+    // Hold at AI Engine until the real API response arrives
+    setFlowStep(3)
+    if (!apiDoneRef.current) {
+      await new Promise<void>(resolve => { flowResolverRef.current = resolve })
+    }
+    flowResolverRef.current = null
+    // Response: brief pause then back to log
+    setFlowStep(4)
     await sleep(300)
     setFlowStep(-1)
     setMode('log')
   }, [sleep])
 
-  // ── Startup logs (once) ───────────────────────────────────────────────────────
+  // ── Mount/unmount lifecycle (MUST BE FIRST EFFECT) ──────────────────────────
+  // Resets refs on every (re)mount — handles StrictMode double-invoke and
+  // Next.js router-cache restoration where the same instance is reused.
   useEffect(() => {
-    if (startupFired) return
-    startupFired = true
+    mountedRef.current = true
+    startupFiredRef.current = false
+    return () => {
+      mountedRef.current = false
+      timeoutIds.current.forEach(clearTimeout)
+      timeoutIds.current = []
+    }
+  }, [])
+
+  // ── Startup logs (once per mount) ────────────────────────────────────────────
+  useEffect(() => {
+    if (startupFiredRef.current) return
+    startupFiredRef.current = true
     const t1 = setTimeout(() => addLog({
       type: 'SYS',
       message: 'Page rendered → /',
@@ -271,6 +296,10 @@ export function LogCard() {
           break
 
         case 'api:done':
+          // Unblock the flow animation immediately — not through the queue
+          apiDoneRef.current = true
+          flowResolverRef.current?.()
+          flowResolverRef.current = null
           addToQueue(async () => {
             const ok = detail.status === 200 ? '200 OK' : `${detail.status} Error`
             addLog({
@@ -294,14 +323,6 @@ export function LogCard() {
       }
     })
   }, [addLog, addToQueue, runFlowAnimation, sleep])
-
-  // ── Cleanup ───────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false
-      timeoutIds.current.forEach(clearTimeout)
-    }
-  }, [])
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
