@@ -11,12 +11,8 @@ import {
   siPostgresql,
   siTailwindcss,
   siAnthropic,
-  siGithub,
-  siVercel,
   siExpress,
-  siClaude,
   siGooglegemini,
-  siJenkins,
   siPhp,
   siLaravel,
   siPrisma,
@@ -25,38 +21,59 @@ import {
   siDjango,
   siSupabase,
   siMongodb,
-  siSwagger,
   siN8n,
   siNodedotjs,
+  siShadcnui,
+  siZod,
+  siHuggingface,
+  siSocketdotio,
+  siCloudflare,
+  siOllama,
+  siSqlalchemy,
 } from 'simple-icons'
 import { useTheme } from '@/lib/theme'
 
-// Custom icons not in simple-icons v16
-const siOpenai = {
+type IconDef = { title: string; path: string; viewBox?: string }
+
+// Custom icons not in simple-icons
+const siOpenai: IconDef = {
   title: 'OpenAI',
   path: 'M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z',
 }
 
-const siAws = {
+const siAws: IconDef = {
   title: 'AWS',
   path: 'M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.375 6.18 6.18 0 0 1-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 0 1-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.416-.287-.807-.415l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167zM21.698 16.207c-2.626 1.94-6.442 2.969-9.722 2.969-4.598 0-8.74-1.7-11.87-4.526-.247-.223-.024-.527.272-.351 3.384 1.963 7.559 3.153 11.877 3.153 2.914 0 6.114-.607 9.06-1.852.439-.2.814.287.383.607zM22.792 14.961c-.336-.43-2.22-.207-3.074-.103-.255.032-.295-.192-.063-.36 1.5-1.053 3.967-.75 4.254-.399.287.36-.08 2.826-1.485 4.007-.215.184-.423.088-.327-.151.32-.79 1.03-2.57.695-2.994z',
 }
 
-// All icons in one flat array — both rows pull from this same set
-// so they feel like a single connected looping belt
-const ALL_ICONS = [
+// Groq "g" letterform — path 4 from their official SVG, viewBox adjusted to fill 32×32
+const siGroq: IconDef = {
+  title: 'Groq',
+  path: 'M10.2739 5.00225C10.2406 3.65803 9.69276 2.40012 8.73149 1.46036C7.7711 0.521495 6.50331 0.00266977 5.16188 0H5.1184C2.31666 0 0.0245998 2.27242 0.000202081 5.08635C-0.011775 6.45683 0.509006 7.75034 1.46673 8.72881C2.42489 9.70772 3.70467 10.2532 5.07493 10.2653H6.63639V7.54654H5.15389C4.51112 7.55544 3.90384 7.30982 3.44428 6.85997C2.98427 6.40967 2.72698 5.8063 2.71988 5.16066C2.70525 3.82978 3.77076 2.73473 5.09622 2.71871H5.1601C6.48335 2.71871 7.56572 3.80175 7.57326 5.1304V9.87617C7.57326 11.1897 6.5042 12.2709 5.18982 12.2879C4.56036 12.283 3.9686 12.0329 3.52368 11.5826L3.17856 11.2337L3.17723 11.2351L1.79011 13.685C2.71589 14.53 3.90162 14.9972 5.1601 15.0066H5.2293C6.57828 14.9874 7.84385 14.4477 8.79315 13.4861C9.74155 12.525 10.2681 11.2502 10.2752 9.89396V5.0027L10.2739 5.00225Z',
+  viewBox: '-2.37 0 15.01 15.01',
+}
+
+// Row 1 — frontend, backend, frameworks (scrolls right)
+const ROW1: IconDef[] = [
   siNextdotjs, siReact, siTypescript, siNodedotjs, siExpress, siPython,
-  siFastapi, siDjango, siPhp, siLaravel, siDocker, siJenkins, siPostgresql,
-  siMongodb, siRedis, siPrisma, siDrizzle, siSupabase, siTailwindcss,
-  siLangchain, siAnthropic, siClaude, siOpenai, siGooglegemini, siSwagger,
-  siN8n, siGithub, siVercel, siAws,
+  siFastapi, siDjango, siPhp, siLaravel, siTailwindcss, siShadcnui, siZod,
 ]
 
-// Duplicate for seamless loop (translateX -50% snaps back to identical frame)
-const LOOP = [...ALL_ICONS, ...ALL_ICONS]
+// Row 2 — AI/ML tools (scrolls left)
+const ROW2: IconDef[] = [
+  siAnthropic, siOpenai, siGooglegemini, siLangchain, siGroq,
+  siHuggingface, siN8n, siSocketdotio, siCloudflare, siOllama,
+]
 
-// Row 2 starts at the midpoint offset so icons appear to loop around
-const LOOP_OFFSET = [...ALL_ICONS.slice(Math.floor(ALL_ICONS.length / 2)), ...ALL_ICONS, ...ALL_ICONS.slice(0, Math.floor(ALL_ICONS.length / 2))]
+// Row 3 — data, databases, infra (scrolls right)
+const ROW3: IconDef[] = [
+  siPostgresql, siMongodb, siRedis, siPrisma, siDrizzle,
+  siSupabase, siSqlalchemy, siDocker, siAws,
+]
+
+const LOOP1 = [...ROW1, ...ROW1]
+const LOOP2 = [...ROW2, ...ROW2]
+const LOOP3 = [...ROW3, ...ROW3]
 
 export function TechStackCard() {
   const { theme } = useTheme()
@@ -78,6 +95,26 @@ export function TechStackCard() {
     willChange: 'transform' as const,
   }
 
+  const renderRow = (icons: IconDef[], animClass: string, duration: string) => (
+    <div style={{ overflow: 'hidden', ...maskStyle }}>
+      <div className={animClass} style={{ ...trackStyle, animationDuration: duration }}>
+        {icons.map((icon, i) => (
+          <svg
+            key={i}
+            viewBox={icon.viewBox ?? '0 0 24 24'}
+            width={32}
+            height={32}
+            fill={fill}
+            style={{ flexShrink: 0, opacity: 0.75 }}
+            aria-label={icon.title}
+          >
+            <path d={icon.path} />
+          </svg>
+        ))}
+      </div>
+    </div>
+  )
+
   return (
     <div
       className="bento-card"
@@ -97,7 +134,6 @@ export function TechStackCard() {
         Tech Stack
       </p>
 
-      {/* Two-row connected belt — same icons, opposite directions, offset start */}
       <div
         style={{
           flex: 1,
@@ -108,43 +144,12 @@ export function TechStackCard() {
           overflow: 'hidden',
         }}
       >
-        {/* Row 1 — scrolls left */}
-        <div style={{ overflow: 'hidden', ...maskStyle }}>
-          <div className="animate-marquee" style={trackStyle}>
-            {LOOP.map((icon, i) => (
-              <svg
-                key={i}
-                viewBox="0 0 24 24"
-                width={32}
-                height={32}
-                fill={fill}
-                style={{ flexShrink: 0, opacity: 0.75 }}
-                aria-label={icon.title}
-              >
-                <path d={icon.path} />
-              </svg>
-            ))}
-          </div>
-        </div>
-
-        {/* Row 2 — scrolls right, offset by half so icons loop back around */}
-        <div style={{ overflow: 'hidden', ...maskStyle }}>
-          <div className="animate-marquee-reverse" style={trackStyle}>
-            {LOOP_OFFSET.map((icon, i) => (
-              <svg
-                key={i}
-                viewBox="0 0 24 24"
-                width={32}
-                height={32}
-                fill={fill}
-                style={{ flexShrink: 0, opacity: 0.75 }}
-                aria-label={icon.title}
-              >
-                <path d={icon.path} />
-              </svg>
-            ))}
-          </div>
-        </div>
+        {/* Row 1 — scrolls right */}
+        {renderRow(LOOP1, 'animate-marquee-reverse', '16s')}
+        {/* Row 2 — scrolls left */}
+        {renderRow(LOOP2, 'animate-marquee', '12s')}
+        {/* Row 3 — scrolls right */}
+        {renderRow(LOOP3, 'animate-marquee-reverse', '11s')}
       </div>
     </div>
   )
