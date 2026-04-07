@@ -1,0 +1,34 @@
+---
+title: "ProposalAI"
+description: "AI-powered agent that generates end-to-end project proposals from user input — LangChain orchestration, OpenAI for content generation, and ElevenLabs for voice interaction."
+tags: ["AI", "Next.js", "LangChain", "OpenAI", "ElevenLabs"]
+status: "nda"
+year: "2024"
+type: "case-study"
+---
+
+## Background
+
+Writing a project proposal from scratch is time-consuming — requirements gathering, scope definition, timeline estimation, and deliverable breakdown all have to come together into a coherent document. This prototype explores what happens when that entire process is handed to an AI agent: the user describes what they want to build, and the system produces a complete, structured project proposal without manual drafting.
+
+## How It Works
+
+The user starts by describing their project — either by typing or speaking. ElevenLabs handles voice input, transcribes it, and feeds it into the pipeline. LangChain orchestrates the agent flow: it breaks the input into structured components (project scope, objectives, deliverables, timeline, estimated effort, tech recommendations), runs them through OpenAI, and assembles the outputs into a full proposal document. The result is a formatted, end-to-end proposal generated entirely from the initial description.
+
+## Architecture
+
+- LangChain for agent orchestration and prompt chaining
+- OpenAI for content generation across each proposal section
+- ElevenLabs for voice input — users can describe their project verbally
+- Next.js frontend for the user interface and proposal display
+
+## Key Features
+
+- Voice-driven project description via ElevenLabs
+- LangChain agent pipeline breaking input into structured proposal sections
+- Full proposal generation: scope, objectives, deliverables, timeline, tech stack recommendations
+- End-to-end output from a single user prompt — no manual editing required
+
+## Outcome
+
+Demonstrated that a multi-step proposal workflow — normally requiring several hours of structured writing — could be collapsed into a single voice or text prompt with coherent, usable output. Built as a prototype to validate AI agent orchestration patterns with voice input integration.

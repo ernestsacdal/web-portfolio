@@ -1,0 +1,40 @@
+---
+title: "Nik's Automotive"
+description: "Full-stack booking site for a mobile mechanic business — appointment scheduling backed by Supabase, transactional emails via Resend, and a management dashboard for the owner."
+tags: ["Client", "Next.js 16", "Supabase", "Resend", "Tailwind CSS", "TypeScript"]
+status: "live"
+year: "2026"
+type: "case-study"
+coverImage: "/nik-dash.png"
+screenshots:
+  - "/nik-dash.png"
+---
+
+## Problem
+
+Niks Prime Automotive — a mobile mechanic and workshop business serving the greater metro area — had no way for customers to book online. Enquiries came in by phone only, creating friction for customers and missed leads outside business hours.
+
+## Solution
+
+A professional marketing site with a fully integrated online booking system. Customers can select a service, preferred date and time, urgency level, and vehicle details — the booking lands in Supabase and triggers a confirmation email via Resend. The owner gets a management dashboard to view and action incoming appointments.
+
+## Architecture
+
+- **Frontend** — Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Radix UI components
+- **Database** — Supabase (PostgreSQL) for appointment storage and retrieval
+- **Email** — Resend for transactional booking confirmation and notification emails
+- **Images** — `browser-image-compression` + `heic2any` for client-side gallery image compression and iOS HEIC conversion
+
+## Key Features
+
+- Online booking form with service type, date/time preference, urgency, and vehicle details
+- Supabase-backed appointment management dashboard for the owner
+- Transactional email confirmations for customers and owner notifications via Resend
+- Gallery with client-side image compression and HEIC support for iOS photos
+- Google Reviews section (4.8 from 100+ reviews)
+- Dual service mode — mobile mechanic (comes to you) or fully-equipped workshop visit
+- Mobile-first responsive design
+
+## Outcome
+
+Live client project for Niks Prime Automotive. Replaced phone-only enquiries with a 24/7 online booking flow, giving the business a professional web presence and the owner visibility over incoming appointments.

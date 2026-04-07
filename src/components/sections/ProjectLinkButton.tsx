@@ -18,11 +18,11 @@ export function ProjectLinkButton({ href, label }: ProjectLinkButtonProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        border: `0.5px solid ${hovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}`,
+        border: `0.5px solid ${hovered ? 'color-mix(in srgb, var(--text) 20%, transparent)' : 'var(--border)'}`,
         borderRadius: 6,
         padding: '8px 16px',
         fontSize: 11,
-        color: hovered ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)',
+        color: hovered ? 'color-mix(in srgb, var(--text) 70%, transparent)' : 'var(--text2)',
         textDecoration: 'none',
         transition: 'border-color 0.15s ease, color 0.15s ease',
         display: 'inline-block',

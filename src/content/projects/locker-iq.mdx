@@ -1,0 +1,41 @@
+---
+title: "LockerIQ"
+description: "End-to-end BPO locker management system with automated device and attendance tracking — QR-code-driven in/out logging, mobile phone sequestration, and a real-time admin dashboard."
+tags: ["Next.js", "Django", "PostgreSQL", "Zustand", "Shadcn UI"]
+status: "nda"
+year: "2024"
+type: "case-study"
+---
+
+## Background
+
+BPO offices handle large workforces that must surrender personal devices before entering production floors — a compliance requirement that protects client data and enforces floor policies. The existing process was entirely manual: paper logs, physical key handovers, and no reliable audit trail. Device disputes and attendance discrepancies were routine. I led full-stack development of a QR-based locker system to automate the entire flow.
+
+## How It Works
+
+Each employee is issued a unique QR code. At shift start, they scan in at the locker station — the system logs their arrival timestamp, assigns them an available locker, and records any devices deposited (mobile phones, storage media, or other restricted items). At shift end, they scan out — the system logs their departure and confirms all deposited devices are retrieved before the session closes. Every event is timestamped and written to the audit log.
+
+## Admin Dashboard
+
+Admins operate a Next.js dashboard built with Shadcn UI — giving real-time visibility into who is currently checked in, which lockers are occupied, and which devices are in custody. From the same interface, admins generate and distribute employee QR codes, manage locker assignments, and review historical attendance and device records. Zustand handles client-side state, keeping the dashboard in sync without requiring full page refreshes.
+
+## Architecture
+
+- Django REST Framework backend with token-based authentication
+- PostgreSQL for all attendance, locker assignment, and device custody records
+- Next.js App Router frontend with Shadcn UI component library
+- Zustand for client state management and real-time UI updates
+- QR code generation and scanning integrated into the check-in/out flow
+
+## Key Features
+
+- QR-code-driven locker check-in and check-out
+- Per-shift device and mobile phone tracking per employee
+- Admin QR code generation and employee management
+- Real-time locker occupancy and device custody dashboard
+- Full audit trail of all in/out events with timestamps
+- Role-based access: admin vs. floor employee views
+
+## Outcome
+
+Replaced a fully manual paper-based process with an auditable, automated system. Lost-device disputes dropped to zero — the system maintains an exact custody record for every device at every shift. Compliance teams gained a searchable audit trail replacing the unreliable paper logs, and admins recovered significant time previously spent on manual locker coordination.

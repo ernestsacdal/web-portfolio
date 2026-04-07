@@ -1,34 +1,45 @@
 ---
 title: "PreTriage"
-description: "AI-powered patient pre-triage system that assesses symptoms and prioritises care using LLMs."
-tags: ["FastAPI", "Next.js", "Groq", "AI"]
+description: "PreTriage guides patients through a voice-assisted intake before their appointment — so clinicians start every consult with full context, not blank questions."
+tags: ["AI", "Next.js 16", "FastAPI", "ElevenLabs", "Anthropic", "Groq", "PostgreSQL", "Redis", "Socket.io"]
 status: "live"
-year: "2025"
+year: "2026"
 type: "case-study"
 liveUrl: "https://pretriage.vercel.app"
 githubUrl: "https://github.com/ernestsacdal/pretriage"
-coverImage: "/images/projects/pretriage.jpg"
+coverImage: "/screenshot-1775528010145.png"
+badgeCover: true
+screenshots:
+  - "/screenshot-1775528010145.png"
+  - "/screenshot-1775528654854.png"
+  - "/screenshot-1775528664318.png"
 ---
 
 ## Problem
 
-Emergency waiting rooms face a critical challenge: patients arrive with varying levels of urgency but are triaged in the same slow, manual process. Nurses spend valuable time on structured data collection that could be done before the patient walks in the door.
+Every consult starts the same way: a clinician walks in, sits down, and spends the first five minutes asking basic questions the patient has answered a dozen times before. What brings you in? How long has this been going on? Any relevant history? It's not inefficient because clinicians are bad at their jobs — it's inefficient because the information was never collected before they walked through the door.
 
 ## Solution
 
-PreTriage uses LLMs to assess patient-reported symptoms through a conversational interface before arrival. The system assigns a triage priority score (P1–P4), generates a structured patient summary, and surfaces it to clinical staff in real time — reducing the burden at the point of care.
+Before the appointment, patients complete a short voice-guided intake through PreTriage — tap-based, no typing, no app download required. ElevenLabs reads each question aloud; patients respond with a single tap. By the time the clinician enters the room, an AI-generated summary is already waiting: chief complaint, urgency tier (P1–P4), clinical flags, duration, relevant history, and a suggested focus for the consult.
 
 ## Architecture
 
-The system is built on FastAPI for the backend, handling session management and LLM orchestration via the Groq API (Llama 3). The frontend is a Next.js App Router application with a streaming chat UI for the intake flow. Patient summaries are stored per-session and exposed via a staff-facing dashboard.
+- **Frontend** — Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Zustand for client state, shadcn/ui components
+- **Voice layer** — ElevenLabs SDK for text-to-speech question delivery; fully tap-driven, zero keyboard interaction
+- **Backend** — FastAPI + uvicorn, Python; real-time push via `python-socketio` + `socket.io-client`
+- **AI layer** — Anthropic SDK for structured triage summary generation; Groq (`llama-3.1-8b-instant`) as a low-latency fallback
+- **Data** — PostgreSQL via asyncpg / SQLAlchemy / Alembic; Redis for session state and queue management
 
 ## Key Features
 
-- Symptom assessment via conversational AI
-- Triage priority scoring (P1–P4)
-- Session-based result pages
-- Demo mode for portfolio visitors
+- Voice-guided questions via ElevenLabs — no typing required for patients
+- Branching question logic adapts in real time based on patient responses (up to 10 questions)
+- AI triage summary with urgency tier (P1–P4), clinical flags, and suggested focus
+- Real-time clinician dashboard updated over WebSockets the moment intake completes
+- Urgency detection — Critical, High, Moderate, and Low with non-negotiable overrides for cardiac/respiratory
+- Demo mode for portfolio visitors — no account required
 
 ## Outcome
 
-Deployed and live at pretriage.vercel.app. Used as a showcase project for AI-integrated full-stack development, demonstrating production-grade LLM integration with a clinical use case.
+Deployed and live at pretriage.vercel.app. Demonstrates production-grade voice + LLM integration within a clinical workflow, with a real-time full-stack architecture spanning WebSockets, PostgreSQL, and Redis.

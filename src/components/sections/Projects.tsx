@@ -10,31 +10,31 @@ const PROJECTS = [
     slug: 'pretriage',
     title: 'PreTriage',
     description:
-      'AI-powered patient pre-triage system that assesses symptoms and prioritises care using LLMs.',
-    tags: ['FastAPI', 'Next.js', 'Groq', 'AI'],
+      'PreTriage guides patients through a voice-assisted intake before their appointment — so clinicians start every consult with full context, not blank questions.',
+    tags: ['Next.js', 'FastAPI', 'ElevenLabs', 'Anthropic'],
     status: 'live' as const,
-    year: '2025',
+    year: '2026',
     type: 'case-study' as const,
   },
   {
-    slug: 'portfolio-v2',
-    title: 'Portfolio v2',
+    slug: 'niks-automotive',
+    title: "Nik's Automotive",
     description:
-      'This portfolio — Next.js, Apple-inspired design system, with an embedded AI assistant.',
-    tags: ['Next.js', 'Design', 'Claude API'],
-    status: 'wip' as const,
-    year: '2025',
-    type: 'minimal' as const,
+      'Full-stack booking site for a mobile mechanic business — appointment scheduling via Supabase, email notifications via Resend, and an owner dashboard.',
+    tags: ['Next.js', 'Supabase', 'Resend', 'Client'],
+    status: 'live' as const,
+    year: '2026',
+    type: 'case-study' as const,
   },
   {
-    slug: 'tripview-clone',
-    title: 'TripView Clone',
+    slug: 'proposal-ai',
+    title: 'ProposalAI',
     description:
-      'React Native public transit tracker for Sydney using Transport for NSW Open Data API.',
-    tags: ['React Native', 'TfNSW API', 'Mobile'],
-    status: 'planning' as const,
-    year: '2025',
-    type: 'minimal' as const,
+      'AI-powered agent that generates end-to-end project proposals from user input — LangChain orchestration, OpenAI for content generation, and ElevenLabs for voice interaction.',
+    tags: ['Next.js', 'LangChain', 'OpenAI', 'ElevenLabs'],
+    status: 'nda' as const,
+    year: '2024',
+    type: 'case-study' as const,
   },
 ]
 
@@ -174,8 +174,8 @@ export function Projects() {
           onMouseLeave={() => setFeaturedHovered(false)}
           style={{
             position: 'relative',
-            background: 'rgba(255,255,255,0.04)',
-            border: `0.5px solid ${featuredHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
+            background: 'color-mix(in srgb, var(--text) 4%, transparent)',
+            border: `0.5px solid ${featuredHovered ? 'color-mix(in srgb, var(--text) 15%, transparent)' : 'var(--border)'}`,
             borderRadius: 12,
             padding: 22,
             cursor: 'pointer',
@@ -251,10 +251,10 @@ export function Projects() {
                   alignItems: 'flex-start',
                   gap: 12,
                   padding: '12px 8px',
-                  borderBottom: '0.5px solid rgba(255,255,255,0.05)',
+                  borderBottom: '0.5px solid var(--border)',
                   cursor: 'pointer',
                   transition: 'background 0.15s ease',
-                  background: isHovered ? 'rgba(255,255,255,0.03)' : 'transparent',
+                  background: isHovered ? 'color-mix(in srgb, var(--text) 3%, transparent)' : 'transparent',
                   borderRadius: 6,
                 }}
               >
