@@ -1,0 +1,72 @@
+---
+title: "Why I chose Groq for PreTriage — and what I'd use in production"
+date: "2026-04-07"
+tag: "AI"
+description: "Speed isn't just a performance metric in a clinical context — it's a UX requirement. Here's how I picked an inference provider for a real-time AI triage app, and what I'd do differently at scale."
+readTime: "6 min read"
+published: true
+---
+
+When I started building PreTriage — an AI-powered patient pre-triage system that assesses symptoms before a clinical consult — one of the first real decisions I had to make was: **which LLM provider do I actually use?**
+
+Not which one looks best on a README. Not which one has the most hype. Which one makes sense for this specific use case.
+
+Here's how I thought through it.
+
+---
+
+## The use case changes everything
+
+Most AI apps can afford to be slow. A chatbot that takes two seconds to respond is fine. A writing assistant that streams slowly is tolerable.
+
+PreTriage is different.
+
+A patient is sitting in a waiting room, probably anxious, possibly in pain, working through a structured symptom intake on their phone. Every second of latency between their answer and the next question is friction — and in a clinical setting, friction erodes trust fast. If the app feels sluggish, patients lose confidence in it before they even get to the clinician.
+
+So speed wasn't a nice-to-have. It was a UX requirement from day one.
+
+---
+
+## Why I landed on Groq
+
+Groq runs open-weight models — Llama, Mixtral, Gemma — on custom LPU hardware that is genuinely, measurably faster than GPU-based inference. We're talking 300–500 tokens per second versus 50–100 on a standard GPU setup.
+
+For a structured intake flow where responses are short and deterministic, that difference is felt immediately. The app feels alive. Responses are near-instant. The conversation flows rather than stutters.
+
+There's also an honest reason I'll put on the table: Groq has a free tier, and PreTriage is an independent project I built and shipped. Running zero inference costs during development and demo is a real consideration when you're a solo developer building on your own time.
+
+But I want to be clear — the speed argument stands on its own regardless of cost. If I were building this at a startup with a real budget, Groq's latency profile would still be worth serious consideration for any real-time AI application.
+
+---
+
+## What I'd consider in production
+
+Free tiers don't scale. And open-weight models, while capable, aren't always the right tool for complex clinical reasoning. Here's how I'd think about the decision with real money and real patients involved:
+
+**OpenAI (GPT-4o)**
+The safe, production-grade choice. Reliable, well-documented, strong function calling support. The latency is acceptable but noticeably slower than Groq. Cost is the main friction — it adds up fast at scale.
+
+**Anthropic (Claude)**
+My preference for anything requiring nuanced reasoning or handling edge cases gracefully. Claude's instruction-following is excellent, and for a clinical context where the AI needs to know when *not* to proceed — to flag something urgent, to ask a clarifying question — that matters. I'd seriously consider Claude Haiku for speed + quality balance in production.
+
+**Gemini Flash**
+Google's Flash models are genuinely fast and the free tier is generous. Worth evaluating for cost-sensitive deployments. Multimodal capability is a bonus if you ever want to accept image inputs.
+
+**Groq in production**
+Groq does offer paid plans with higher rate limits. If the model quality is sufficient for your use case and latency is critical, staying on Groq at scale is a legitimate choice — not just a portfolio hack.
+
+---
+
+## The honest takeaway
+
+I chose Groq because it's fast, the free tier removed cost friction during development, and for a structured intake flow the model quality was more than sufficient.
+
+In production, I'd benchmark Claude Haiku against Groq's Llama 3.3 70B on both latency and output quality for the specific prompts PreTriage uses — and let the data make the decision.
+
+The mistake most developers make is picking a provider based on brand recognition rather than fit. OpenAI is not always the right answer. Neither is Claude. The right answer depends on your latency requirements, your budget, your output complexity, and how much you need the model to reason versus retrieve.
+
+For PreTriage, Groq was the right call at this stage. Ask me again when it's in a real hospital waiting room.
+
+---
+
+*PreTriage is a live AI application built for real clinical workflows. You can explore the demo or read the full case study in the Projects section.*
