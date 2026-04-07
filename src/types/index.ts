@@ -3,12 +3,14 @@ export interface Project {
   title: string
   description: string
   tags: string[]
-  status: 'live' | 'wip' | 'planning'
+  status: 'live' | 'wip' | 'planning' | 'nda'
   year: string
   type: 'case-study' | 'minimal'
   liveUrl?: string
   githubUrl?: string
   coverImage?: string
+  screenshots?: string[]
+  badgeCover?: boolean
 }
 
 export interface BlogPost {
