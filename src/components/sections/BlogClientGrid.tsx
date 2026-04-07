@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { BlogPost } from '@/types'
 
+const TABS = ['All', 'AI', 'Engineering', 'Design']
+
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.07 } },
 }
 
-const item = {
+const itemVariant = {
   hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
@@ -19,15 +21,83 @@ const item = {
   },
 }
 
-interface BlogClientGridProps {
-  posts: BlogPost[]
+function PostCard({ post }: { post: BlogPost }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <Link
+      href={`/blog/${post.slug}`}
+      style={{ textDecoration: 'none', display: 'block', height: '100%' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          height: '100%',
+          background: 'color-mix(in srgb, var(--text) 4%, transparent)',
+          border: `0.5px solid ${hovered ? 'color-mix(in srgb, var(--text) 15%, transparent)' : 'var(--border)'}`,
+          borderRadius: 12,
+          padding: 22,
+          transition: 'border-color 0.2s ease',
+          cursor: 'pointer',
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Tag */}
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 400,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'color-mix(in srgb, var(--text) 30%, transparent)',
+          }}
+        >
+          {post.tag}
+        </span>
+
+        {/* Title */}
+        <p
+          style={{
+            fontSize: 14,
+            fontWeight: 500,
+            color: 'var(--text)',
+            lineHeight: 1.45,
+            flex: 1,
+            margin: 0,
+          }}
+        >
+          {post.title}
+        </p>
+
+        {/* Description */}
+        <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.55, margin: 0 }}>
+          {post.description}
+        </p>
+
+        {/* Date · read time */}
+        <p style={{ fontSize: 11, color: 'var(--text2)', margin: 0 }}>
+          {new Date(post.date).toLocaleDateString('en-AU', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+          {'  ·  '}
+          {post.readTime}
+        </p>
+      </div>
+    </Link>
+  )
 }
 
-export function BlogClientGrid({ posts }: BlogClientGridProps) {
-  const allTags = ['All', ...Array.from(new Set(posts.map((p) => p.tag).filter(Boolean)))]
-  const [activeTag, setActiveTag] = useState('All')
+export function BlogClientGrid({ posts }: { posts: BlogPost[] }) {
+  const [activeTab, setActiveTab] = useState('All')
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null)
 
-  const filtered = activeTag === 'All' ? posts : posts.filter((p) => p.tag === activeTag)
+  const filtered = activeTab === 'All' ? posts : posts.filter((p) => p.tag === activeTab)
 
   if (posts.length === 0) {
     return (
@@ -39,27 +109,35 @@ export function BlogClientGrid({ posts }: BlogClientGridProps) {
 
   return (
     <>
-      {/* Filter pills */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
-        {allTags.map((tag) => {
-          const isActive = activeTag === tag
+      {/* Filter tabs — matches ProjectsClientGrid exactly */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab
           return (
             <button
-              key={tag}
-              onClick={() => setActiveTag(tag)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              onMouseEnter={() => setHoveredTab(tab)}
+              onMouseLeave={() => setHoveredTab(null)}
               style={{
-                padding: '7px 16px',
-                borderRadius: 50,
-                border: `1px solid ${isActive ? 'transparent' : 'var(--border)'}`,
-                background: isActive ? '#0071E3' : 'transparent',
-                color: isActive ? '#fff' : 'var(--text2)',
-                fontSize: 13,
-                fontWeight: 500,
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: isActive
+                  ? '0.5px solid color-mix(in srgb, var(--text) 20%, transparent)'
+                  : '0.5px solid transparent',
+                background: 'transparent',
+                color: isActive
+                  ? 'color-mix(in srgb, var(--text) 80%, transparent)'
+                  : hoveredTab === tab
+                    ? 'color-mix(in srgb, var(--text) 60%, transparent)'
+                    : 'color-mix(in srgb, var(--text) 35%, transparent)',
+                fontSize: 12,
+                fontWeight: 400,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'color 0.15s ease',
               }}
             >
-              {tag}
+              {tab}
             </button>
           )
         })}
@@ -77,55 +155,15 @@ export function BlogClientGrid({ posts }: BlogClientGridProps) {
         }}
       >
         {filtered.map((post) => (
-          <motion.div key={post.slug} variants={item}>
-            <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-              <div
-                className="bento-card"
-                style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}
-              >
-                <span
-                  style={{
-                    display: 'inline-block',
-                    alignSelf: 'flex-start',
-                    padding: '3px 10px',
-                    borderRadius: 50,
-                    background: 'rgba(0,113,227,0.12)',
-                    border: '1px solid rgba(0,113,227,0.25)',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: '#0071E3',
-                  }}
-                >
-                  {post.tag}
-                </span>
-
-                <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', lineHeight: 1.45, flex: 1 }}>
-                  {post.title}
-                </p>
-
-                <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.5 }}>
-                  {post.description}
-                </p>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 11, color: 'var(--text2)' }}>
-                    {new Date(post.date).toLocaleDateString('en-AU', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--text2)' }}>{post.readTime}</span>
-                </div>
-              </div>
-            </Link>
+          <motion.div key={post.slug} variants={itemVariant}>
+            <PostCard post={post} />
           </motion.div>
         ))}
       </motion.div>
 
       {filtered.length === 0 && (
         <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center', padding: '3rem 0' }}>
-          No posts tagged &ldquo;{activeTag}&rdquo;.
+          No posts tagged &ldquo;{activeTab}&rdquo;.
         </p>
       )}
     </>
