@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import { House, LayoutGrid, Briefcase, FileText, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
@@ -34,6 +34,7 @@ export function Dock() {
 
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const terminalBtnRef = useRef<HTMLButtonElement>(null)
 
   const dividerStyle: React.CSSProperties = {
     width: 1,
@@ -59,7 +60,7 @@ export function Dock() {
     <>
       <AnimatePresence>
         {terminalOpen && (
-          <TerminalPopup onClose={() => setTerminalOpen(false)} />
+          <TerminalPopup onClose={() => setTerminalOpen(false)} triggerRef={terminalBtnRef} />
         )}
       </AnimatePresence>
 
@@ -124,6 +125,7 @@ export function Dock() {
 
         {/* Terminal */}
         <button
+          ref={terminalBtnRef}
           onClick={() => setTerminalOpen((v) => !v)}
           style={{
             ...btnBase,
