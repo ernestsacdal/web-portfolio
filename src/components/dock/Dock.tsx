@@ -35,6 +35,8 @@ export function Dock() {
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const terminalBtnRef = useRef<HTMLButtonElement>(null)
+  const chatBtnRef = useRef<HTMLButtonElement>(null)
+  const dockRef = useRef<HTMLDivElement>(null)
 
   const dividerStyle: React.CSSProperties = {
     width: 1,
@@ -60,15 +62,16 @@ export function Dock() {
     <>
       <AnimatePresence>
         {terminalOpen && (
-          <TerminalPopup onClose={() => setTerminalOpen(false)} triggerRef={terminalBtnRef} />
+          <TerminalPopup onClose={() => setTerminalOpen(false)} triggerRef={terminalBtnRef} dockRef={dockRef} />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {chatOpen && <ChatPopup onClose={() => setChatOpen(false)} />}
+        {chatOpen && <ChatPopup onClose={() => setChatOpen(false)} triggerRef={chatBtnRef} dockRef={dockRef} />}
       </AnimatePresence>
 
       <div
+        ref={dockRef}
         className="bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
         style={{
           position: 'fixed',
@@ -126,7 +129,7 @@ export function Dock() {
         {/* Terminal */}
         <button
           ref={terminalBtnRef}
-          onClick={() => setTerminalOpen((v) => !v)}
+          onClick={() => { setTerminalOpen((v) => !v); setChatOpen(false) }}
           style={{
             ...btnBase,
             background: terminalOpen
@@ -149,11 +152,15 @@ export function Dock() {
 
         {/* Chat */}
         <button
-          onClick={() => setChatOpen((v) => !v)}
+          ref={chatBtnRef}
+          onClick={() => { setChatOpen((v) => !v); setTerminalOpen(false) }}
           style={{
             ...btnBase,
-            background: chatOpen ? '#0071E3' : 'transparent',
-            color: chatOpen ? '#fff' : btnBase.color,
+            background: chatOpen
+              ? isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.07)'
+              : 'transparent',
           }}
           title="Chat with Ernest's AI"
           onMouseEnter={(e) => {

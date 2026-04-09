@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 interface TerminalPopupProps {
   onClose: () => void
   triggerRef?: React.RefObject<HTMLButtonElement | null>
+  dockRef?: React.RefObject<HTMLDivElement | null>
 }
 
 type TLine =
@@ -127,7 +128,9 @@ function getDistancePhrase(ip: IpData): string {
 
 const PROMPT = 'ernest@dev ~ % '
 
-export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
+const TERMINAL_WIDTH = 360
+
+export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupProps) {
   const [lines, setLines] = useState<TLine[]>([])
   const [typingText, setTypingText] = useState('')
   const [showTyping, setShowTyping] = useState(false)
@@ -135,6 +138,7 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
   const [inputText, setInputText] = useState('')
   const [showHint, setShowHint] = useState(false)
   const [exiting, setExiting] = useState(false)
+  const [pos, setPos] = useState<{ bottom: number; left: number } | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const projectsCacheRef = useRef<string[] | null>(null)
@@ -152,11 +156,26 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
     }
   }, [lines, typingText, inputText])
 
+  // Anchor to trigger button
+  useEffect(() => {
+    function computePos() {
+      if (!triggerRef?.current) return
+      const rect = triggerRef.current.getBoundingClientRect()
+      const bottom = window.innerHeight - rect.top + 8
+      const idealLeft = rect.left + rect.width / 2 - TERMINAL_WIDTH / 2
+      const left = Math.min(Math.max(idealLeft, 12), window.innerWidth - TERMINAL_WIDTH - 12)
+      setPos({ bottom, left })
+    }
+    computePos()
+    window.addEventListener('resize', computePos)
+    return () => window.removeEventListener('resize', computePos)
+  }, [])
+
   // Click outside
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {
       const target = e.target as Node
-      if (triggerRef?.current?.contains(target)) return
+      if (dockRef?.current?.contains(target)) return
       if (popupRef.current && !popupRef.current.contains(target)) {
         onClose()
       }
@@ -583,11 +602,9 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
       transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
       style={{
         position: 'fixed',
-        bottom: 74,
-        left: '50%',
-        transform: 'translateX(-50%)',
+        ...(pos ? { bottom: pos.bottom, left: pos.left } : { bottom: 74, left: '50%', transform: 'translateX(-50%)' }),
         zIndex: 49,
-        width: 360,
+        width: TERMINAL_WIDTH,
         background: 'rgba(28, 28, 28, 0.95)',
         backdropFilter: 'blur(20px)',
         borderRadius: 16,
