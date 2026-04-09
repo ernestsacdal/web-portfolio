@@ -43,8 +43,8 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2
   return 2 * R * Math.asin(Math.sqrt(a))
 }
 
@@ -141,6 +141,10 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
   const hintDismissedRef = useRef(false)
   const processingRef = useRef(false)
   const inputRef = useRef('')
+  const skipRef = useRef(false)
+  const historyRef = useRef<string[]>(['ping visitor', 'env --visitor', './connect.sh'])
+  const historyIndexRef = useRef(-1)
+  const savedInputRef = useRef('')
 
   useEffect(() => {
     if (bodyRef.current) {
@@ -207,7 +211,6 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
         { k: 'text', text: '>   ls projects   \u2014 what he\u2019s built', color: DIM },
         { k: 'text', text: '>   skills        \u2014 what he works with', color: DIM },
         { k: 'text', text: '>   status        \u2014 availability', color: DIM },
-        { k: 'text', text: '>   contact       \u2014 get in touch', color: DIM },
         { k: 'text', text: '>   ping visitor  \u2014 locate visitor', color: DIM },
         { k: 'text', text: '>   env --visitor \u2014 detect your setup', color: DIM },
         { k: 'text', text: '>   ./connect.sh  \u2014 get in touch', color: DIM },
@@ -245,14 +248,14 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
       }
     } else if (cmd === 'skills') {
       output.push(
-        { k: 'text', text: '> frontend   : Next.js \u00b7 React \u00b7 TypeScript \u00b7 Node', color: BRIGHT },
-        { k: 'text', text: '>               Express \u00b7 FastAPI \u00b7 Django \u00b7 Laravel', color: BRIGHT },
-        { k: 'text', text: '>               Tailwind \u00b7 Shadcn \u00b7 Zod \u00b7 PHP \u00b7 Python', color: BRIGHT },
+        { k: 'text', text: '> app        : Next.js \u00b7 React \u00b7 TypeScript \u00b7 Node', color: BRIGHT },
+        { k: 'text', text: '               Express \u00b7 FastAPI \u00b7 Django \u00b7 Laravel', color: BRIGHT },
+        { k: 'text', text: '               Tailwind \u00b7 Shadcn \u00b7 Zod \u00b7 PHP \u00b7 Python', color: BRIGHT },
         { k: 'text', text: '> ai         : Anthropic \u00b7 OpenAI \u00b7 Gemini \u00b7 Groq', color: BRIGHT },
-        { k: 'text', text: '>               LangChain \u00b7 HuggingFace \u00b7 Ollama \u00b7 n8n', color: BRIGHT },
-        { k: 'text', text: '>               Socket.io \u00b7 Cloudflare', color: BRIGHT },
+        { k: 'text', text: '               LangChain \u00b7 HuggingFace \u00b7 Ollama \u00b7 n8n', color: BRIGHT },
+        { k: 'text', text: '               Socket.io \u00b7 Cloudflare', color: BRIGHT },
         { k: 'text', text: '> data       : PostgreSQL \u00b7 MongoDB \u00b7 Redis \u00b7 Prisma', color: BRIGHT },
-        { k: 'text', text: '>               Drizzle \u00b7 Supabase \u00b7 SQLAlchemy \u00b7 Docker \u00b7 AWS', color: BRIGHT },
+        { k: 'text', text: '               Drizzle \u00b7 Supabase \u00b7 SQLAlchemy \u00b7 Docker \u00b7 AWS', color: BRIGHT },
         { k: 'blank' },
       )
     } else if (cmd === 'status') {
@@ -260,12 +263,6 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
         { k: 'text', text: '> open to work  : yes', color: BRIGHT },
         { k: 'text', text: '> type          : full-time \u00b7 freelance \u00b7 collabs', color: BRIGHT },
         { k: 'text', text: '> response time : within 24h', color: BRIGHT },
-        { k: 'blank' },
-      )
-    } else if (cmd === 'contact') {
-      output.push(
-        { k: 'link', label: '> ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
-        { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
         { k: 'blank' },
       )
     } else if (cmd === 'ping' || cmd === 'ping visitor') {
@@ -353,6 +350,19 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
     processingRef.current = false
   }
 
+  // Skip typewriting on Enter (before done)
+  useEffect(() => {
+    if (done || exiting) return
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        skipRef.current = true
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [done, exiting])
+
   // Interactive keyboard input
   useEffect(() => {
     if (!done || exiting) return
@@ -369,14 +379,46 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
         setShowHint(false)
       }
 
-      if (e.key === 'Enter') {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        const history = historyRef.current
+        if (history.length === 0) return
+        if (historyIndexRef.current === -1) {
+          savedInputRef.current = inputRef.current
+        }
+        const nextIndex = Math.min(historyIndexRef.current + 1, history.length - 1)
+        historyIndexRef.current = nextIndex
+        const entry = history[history.length - 1 - nextIndex]
+        inputRef.current = entry
+        setInputText(entry)
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (historyIndexRef.current === -1) return
+        const nextIndex = historyIndexRef.current - 1
+        historyIndexRef.current = nextIndex
+        if (nextIndex === -1) {
+          const saved = savedInputRef.current
+          inputRef.current = saved
+          setInputText(saved)
+        } else {
+          const entry = historyRef.current[historyRef.current.length - 1 - nextIndex]
+          inputRef.current = entry
+          setInputText(entry)
+        }
+      } else if (e.key === 'Enter') {
         e.preventDefault()
         const current = inputRef.current
+        if (current.trim()) {
+          historyRef.current.push(current.trim())
+        }
+        historyIndexRef.current = -1
+        savedInputRef.current = ''
         setInputText('')
         inputRef.current = ''
         processCommand(current)
       } else if (e.key === 'Backspace') {
         e.preventDefault()
+        historyIndexRef.current = -1
         setInputText((prev) => {
           const next = prev.slice(0, -1)
           inputRef.current = next
@@ -384,6 +426,7 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
         })
       } else if (e.key.length === 1) {
         e.preventDefault()
+        historyIndexRef.current = -1
         setInputText((prev) => {
           const next = prev.length < 80 ? prev + e.key : prev
           inputRef.current = next
@@ -410,6 +453,14 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
         let i = 0
         function next() {
           if (cancelled) return
+          if (skipRef.current) {
+            skipRef.current = false
+            setTypingText(cmd)
+            setShowTyping(false)
+            setLines((prev) => [...prev, { k: 'text', text: PROMPT + cmd, color: GREEN }])
+            resolve()
+            return
+          }
           i++
           setTypingText(cmd.slice(0, i))
           if (i >= cmd.length) {
@@ -428,7 +479,7 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
       setLines((prev) => [...prev, ...newLines])
     }
 
-async function fetchIp(): Promise<IpData | null> {
+    async function fetchIp(): Promise<IpData | null> {
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 3000)
       try {
