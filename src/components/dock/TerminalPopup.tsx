@@ -201,23 +201,26 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
 
     if (cmd === 'help') {
       output.push(
-        { k: 'text', text: 'available commands:', color: BRIGHT },
+        { k: 'text', text: '> available commands:', color: BRIGHT },
         { k: 'blank' },
-        { k: 'text', text: '  whoami        \u2014 who is this guy', color: DIM },
-        { k: 'text', text: '  ls projects   \u2014 what he\u2019s built', color: DIM },
-        { k: 'text', text: '  skills        \u2014 what he works with', color: DIM },
-        { k: 'text', text: '  status        \u2014 availability', color: DIM },
-        { k: 'text', text: '  contact       \u2014 get in touch', color: DIM },
-        { k: 'text', text: '  clear         \u2014 clear terminal', color: DIM },
-        { k: 'text', text: '  exit          \u2014 close terminal', color: DIM },
+        { k: 'text', text: '>   whoami        \u2014 who is this guy', color: DIM },
+        { k: 'text', text: '>   ls projects   \u2014 what he\u2019s built', color: DIM },
+        { k: 'text', text: '>   skills        \u2014 what he works with', color: DIM },
+        { k: 'text', text: '>   status        \u2014 availability', color: DIM },
+        { k: 'text', text: '>   contact       \u2014 get in touch', color: DIM },
+        { k: 'text', text: '>   ping visitor  \u2014 locate visitor', color: DIM },
+        { k: 'text', text: '>   env --visitor \u2014 detect your setup', color: DIM },
+        { k: 'text', text: '>   ./connect.sh  \u2014 get in touch', color: DIM },
+        { k: 'text', text: '>   clear         \u2014 clear terminal', color: DIM },
+        { k: 'text', text: '>   exit          \u2014 close terminal', color: DIM },
         { k: 'blank' },
       )
     } else if (cmd === 'whoami') {
       output.push(
-        { k: 'text', text: 'Ernest Sacdal', color: BRIGHT },
-        { k: 'text', text: 'Full-Stack Developer & AI Engineer', color: BRIGHT },
-        { k: 'text', text: 'Sydney, AU \u00b7 4 years shipping code', color: BRIGHT },
-        { k: 'text', text: 'github.com/ernestsacdal', color: BRIGHT },
+        { k: 'text', text: '> Ernest Sacdal', color: BRIGHT },
+        { k: 'text', text: '> Full-Stack Developer & AI Engineer', color: BRIGHT },
+        { k: 'text', text: '> Sydney, AU \u00b7 4 years shipping code', color: BRIGHT },
+        { k: 'text', text: '> github.com/ernestsacdal', color: BRIGHT },
         { k: 'blank' },
       )
     } else if (cmd === 'ls projects') {
@@ -228,41 +231,93 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
           projectsCacheRef.current = data.titles
         }
         for (const title of projectsCacheRef.current) {
-          output.push({ k: 'text', text: `  ${title}`, color: BRIGHT })
+          output.push({ k: 'text', text: `>   ${title}`, color: BRIGHT })
         }
         output.push(
-          { k: 'text', text: '  currently building more...', color: DIM },
+          { k: 'text', text: '>   currently building more...', color: DIM },
           { k: 'blank' },
         )
       } catch {
         output.push(
-          { k: 'text', text: 'failed to fetch projects', color: '#ff5f56' },
+          { k: 'text', text: '> failed to fetch projects', color: '#ff5f56' },
           { k: 'blank' },
         )
       }
     } else if (cmd === 'skills') {
       output.push(
-        { k: 'text', text: 'frontend   : Next.js \u00b7 React \u00b7 TypeScript \u00b7 Node', color: BRIGHT },
-        { k: 'text', text: '               Express \u00b7 FastAPI \u00b7 Django \u00b7 Laravel', color: BRIGHT },
-        { k: 'text', text: '               Tailwind \u00b7 Shadcn \u00b7 Zod \u00b7 PHP \u00b7 Python', color: BRIGHT },
-        { k: 'text', text: 'ai         : Anthropic \u00b7 OpenAI \u00b7 Gemini \u00b7 Groq', color: BRIGHT },
-        { k: 'text', text: '               LangChain \u00b7 HuggingFace \u00b7 Ollama \u00b7 n8n', color: BRIGHT },
-        { k: 'text', text: '               Socket.io \u00b7 Cloudflare', color: BRIGHT },
-        { k: 'text', text: 'data       : PostgreSQL \u00b7 MongoDB \u00b7 Redis \u00b7 Prisma', color: BRIGHT },
-        { k: 'text', text: '               Drizzle \u00b7 Supabase \u00b7 SQLAlchemy \u00b7 Docker \u00b7 AWS', color: BRIGHT },
+        { k: 'text', text: '> frontend   : Next.js \u00b7 React \u00b7 TypeScript \u00b7 Node', color: BRIGHT },
+        { k: 'text', text: '>               Express \u00b7 FastAPI \u00b7 Django \u00b7 Laravel', color: BRIGHT },
+        { k: 'text', text: '>               Tailwind \u00b7 Shadcn \u00b7 Zod \u00b7 PHP \u00b7 Python', color: BRIGHT },
+        { k: 'text', text: '> ai         : Anthropic \u00b7 OpenAI \u00b7 Gemini \u00b7 Groq', color: BRIGHT },
+        { k: 'text', text: '>               LangChain \u00b7 HuggingFace \u00b7 Ollama \u00b7 n8n', color: BRIGHT },
+        { k: 'text', text: '>               Socket.io \u00b7 Cloudflare', color: BRIGHT },
+        { k: 'text', text: '> data       : PostgreSQL \u00b7 MongoDB \u00b7 Redis \u00b7 Prisma', color: BRIGHT },
+        { k: 'text', text: '>               Drizzle \u00b7 Supabase \u00b7 SQLAlchemy \u00b7 Docker \u00b7 AWS', color: BRIGHT },
         { k: 'blank' },
       )
     } else if (cmd === 'status') {
       output.push(
-        { k: 'text', text: 'open to work  : yes', color: BRIGHT },
-        { k: 'text', text: 'type          : full-time \u00b7 freelance \u00b7 collabs', color: BRIGHT },
-        { k: 'text', text: 'response time : within 24h', color: BRIGHT },
+        { k: 'text', text: '> open to work  : yes', color: BRIGHT },
+        { k: 'text', text: '> type          : full-time \u00b7 freelance \u00b7 collabs', color: BRIGHT },
+        { k: 'text', text: '> response time : within 24h', color: BRIGHT },
         { k: 'blank' },
       )
     } else if (cmd === 'contact') {
       output.push(
-        { k: 'link', label: 'ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
-        { k: 'link', label: 'linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
+        { k: 'link', label: '> ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
+        { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'ping' || cmd === 'ping visitor') {
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 3000)
+        const res = await fetch('/api/geoip', { signal: controller.signal })
+        const ip = await res.json() as IpData & { status: string }
+        clearTimeout(timeout)
+
+        if (ip.status === 'success') {
+          const visitorTZ = ip.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone
+          const visitorTime = formatTime(visitorTZ)
+          const sydneyTime = formatTime('Australia/Sydney')
+          output.push(
+            { k: 'text', text: `> ${ip.city}${ip.countryCode ? `, ${ip.countryCode}` : ''}  \u00b7  ${visitorTime}  -- you`, color: BRIGHT },
+            { k: 'text', text: `> Sydney, AU  \u00b7  ${sydneyTime}  -- me`, color: BRIGHT },
+            { k: 'text', text: `> ${getDistancePhrase(ip)}`, color: BRIGHT },
+            { k: 'blank' },
+          )
+        } else {
+          const fallbackTZ = Intl.DateTimeFormat().resolvedOptions().timeZone
+          const visitorTime = formatTime(fallbackTZ)
+          const sydneyTime = formatTime('Australia/Sydney')
+          output.push(
+            { k: 'text', text: `> Unknown  \u00b7  ${visitorTime}  -- you`, color: BRIGHT },
+            { k: 'text', text: `> Sydney, AU  \u00b7  ${sydneyTime}  -- me`, color: BRIGHT },
+            { k: 'blank' },
+          )
+        }
+      } catch {
+        output.push(
+          { k: 'text', text: '> failed to locate visitor', color: '#ff5f56' },
+          { k: 'blank' },
+        )
+      }
+    } else if (cmd === 'env --visitor') {
+      const env = getEnvData()
+      const deviceType = env.mobile ? 'Mobile' : 'Desktop'
+      const verdict = getVerdict(env.os, env.browser, env.mobile)
+      output.push(
+        { k: 'text', text: `> OS: ${env.os}`, color: BRIGHT },
+        { k: 'text', text: `> Browser: ${env.browser}${env.version ? ` ${env.version}` : ''}`, color: BRIGHT },
+        { k: 'text', text: `> Device: ${deviceType}`, color: BRIGHT },
+        { k: 'text', text: `> ${verdict}`, color: BRIGHT },
+        { k: 'blank' },
+      )
+    } else if (cmd === './connect.sh' || cmd === 'connect.sh') {
+      output.push(
+        { k: 'text', text: "> if you got this far \u2014 let\u2019s talk", color: BRIGHT },
+        { k: 'link', label: '> ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
+        { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
         { k: 'blank' },
       )
     } else if (cmd === 'clear') {
@@ -359,7 +414,7 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
           setTypingText(cmd.slice(0, i))
           if (i >= cmd.length) {
             setShowTyping(false)
-            setLines((prev) => [...prev, { k: 'text', text: cmd, color: GREEN }])
+            setLines((prev) => [...prev, { k: 'text', text: PROMPT + cmd, color: GREEN }])
             resolve()
             return
           }
@@ -405,7 +460,7 @@ async function fetchIp(): Promise<IpData | null> {
       if (cancelled) return
 
       // ── Command 1: ping visitor ──
-      await typeCmd('ernest@dev ~ % ping visitor')
+      await typeCmd('ping visitor')
       if (cancelled) return
 
       const visitorCity = ip ? ip.city : 'Unknown'
@@ -431,7 +486,7 @@ async function fetchIp(): Promise<IpData | null> {
       if (cancelled) return
 
       // ── Command 2: env --visitor ──
-      await typeCmd('ernest@dev ~ % env --visitor')
+      await typeCmd('env --visitor')
       if (cancelled) return
 
       const deviceType = env.mobile ? 'Mobile' : 'Desktop'
@@ -447,7 +502,7 @@ async function fetchIp(): Promise<IpData | null> {
       if (cancelled) return
 
       // ── Command 3: ./connect.sh ──
-      await typeCmd('ernest@dev ~ % ./connect.sh')
+      await typeCmd('./connect.sh')
       if (cancelled) return
 
       addLines([
@@ -562,26 +617,15 @@ async function fetchIp(): Promise<IpData | null> {
         })}
 
         {/* Auto-play typing (before done) */}
-        {showTyping && !done && (() => {
-          const cut = typingText.indexOf('% ')
-          if (cut !== -1) {
-            return (
-              <div>
-                <span style={{ color: GREEN }}>{typingText.slice(0, cut + 2)}</span>
-                <span style={{ color: '#ffffff' }}>
-                  {typingText.slice(cut + 2)}
-                  <span>█</span>
-                </span>
-              </div>
-            )
-          }
-          return (
-            <div style={{ color: GREEN }}>
+        {showTyping && !done && (
+          <div>
+            <span style={{ color: GREEN }}>{PROMPT}</span>
+            <span style={{ color: '#ffffff' }}>
               {typingText}
               <span>█</span>
-            </div>
-          )
-        })()}
+            </span>
+          </div>
+        )}
 
         {/* Interactive prompt (after done) */}
         {done && !exiting && (
