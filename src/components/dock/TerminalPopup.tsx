@@ -125,19 +125,28 @@ function getDistancePhrase(ip: IpData): string {
   return 'as far as it gets — and you still found this'
 }
 
+const PROMPT = 'ernest@dev ~ % '
+
 export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
   const [lines, setLines] = useState<TLine[]>([])
   const [typingText, setTypingText] = useState('')
   const [showTyping, setShowTyping] = useState(false)
   const [done, setDone] = useState(false)
+  const [inputText, setInputText] = useState('')
+  const [showHint, setShowHint] = useState(false)
+  const [exiting, setExiting] = useState(false)
   const popupRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const projectsCacheRef = useRef<string[] | null>(null)
+  const hintDismissedRef = useRef(false)
+  const processingRef = useRef(false)
+  const inputRef = useRef('')
 
   useEffect(() => {
     if (bodyRef.current) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight
     }
-  }, [lines, typingText])
+  }, [lines, typingText, inputText])
 
   // Click outside
   useEffect(() => {
@@ -160,6 +169,176 @@ export function TerminalPopup({ onClose, triggerRef }: TerminalPopupProps) {
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [onClose])
+
+  // Hint line — fade in after 2s once auto-play finishes
+  useEffect(() => {
+    if (!done) return
+    const timer = setTimeout(() => {
+      if (!hintDismissedRef.current) setShowHint(true)
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [done])
+
+  // Command processor
+  async function processCommand(raw: string) {
+    if (processingRef.current) return
+    const trimmed = raw.trim()
+    const cmd = trimmed.toLowerCase()
+
+    // Commit prompt line
+    if (cmd !== 'clear') {
+      setLines((prev) => [
+        ...prev,
+        { k: 'text', text: PROMPT + trimmed, color: GREEN },
+      ])
+    }
+
+    if (cmd === '') return
+
+    processingRef.current = true
+
+    const output: TLine[] = []
+
+    if (cmd === 'help') {
+      output.push(
+        { k: 'text', text: 'available commands:', color: BRIGHT },
+        { k: 'blank' },
+        { k: 'text', text: '  whoami        \u2014 who is this guy', color: DIM },
+        { k: 'text', text: '  ls projects   \u2014 what he\u2019s built', color: DIM },
+        { k: 'text', text: '  skills        \u2014 what he works with', color: DIM },
+        { k: 'text', text: '  status        \u2014 availability', color: DIM },
+        { k: 'text', text: '  contact       \u2014 get in touch', color: DIM },
+        { k: 'text', text: '  clear         \u2014 clear terminal', color: DIM },
+        { k: 'text', text: '  exit          \u2014 close terminal', color: DIM },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'whoami') {
+      output.push(
+        { k: 'text', text: 'Ernest Sacdal', color: BRIGHT },
+        { k: 'text', text: 'Full-Stack Developer & AI Engineer', color: BRIGHT },
+        { k: 'text', text: 'Sydney, AU \u00b7 4 years shipping code', color: BRIGHT },
+        { k: 'text', text: 'github.com/ernestsacdal', color: BRIGHT },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'ls projects') {
+      try {
+        if (!projectsCacheRef.current) {
+          const res = await fetch('/api/projects')
+          const data = (await res.json()) as { titles: string[] }
+          projectsCacheRef.current = data.titles
+        }
+        for (const title of projectsCacheRef.current) {
+          output.push({ k: 'text', text: `  ${title}`, color: BRIGHT })
+        }
+        output.push(
+          { k: 'text', text: '  currently building more...', color: DIM },
+          { k: 'blank' },
+        )
+      } catch {
+        output.push(
+          { k: 'text', text: 'failed to fetch projects', color: '#ff5f56' },
+          { k: 'blank' },
+        )
+      }
+    } else if (cmd === 'skills') {
+      output.push(
+        { k: 'text', text: 'frontend   : Next.js \u00b7 React \u00b7 TypeScript \u00b7 Node', color: BRIGHT },
+        { k: 'text', text: '               Express \u00b7 FastAPI \u00b7 Django \u00b7 Laravel', color: BRIGHT },
+        { k: 'text', text: '               Tailwind \u00b7 Shadcn \u00b7 Zod \u00b7 PHP \u00b7 Python', color: BRIGHT },
+        { k: 'text', text: 'ai         : Anthropic \u00b7 OpenAI \u00b7 Gemini \u00b7 Groq', color: BRIGHT },
+        { k: 'text', text: '               LangChain \u00b7 HuggingFace \u00b7 Ollama \u00b7 n8n', color: BRIGHT },
+        { k: 'text', text: '               Socket.io \u00b7 Cloudflare', color: BRIGHT },
+        { k: 'text', text: 'data       : PostgreSQL \u00b7 MongoDB \u00b7 Redis \u00b7 Prisma', color: BRIGHT },
+        { k: 'text', text: '               Drizzle \u00b7 Supabase \u00b7 SQLAlchemy \u00b7 Docker \u00b7 AWS', color: BRIGHT },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'status') {
+      output.push(
+        { k: 'text', text: 'open to work  : yes', color: BRIGHT },
+        { k: 'text', text: 'type          : full-time \u00b7 freelance \u00b7 collabs', color: BRIGHT },
+        { k: 'text', text: 'response time : within 24h', color: BRIGHT },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'contact') {
+      output.push(
+        { k: 'link', label: 'ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
+        { k: 'link', label: 'linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
+        { k: 'blank' },
+      )
+    } else if (cmd === 'clear') {
+      setLines([])
+      processingRef.current = false
+      return
+    } else if (cmd === 'exit') {
+      setExiting(true)
+      setLines((prev) => [
+        ...prev,
+        { k: 'text', text: 'closing session...', color: DIM },
+      ])
+      setTimeout(() => {
+        setLines((prev) => [
+          ...prev,
+          { k: 'text', text: 'logout', color: DIM },
+        ])
+        setTimeout(() => {
+          onClose()
+        }, 400)
+      }, 600)
+      processingRef.current = false
+      return
+    } else {
+      output.push(
+        { k: 'text', text: `command not found: ${trimmed}`, color: '#ff5f56' },
+        { k: 'text', text: "type 'help' to see available commands", color: DIM },
+        { k: 'blank' },
+      )
+    }
+
+    setLines((prev) => [...prev, ...output])
+    processingRef.current = false
+  }
+
+  // Interactive keyboard input
+  useEffect(() => {
+    if (!done || exiting) return
+    function handleKey(e: KeyboardEvent) {
+      if (processingRef.current) return
+      // Don't interfere with Escape (handled by separate effect)
+      if (e.key === 'Escape') return
+      // Ignore modifier combos (except Shift for capitals)
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+
+      // Dismiss hint on first keypress
+      if (!hintDismissedRef.current) {
+        hintDismissedRef.current = true
+        setShowHint(false)
+      }
+
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        const current = inputRef.current
+        setInputText('')
+        inputRef.current = ''
+        processCommand(current)
+      } else if (e.key === 'Backspace') {
+        e.preventDefault()
+        setInputText((prev) => {
+          const next = prev.slice(0, -1)
+          inputRef.current = next
+          return next
+        })
+      } else if (e.key.length === 1) {
+        e.preventDefault()
+        setInputText((prev) => {
+          const next = prev.length < 80 ? prev + e.key : prev
+          inputRef.current = next
+          return next
+        })
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [done, exiting])
 
   // Sequence engine
   useEffect(() => {
@@ -277,9 +456,8 @@ async function fetchIp(): Promise<IpData | null> {
         { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
         { k: 'blank' },
       ])
-      // sequence done — show idle prompt with blinking cursor
-      setShowTyping(true)
-      setTypingText('ernest@dev ~ % ')
+      // sequence done — switch to interactive mode
+      setShowTyping(false)
       setDone(true)
     }
 
@@ -383,7 +561,8 @@ async function fetchIp(): Promise<IpData | null> {
           )
         })}
 
-        {showTyping && (() => {
+        {/* Auto-play typing (before done) */}
+        {showTyping && !done && (() => {
           const cut = typingText.indexOf('% ')
           if (cut !== -1) {
             return (
@@ -391,7 +570,7 @@ async function fetchIp(): Promise<IpData | null> {
                 <span style={{ color: GREEN }}>{typingText.slice(0, cut + 2)}</span>
                 <span style={{ color: '#ffffff' }}>
                   {typingText.slice(cut + 2)}
-                  <span className={done ? 'animate-blink' : undefined}>█</span>
+                  <span>█</span>
                 </span>
               </div>
             )
@@ -399,10 +578,35 @@ async function fetchIp(): Promise<IpData | null> {
           return (
             <div style={{ color: GREEN }}>
               {typingText}
-              <span className={done ? 'animate-blink' : undefined}>█</span>
+              <span>█</span>
             </div>
           )
         })()}
+
+        {/* Interactive prompt (after done) */}
+        {done && !exiting && (
+          <div>
+            <span style={{ color: GREEN }}>{PROMPT}</span>
+            <span style={{ color: '#ffffff' }}>
+              {inputText}
+              <span className="animate-blink">█</span>
+            </span>
+          </div>
+        )}
+
+        {/* Hint line */}
+        {showHint && (
+          <div
+            style={{
+              color: DIM,
+              opacity: 1,
+              transition: 'opacity 0.5s ease-in',
+              marginTop: 4,
+            }}
+          >
+            # type &apos;help&apos; to explore
+          </div>
+        )}
       </div>
     </motion.div>
   )
