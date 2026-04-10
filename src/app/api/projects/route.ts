@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAllProjects } from '@/lib/mdx'
 
-export const revalidate = 3600
+export const dynamic = 'force-static'
 
 export async function GET() {
   const projects = getAllProjects()

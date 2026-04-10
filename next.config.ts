@@ -11,6 +11,7 @@ const withMDX = createMDX({
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'i.scdn.co' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
