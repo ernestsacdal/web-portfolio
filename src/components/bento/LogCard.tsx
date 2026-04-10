@@ -209,7 +209,6 @@ export function LogCard() {
   // ── Flow animation ────────────────────────────────────────────────────────────
   // Steps quickly to AI Engine, then holds until api:done fires, then completes.
   const runFlowAnimation = useCallback(async () => {
-    apiDoneRef.current = false
     setMode('flow')
     // User → Frontend → API: fast (these are local/immediate)
     for (let i = 0; i <= 2; i++) {
@@ -304,6 +303,10 @@ export function LogCard() {
 
         case 'game:move':
           if (detail.player === 'human') {
+            // Reset before the new API call begins; unblock any stuck flow from a fast previous response
+            apiDoneRef.current = false
+            flowResolverRef.current?.()
+            flowResolverRef.current = null
             addToQueue(async () => {
               addLog({ type: 'GAME', message: `You placed → col ${detail.col + 1}` })
             })
