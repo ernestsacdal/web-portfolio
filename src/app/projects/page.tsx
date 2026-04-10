@@ -3,11 +3,11 @@ import { getAllProjects } from '@/lib/mdx'
 import { ProjectsClientGrid } from '@/components/sections/ProjectsClientGrid'
 
 export const metadata: Metadata = {
-  title: 'Projects — Ernest Sacdal',
-  description: 'Selected work by Ernest Sacdal — full-stack applications, AI systems, and mobile apps.',
+  title: 'Projects',
+  description: 'Selected work — full-stack applications, AI systems, and mobile apps.',
   openGraph: {
-    title: 'Projects — Ernest Sacdal',
-    description: 'Selected work by Ernest Sacdal — full-stack applications, AI systems, and mobile apps.',
+    title: 'Projects',
+    description: 'Selected work — full-stack applications, AI systems, and mobile apps.',
   },
 }
 

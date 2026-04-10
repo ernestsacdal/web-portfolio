@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   try {
     const { meta } = getProjectBySlug(slug)
     return {
-      title: `${meta.title} — Ernest Sacdal`,
+      title: meta.title,
       description: meta.description,
       openGraph: {
         title: meta.title,

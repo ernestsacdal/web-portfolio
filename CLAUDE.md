@@ -91,13 +91,6 @@ src/
 └── types/index.ts           — Project, BlogPost, SpotifyTrack, GithubData
 ```
 
-## Unused stubs (not wired into BentoGrid)
-
-- `src/components/bento/FeaturedProjectCard.tsx` — empty card, pending redesign
-- `src/components/bento/ServicesMarqueeCard.tsx` — superseded by SkillsMarqueeCard
-- `src/components/bento/ServicesCard.tsx` — 13-service grid, not placed
-- `src/components/ui/Tag.tsx`, `StatusBadge.tsx`
-
 ## Recent phases
 
 ### Phase 14 — Connect 4 (BuildCard) ✅
