@@ -17,12 +17,25 @@ const ThemeContext = createContext<ThemeContextType>({
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
 
+  // On mount, restore theme from sessionStorage (persists across reloads,
+  // resets to dark when the tab is closed)
+  useEffect(() => {
+    const saved = sessionStorage.getItem('theme') as Theme | null
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved)
+    }
+  }, [])
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      sessionStorage.setItem('theme', next)
+      return next
+    })
   }
 
   return (
