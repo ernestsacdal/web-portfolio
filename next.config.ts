@@ -17,9 +17,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
     ],
   },
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'simple-icons', 'framer-motion'],
-  },
 }
 
 export default withMDX(nextConfig)
