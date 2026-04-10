@@ -5,9 +5,21 @@ import Image from 'next/image'
 import { siSpotify } from 'simple-icons'
 import type { SpotifyTrack } from '@/types'
 
+const MOBILE_STYLES = `
+  @media (max-width: 767px) {
+    .spotify-track { flex-direction: column !important; align-items: center !important; gap: 10px !important; }
+    .spotify-art { width: 56px !important; height: 56px !important; border-radius: 8px !important; }
+    .spotify-text { text-align: center !important; }
+    .spotify-text p { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+    .spotify-title { font-size: 14px !important; }
+    .spotify-artist { font-size: 12px !important; }
+    .spotify-bars { display: none !important; }
+  }
+`
+
 function SoundBars() {
   return (
-    <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 14 }}>
+    <div className="spotify-bars" style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 14 }}>
       {[0, 0.3, 0.15].map((delay, i) => (
         <div
           key={i}
@@ -28,13 +40,13 @@ function SoundBars() {
 
 function Skeleton() {
   return (
-    <div className="bento-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="bento-card" style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '12px 14px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="shimmer" style={{ width: 80, height: 10, borderRadius: 6 }} />
-        <div className="shimmer" style={{ width: 20, height: 20, borderRadius: 4 }} />
+        <div className="shimmer" style={{ width: 70, height: 9, borderRadius: 6 }} />
+        <div className="shimmer" style={{ width: 16, height: 16, borderRadius: 4 }} />
       </div>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <div className="shimmer" style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0 }} />
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div className="shimmer" style={{ width: 40, height: 40, borderRadius: 6, flexShrink: 0 }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
           <div className="shimmer" style={{ width: '70%', height: 12, borderRadius: 6 }} />
           <div className="shimmer" style={{ width: '50%', height: 10, borderRadius: 6 }} />
@@ -86,7 +98,6 @@ export function SpotifyCard() {
 
   if (loading) return <Skeleton />
 
-  // No data at all
   if (!track?.title) {
     return (
       <div
@@ -98,58 +109,89 @@ export function SpotifyCard() {
     )
   }
 
-  return (
-    <div className="bento-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text2)' }}>
-          {track.isPlaying ? 'Now playing' : 'Last played'}
+  const trackContent = (
+    <>
+      {track.albumArt && (
+        <Image
+          src={track.albumArt}
+          alt="Album art"
+          width={40}
+          height={40}
+          sizes="56px"
+          className="spotify-art"
+          style={{ borderRadius: 6, flexShrink: 0 }}
+        />
+      )}
+      <div className="spotify-text" style={{ flex: 1, minWidth: 0 }}>
+        <p
+          className="spotify-title"
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--text)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {track.title}
         </p>
-        <svg viewBox="0 0 24 24" width={18} height={18} fill="#1DB954" aria-label="Spotify">
+        <p
+          className="spotify-artist"
+          style={{
+            fontSize: 11,
+            color: 'var(--text2)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            marginTop: 2,
+          }}
+        >
+          {track.artist}
+        </p>
+      </div>
+    </>
+  )
+
+  return (
+    <>
+      <style>{MOBILE_STYLES}</style>
+      <div className="bento-card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', padding: '12px 14px' }}>
+        {/* Spotify logo — absolute top right */}
+        <svg viewBox="0 0 24 24" width={16} height={16} fill="#1DB954" aria-label="Spotify"
+          style={{ position: 'absolute', top: 12, right: 14, flexShrink: 0 }}>
           <path d={siSpotify.path} />
         </svg>
-      </div>
 
-      {/* Track info */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        {track.albumArt && (
-          <Image
-            src={track.albumArt}
-            alt="Album art"
-            width={48}
-            height={48}
-            sizes="48px"
-            style={{ borderRadius: 8, flexShrink: 0 }}
-          />
+        {/* Label — top left */}
+        <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text2)', paddingRight: 24 }}>
+          {track.isPlaying ? 'Now playing' : 'Last played'}
+        </p>
+
+        {/* Track group — fills remaining height, vertically centered */}
+        {track.songUrl ? (
+          <a
+            href={track.songUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="spotify-track"
+            style={{ flex: 1, display: 'flex', gap: 10, alignItems: 'center', textDecoration: 'none' }}
+          >
+            {trackContent}
+          </a>
+        ) : (
+          <div className="spotify-track" style={{ flex: 1, display: 'flex', gap: 10, alignItems: 'center' }}>
+            {trackContent}
+          </div>
         )}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: 'var(--text)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {track.title}
-          </p>
-          <p
-            style={{
-              fontSize: 12,
-              color: 'var(--text2)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              marginTop: 2,
-            }}
-          >
-            {track.artist}
-          </p>
-        </div>
-        {track.isPlaying && <SoundBars />}
+
+        {/* Animated bars — absolute bottom right */}
+        {track.isPlaying && (
+          <div style={{ position: 'absolute', bottom: 12, right: 14 }}>
+            <SoundBars />
+          </div>
+        )}
       </div>
-    </div>
+    </>
   )
 }

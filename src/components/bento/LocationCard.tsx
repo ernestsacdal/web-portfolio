@@ -6,7 +6,7 @@ const Map = dynamic(() => import('./LocationMap'), { ssr: false })
 
 export function LocationCard() {
   return (
-    <div className="bento-card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
+    <div className="bento-card" style={{ padding: 0, overflow: 'hidden', position: 'relative', isolation: 'isolate' }}>
       <Map />
 
       {/* Pulsing dot — centered */}

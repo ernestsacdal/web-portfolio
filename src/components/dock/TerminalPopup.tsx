@@ -141,6 +141,7 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
   const [pos, setPos] = useState<{ bottom: number; left: number } | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
   const projectsCacheRef = useRef<string[] | null>(null)
   const hintDismissedRef = useRef(false)
   const processingRef = useRef(false)
@@ -401,80 +402,70 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
     return () => document.removeEventListener('keydown', handleKey)
   }, [done, exiting])
 
-  // Interactive keyboard input
+  // Focus hidden input when interactive mode starts (triggers mobile keyboard)
   useEffect(() => {
-    if (!done || exiting) return
-    function handleKey(e: KeyboardEvent) {
-      if (processingRef.current) return
-      // Don't interfere with Escape (handled by separate effect)
-      if (e.key === 'Escape') return
-      // Ignore modifier combos (except Shift for capitals)
-      if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (done && !exiting) {
+      hiddenInputRef.current?.focus()
+    }
+  }, [done, exiting])
 
-      // Dismiss hint on first keypress
-      if (!hintDismissedRef.current) {
-        hintDismissedRef.current = true
-        setShowHint(false)
-      }
+  function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (processingRef.current) return
+    if (e.key === 'Escape') { onClose(); return }
+    if (e.ctrlKey || e.metaKey || e.altKey) return
 
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        const history = historyRef.current
-        if (history.length === 0) return
-        if (historyIndexRef.current === -1) {
-          savedInputRef.current = inputRef.current
-        }
-        const nextIndex = Math.min(historyIndexRef.current + 1, history.length - 1)
-        historyIndexRef.current = nextIndex
-        const entry = history[history.length - 1 - nextIndex]
+    if (!hintDismissedRef.current) {
+      hintDismissedRef.current = true
+      setShowHint(false)
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const history = historyRef.current
+      if (history.length === 0) return
+      if (historyIndexRef.current === -1) savedInputRef.current = inputRef.current
+      const nextIndex = Math.min(historyIndexRef.current + 1, history.length - 1)
+      historyIndexRef.current = nextIndex
+      const entry = history[history.length - 1 - nextIndex]
+      inputRef.current = entry
+      setInputText(entry)
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (historyIndexRef.current === -1) return
+      const nextIndex = historyIndexRef.current - 1
+      historyIndexRef.current = nextIndex
+      if (nextIndex === -1) {
+        inputRef.current = savedInputRef.current
+        setInputText(savedInputRef.current)
+      } else {
+        const entry = historyRef.current[historyRef.current.length - 1 - nextIndex]
         inputRef.current = entry
         setInputText(entry)
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        if (historyIndexRef.current === -1) return
-        const nextIndex = historyIndexRef.current - 1
-        historyIndexRef.current = nextIndex
-        if (nextIndex === -1) {
-          const saved = savedInputRef.current
-          inputRef.current = saved
-          setInputText(saved)
-        } else {
-          const entry = historyRef.current[historyRef.current.length - 1 - nextIndex]
-          inputRef.current = entry
-          setInputText(entry)
-        }
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        const current = inputRef.current
-        if (current.trim()) {
-          historyRef.current.push(current.trim())
-        }
-        historyIndexRef.current = -1
-        savedInputRef.current = ''
-        setInputText('')
-        inputRef.current = ''
-        processCommand(current)
-      } else if (e.key === 'Backspace') {
-        e.preventDefault()
-        historyIndexRef.current = -1
-        setInputText((prev) => {
-          const next = prev.slice(0, -1)
-          inputRef.current = next
-          return next
-        })
-      } else if (e.key.length === 1) {
-        e.preventDefault()
-        historyIndexRef.current = -1
-        setInputText((prev) => {
-          const next = prev.length < 80 ? prev + e.key : prev
-          inputRef.current = next
-          return next
-        })
       }
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const current = inputRef.current
+      if (current.trim()) historyRef.current.push(current.trim())
+      historyIndexRef.current = -1
+      savedInputRef.current = ''
+      setInputText('')
+      inputRef.current = ''
+      processCommand(current)
     }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [done, exiting])
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Handles mobile virtual keyboard input (onChange fires, keydown may not)
+    if (processingRef.current) return
+    const val = e.target.value.slice(0, 80)
+    inputRef.current = val
+    setInputText(val)
+    historyIndexRef.current = -1
+    if (!hintDismissedRef.current) {
+      hintDismissedRef.current = true
+      setShowHint(false)
+    }
+  }
 
   // Sequence engine
   useEffect(() => {
@@ -622,7 +613,7 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
       style={{
         position: 'fixed',
         ...(pos ? { bottom: pos.bottom, left: pos.left } : { bottom: 74, left: '50%', transform: 'translateX(-50%)' }),
-        zIndex: 49,
+        zIndex: 9999,
         width: TERMINAL_WIDTH,
         background: 'rgba(28, 28, 28, 0.95)',
         backdropFilter: 'blur(20px)',
@@ -655,9 +646,34 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
         </span>
       </div>
 
+      {/* Hidden input — gives mobile virtual keyboard a target */}
+      {done && !exiting && (
+        <input
+          ref={hiddenInputRef}
+          value={inputText}
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          aria-label="Terminal input"
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            pointerEvents: 'none',
+            width: 1,
+            height: 1,
+            top: 0,
+            left: 0,
+          }}
+        />
+      )}
+
       {/* Terminal body */}
       <div
         ref={bodyRef}
+        onClick={() => hiddenInputRef.current?.focus()}
         style={{
           padding: '14px 16px 16px',
           fontFamily: "'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace",
@@ -665,6 +681,7 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
           lineHeight: 1.7,
           height: 300,
           overflowY: 'auto',
+          cursor: done && !exiting ? 'text' : 'default',
         }}
       >
         {lines.map((line, i) => {

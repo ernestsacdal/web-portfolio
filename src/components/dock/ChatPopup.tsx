@@ -273,7 +273,7 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
         style={{
           position: 'fixed',
           ...posStyle,
-          zIndex: 49,
+          zIndex: 9999,
           width: POPUP_WIDTH,
           height: POPUP_HEIGHT,
           borderRadius: 22,
