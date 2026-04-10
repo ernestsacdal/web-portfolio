@@ -36,15 +36,15 @@ function getTimestamp(): string {
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────────
-function LogView({ logs, logEndRef }: { logs: LogEntry[]; logEndRef: React.RefObject<HTMLDivElement | null> }) {
+function LogView({ logs, containerRef }: { logs: LogEntry[]; containerRef: React.RefObject<HTMLDivElement | null> }) {
   return (
-    <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 2 }}>
+    <div ref={containerRef} style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 2 }}>
       {logs.length === 0 && (
         <div style={{ fontSize: 10, color: 'var(--text2)', opacity: 0.5, marginTop: 8 }}>
           Waiting for events...
         </div>
       )}
-      {logs.map(entry => (
+      {logs.map((entry) => (
         <div
           key={entry.id}
           style={{ animation: 'logFadeIn 0.2s ease forwards', opacity: 0, flexShrink: 0 }}
@@ -73,7 +73,6 @@ function LogView({ logs, logEndRef }: { logs: LogEntry[]; logEndRef: React.RefOb
           )}
         </div>
       ))}
-      <div ref={logEndRef} />
     </div>
   )
 }
@@ -161,7 +160,12 @@ export function LogCard() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [flowStep, setFlowStep] = useState(-1)
 
-  const logEndRef       = useRef<HTMLDivElement>(null)
+  const logContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = logContainerRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [logs])
   const timeoutIds      = useRef<ReturnType<typeof setTimeout>[]>([])
   const queueRef        = useRef<Array<() => Promise<void>>>([])
   const processingRef   = useRef(false)
@@ -254,9 +258,10 @@ export function LogCard() {
   // ── Ambient background logs ───────────────────────────────────────────────────
   useEffect(() => {
     function scheduleSpotify() {
+      if (!mountedRef.current || document.hidden) return
       const delay = 28_000 + Math.random() * 4_000
       const id = setTimeout(() => {
-        if (!mountedRef.current) return
+        if (!mountedRef.current || document.hidden) return
         const latency = Math.floor(Math.random() * 600 + 200)
         addLog({ type: 'API', message: `GET /spotify → 200 OK (${latency}ms)` })
         scheduleSpotify()
@@ -264,16 +269,27 @@ export function LogCard() {
       timeoutIds.current.push(id)
     }
     function scheduleGithub() {
+      if (!mountedRef.current || document.hidden) return
       const delay = 55_000 + Math.random() * 10_000
       const id = setTimeout(() => {
-        if (!mountedRef.current) return
+        if (!mountedRef.current || document.hidden) return
         addLog({ type: 'API', message: 'GET /github → 304 Not Modified' })
         scheduleGithub()
       }, delay)
       timeoutIds.current.push(id)
     }
+
+    function onVisibilityChange() {
+      if (!document.hidden) {
+        scheduleSpotify()
+        scheduleGithub()
+      }
+    }
+
     scheduleSpotify()
     scheduleGithub()
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [addLog])
 
   // ── Event listener ────────────────────────────────────────────────────────────
@@ -389,7 +405,7 @@ export function LogCard() {
       {/* ── Body ── */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         {mode === 'log'
-          ? <LogView logs={logs} logEndRef={logEndRef} />
+          ? <LogView logs={logs} containerRef={logContainerRef} />
           : <FlowView flowStep={flowStep} />
         }
       </div>
@@ -411,20 +427,6 @@ export function LogCard() {
         ))}
       </div>
 
-      <style>{`
-        @keyframes logFadeIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes flowGlow {
-          0%, 100% { box-shadow: 0 0 8px #0A84FF88; }
-          50%       { box-shadow: 0 0 20px #0A84FFCC; }
-        }
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.5; transform: scale(0.85); }
-        }
-      `}</style>
     </div>
   )
 }
