@@ -54,7 +54,7 @@ export function GithubCard({ data }: GithubCardProps) {
 
   return (
     <div
-      className="bento-card"
+      className="bento-card max-md:px-3"
       style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
     >
       {/* Header */}
@@ -68,29 +68,26 @@ export function GithubCard({ data }: GithubCardProps) {
       </div>
 
       {/* Heatmap */}
-      <div style={{ overflowX: 'auto', direction: 'rtl', flex: 1, minHeight: 0, display: 'flex', alignItems: 'center' }}>
+      <div className="max-md:overflow-hidden" style={{ overflowX: 'auto', direction: 'rtl', flex: 1, minHeight: 0, display: 'flex', alignItems: 'center' }}>
         <div
+          className="gap-0.5 md:gap-1"
           style={{
             direction: 'ltr',
             display: 'flex',
-            gap: 4,
             width: 'max-content',
             margin: '0 auto',
           }}
         >
           {weeks.map((week, wi) => (
-            <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div key={wi} className="flex flex-col gap-0.5 md:gap-1">
               {week.map((day, di) => (
                 <div
                   key={di}
+                  className="size-[10px] md:size-4 rounded-[2px] md:rounded-[3px] shrink-0"
                   onMouseEnter={() => setHoverLabel(formatHoverLabel(day.date, day.count))}
                   onMouseLeave={() => setHoverLabel(null)}
                   style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: 3,
                     background: getColor(day.level),
-                    flexShrink: 0,
                     cursor: 'default',
                   }}
                 />

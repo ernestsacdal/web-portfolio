@@ -89,7 +89,6 @@ export function TechStackCard() {
 
   const trackStyle = {
     display: 'flex',
-    gap: 28,
     width: 'max-content',
     alignItems: 'center',
     willChange: 'transform' as const,
@@ -97,15 +96,14 @@ export function TechStackCard() {
 
   const renderRow = (icons: IconDef[], animClass: string, duration: string) => (
     <div style={{ overflow: 'hidden', ...maskStyle }}>
-      <div className={animClass} style={{ ...trackStyle, animationDuration: duration }}>
+      <div className={`${animClass} gap-3 md:gap-7`} style={{ ...trackStyle, animationDuration: duration }}>
         {icons.map((icon, i) => (
           <svg
             key={i}
+            className="size-5 md:size-8 shrink-0"
             viewBox={icon.viewBox ?? '0 0 24 24'}
-            width={32}
-            height={32}
             fill={fill}
-            style={{ flexShrink: 0, opacity: 0.75 }}
+            style={{ opacity: 0.75 }}
             aria-label={icon.title}
           >
             <path d={icon.path} />
@@ -121,13 +119,13 @@ export function TechStackCard() {
       style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
     >
       <p
+        className="mb-2 md:mb-4"
         style={{
           fontSize: 11,
           fontWeight: 500,
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
           color: 'var(--text2)',
-          marginBottom: 16,
           flexShrink: 0,
         }}
       >
@@ -135,12 +133,12 @@ export function TechStackCard() {
       </p>
 
       <div
+        className="gap-2 md:gap-4"
         style={{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          gap: 16,
           overflow: 'hidden',
         }}
       >

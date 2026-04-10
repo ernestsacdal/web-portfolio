@@ -17,53 +17,54 @@ export async function BentoGrid() {
       className="min-h-screen flex flex-col justify-center"
       style={{ width: '100%', padding: '2rem 1.25rem 6rem', maxWidth: 1280, margin: '0 auto' }}
     >
-      {/* 36-column explicit-placement grid — matches Jesica's proportions */}
+      {/* 36-column explicit-placement grid on md+; 2-column iOS widget grid on mobile */}
       <div
         className={[
-          'md:grid max-md:flex max-md:flex-col max-md:gap-3',
+          'max-md:grid max-md:grid-cols-2 max-md:gap-4',
+          'md:grid',
           'md:grid-cols-[repeat(36,_minmax(0,_1fr))]',
           'md:grid-rows-[repeat(15,_minmax(0,_1fr))]',
           'md:h-[720px]',
-          'gap-3',
+          'md:gap-3',
         ].join(' ')}
       >
-        {/* Left column — Location (tall) */}
-        <div className="col-start-1 col-end-11 row-start-1 row-end-[8] max-md:h-[260px] max-md:overflow-hidden">
+        {/* Map — full width, order 1 */}
+        <div className="md:col-start-1 md:col-end-11 md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-1 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <LocationCard />
         </div>
 
-        {/* Left column — Quote (compact strip) */}
-        <div className="col-start-1 col-end-11 row-start-[8] row-end-[10] max-md:h-[100px] max-md:overflow-hidden">
+        {/* Quote — hidden on mobile */}
+        <div className="md:col-start-1 md:col-end-11 md:row-start-[8] md:row-end-[10] max-md:hidden">
           <QuoteCard />
         </div>
 
-        {/* Center — Featured project (tall) */}
-        <div className="col-start-11 col-end-[24] row-start-1 row-end-[8] max-md:h-[200px] max-md:overflow-hidden">
+        {/* System Log — full width, order 2 */}
+        <div className="md:col-start-11 md:col-end-[24] md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-2 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <LogCard />
         </div>
 
-        {/* Center — Spotify now playing (compact strip) */}
-        <div className="col-start-11 col-end-[24] row-start-[8] row-end-[10] max-md:h-[72px] max-md:overflow-hidden">
+        {/* Spotify — half width, order 4 (right of Services) */}
+        <div className="md:col-start-11 md:col-end-[24] md:row-start-[8] md:row-end-[10] max-md:col-span-1 max-md:order-4 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <SpotifyCard />
         </div>
 
-        {/* Right — Skills marquee (small top) */}
-        <div className="col-start-[24] col-end-[37] row-start-1 row-end-4 max-md:h-[140px] max-md:overflow-hidden">
+        {/* Services — half width, order 3 (left of Spotify) */}
+        <div className="md:col-start-[24] md:col-end-[37] md:row-start-1 md:row-end-4 max-md:col-span-1 max-md:order-3 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <SkillsMarqueeCard />
         </div>
 
-        {/* Right — Build CTA (tall bottom) */}
-        <div className="col-start-[24] col-end-[37] row-start-4 row-end-[10] max-md:h-[420px] max-md:overflow-hidden">
+        {/* Connect 4 — full width, order 5, 2× height */}
+        <div className="md:col-start-[24] md:col-end-[37] md:row-start-4 md:row-end-[10] max-md:col-span-2 max-md:order-5 max-md:h-[340px] max-md:overflow-hidden max-md:rounded-[22px]">
           <BuildCard />
         </div>
 
-        {/* Bottom left — GitHub activity */}
-        <div className="col-start-1 col-end-[19] row-start-[10] row-end-[16] max-md:h-[200px] max-md:overflow-hidden">
+        {/* GitHub Heatmap — full width, order 6 */}
+        <div className="md:col-start-1 md:col-end-[19] md:row-start-[10] md:row-end-[16] max-md:col-span-2 max-md:order-6 max-md:h-[185px] max-md:overflow-hidden max-md:rounded-[22px]">
           <GithubCard data={githubData} />
         </div>
 
-        {/* Bottom right — Tech stack */}
-        <div className="col-start-[19] col-end-[37] row-start-[10] row-end-[16] max-md:h-[140px] max-md:overflow-hidden">
+        {/* Tech Stack — full width, order 7 */}
+        <div className="md:col-start-[19] md:col-end-[37] md:row-start-[10] md:row-end-[16] max-md:col-span-2 max-md:order-7 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <TechStackCard />
         </div>
       </div>

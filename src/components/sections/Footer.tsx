@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { FadeIn } from '@/components/ui/FadeIn'
 
 export function Footer() {
@@ -22,9 +23,11 @@ export function Footer() {
         }}
       >
         {/* Left — Logo */}
-        <img
+        <Image
           src="/logo.png"
           alt="EMS"
+          width={120}
+          height={48}
           className="h-12 w-auto mix-blend-multiply dark:mix-blend-normal dark:invert"
           style={{ display: 'block' }}
         />

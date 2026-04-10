@@ -42,17 +42,16 @@ export function SkillsMarqueeCard() {
         }}
       >
         <div
-          className="animate-marquee-vertical"
-          style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+          className="animate-marquee-vertical gap-1.5 md:gap-2.5"
+          style={{ display: 'flex', flexDirection: 'column' }}
         >
           {LOOP.map((service, i) => (
             <p
               key={i}
+              className="truncate text-[10px] md:text-lg"
               style={{
-                fontSize: 18,
                 fontWeight: 400,
                 color: 'var(--text2)',
-                whiteSpace: 'nowrap',
                 letterSpacing: '-0.02em',
                 lineHeight: 1,
                 textAlign: 'center',
