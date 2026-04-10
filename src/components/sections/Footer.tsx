@@ -29,7 +29,7 @@ export function Footer() {
           width={120}
           height={48}
           className="h-12 w-auto mix-blend-multiply dark:mix-blend-normal dark:invert"
-          style={{ display: 'block' }}
+          style={{ display: 'block', width: 'auto', height: '3rem' }}
         />
 
         {/* Center — Copyright */}
