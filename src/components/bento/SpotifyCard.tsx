@@ -61,9 +61,27 @@ export function SpotifyCard() {
       }
     }
 
-    fetchTrack()
-    const id = setInterval(fetchTrack, 30_000)
-    return () => clearInterval(id)
+    let id: ReturnType<typeof setInterval>
+
+    function start() {
+      fetchTrack()
+      id = setInterval(fetchTrack, 30_000)
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        clearInterval(id)
+      } else {
+        start()
+      }
+    }
+
+    start()
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [])
 
   if (loading) return <Skeleton />
@@ -100,7 +118,7 @@ export function SpotifyCard() {
             alt="Album art"
             width={48}
             height={48}
-            unoptimized
+            sizes="48px"
             style={{ borderRadius: 8, flexShrink: 0 }}
           />
         )}

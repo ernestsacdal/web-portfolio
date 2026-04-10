@@ -4,7 +4,12 @@ const TOKEN_URL = 'https://accounts.spotify.com/api/token'
 const NOW_PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing'
 const RECENTLY_PLAYED_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=1'
 
+let cachedToken: string | null = null
+let tokenExpiresAt = 0
+
 async function getAccessToken(): Promise<string> {
+  if (cachedToken && Date.now() < tokenExpiresAt) return cachedToken
+
   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } = process.env
 
   const basic = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')
@@ -22,7 +27,9 @@ async function getAccessToken(): Promise<string> {
   })
 
   const data = await res.json()
-  return data.access_token as string
+  cachedToken = data.access_token as string
+  tokenExpiresAt = Date.now() + (data.expires_in - 60) * 1000
+  return cachedToken
 }
 
 export async function getNowPlaying(): Promise<SpotifyTrack> {

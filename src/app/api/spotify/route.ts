@@ -16,11 +16,10 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const track = await getNowPlaying()
-    if (track.isPlaying || track.title) {
-      return NextResponse.json(track)
-    }
-    const recent = await getRecentlyPlayed()
-    return NextResponse.json(recent)
+    const payload = track.isPlaying || track.title ? track : await getRecentlyPlayed()
+    return NextResponse.json(payload, {
+      headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30' },
+    })
   } catch (error) {
     console.error('[/api/spotify]', error)
     return NextResponse.json({ isPlaying: false })
