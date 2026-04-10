@@ -419,12 +419,6 @@ export function BuildCard() {
         </div>
       )}
 
-      <style>{`
-        @keyframes winPulse {
-          from { opacity: 1; transform: scale(1); }
-          to   { opacity: 0.65; transform: scale(0.88); }
-        }
-      `}</style>
     </div>
   )
 }

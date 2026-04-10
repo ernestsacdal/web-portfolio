@@ -35,24 +35,10 @@
   --blur-dock: 24px;
 
   /* Animations */
-  --animate-fade-up: fadeUp 0.6s ease forwards;
   --animate-pulse-dot: pulseDot 2s ease-in-out infinite;
   --animate-marquee: marquee 35s linear infinite;
   --animate-marquee-reverse: marqueeReverse 35s linear infinite;
   --animate-blink: blink 1s step-end infinite;
-  --animate-type-cursor: typeCursor 0.8s step-end infinite;
-
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 
   @keyframes pulseDot {
 
@@ -100,18 +86,6 @@
     }
   }
 
-  @keyframes typeCursor {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0;
-    }
-  }
-
   --animate-sound-bar: soundBar 1s ease-in-out infinite;
 
   @keyframes soundBar {
@@ -125,8 +99,6 @@
       transform: scaleY(1);
     }
   }
-
-  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
 
   @keyframes shimmer {
     0% {
@@ -282,15 +254,35 @@ body {
   color: var(--text);
 }
 
-.footer-link {
-  color: var(--text2);
-  text-decoration: none;
-  font-size: 13px;
-  transition: color 0.2s ease;
+/* ── Component keyframes ──────────────────────────────────────────────── */
+
+@keyframes winPulse {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.65; transform: scale(0.88); }
 }
 
-.footer-link:hover {
-  color: var(--text);
+@keyframes logFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flowGlow {
+  0%, 100% { box-shadow: 0 0 8px #0A84FF88; }
+  50%       { box-shadow: 0 0 20px #0A84FFCC; }
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes mikhaiPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
+  50% { opacity: 0.75; box-shadow: 0 0 0 4px rgba(52, 199, 89, 0); }
+}
+
+.mikhai-dot {
+  animation: mikhaiPulse 2s ease-in-out infinite;
 }
 
 .back-link {
