@@ -23,9 +23,9 @@ type SocialLink = {
 
 const SOCIAL_LINKS: SocialLink[] = [
   { label: 'GitHub', href: 'https://github.com/ernestsacdal', external: true, simpleIcon: siGithub },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/ernestsacdal', external: true, simpleIcon: siLinkedin },
-  { label: 'Email', href: 'mailto:ernest@ernestsacdal.com', lucideIcon: Mail },
-  { label: 'CV', href: '/cv.pdf', download: true, lucideIcon: FileText },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ernestmikhail/', external: true, simpleIcon: siLinkedin },
+  { label: 'Email', href: 'mailto:sacdalernest01@gmail.com', lucideIcon: Mail },
+  { label: 'CV', href: '/ernestsacdalcv.pdf', external: true, lucideIcon: FileText },
 ]
 
 const fadeUp = {

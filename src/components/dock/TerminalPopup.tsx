@@ -126,7 +126,7 @@ function getDistancePhrase(ip: IpData): string {
   return 'as far as it gets — and you still found this'
 }
 
-const PROMPT = 'ernest@dev ~ % '
+const PROMPT = 'mik@dev ~ % '
 
 const TERMINAL_WIDTH = 360
 
@@ -332,10 +332,29 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
     } else if (cmd === './connect.sh' || cmd === 'connect.sh') {
       output.push(
         { k: 'text', text: "> if you got this far \u2014 let\u2019s talk", color: BRIGHT },
-        { k: 'link', label: '> ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
-        { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
+        { k: 'link', label: '> sacdalernest01@gmail.com', href: 'mailto:sacdalernest01@gmail.com' },
+        { k: 'link', label: '> linkedin.com/in/ernestmikhail', href: 'https://www.linkedin.com/in/ernestmikhail/' },
         { k: 'blank' },
       )
+    } else if (['joy', 'mj', 'mary', 'joyce', 'tin'].includes(cmd)) {
+      const PINK = '#FF6B9D'
+      const heart = [
+        '  ***   ***  ',
+        '****** ******',
+        '*************',
+        '*************',
+        ' *********** ',
+        '  *********  ',
+        '   *******   ',
+        '    *****    ',
+        '     ***     ',
+        '      *      ',
+      ]
+      const name = trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+      output.push({ k: 'blank' })
+      for (const row of heart) {
+        output.push({ k: 'text', text: `   ${row}`.replace(/ /g, '\u00a0'), color: PINK })
+      }
     } else if (cmd === 'clear') {
       setLines([])
       processingRef.current = false
@@ -577,8 +596,8 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
 
       addLines([
         { k: 'text', text: "> if you got this far — let's talk", color: BRIGHT },
-        { k: 'link', label: '> ernest@ernestsacdal.com', href: 'mailto:ernest@ernestsacdal.com' },
-        { k: 'link', label: '> linkedin.com/in/ernestsacdal', href: 'https://linkedin.com/in/ernestsacdal' },
+        { k: 'link', label: '> sacdalernest01@gmail.com', href: 'mailto:sacdalernest01@gmail.com' },
+        { k: 'link', label: '> linkedin.com/in/ernestmikhail', href: 'https://www.linkedin.com/in/ernestmikhail/' },
         { k: 'blank' },
       ])
       // sequence done — switch to interactive mode
@@ -644,7 +663,7 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
           fontFamily: "'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace",
           fontSize: 12,
           lineHeight: 1.7,
-          height: 240,
+          height: 300,
           overflowY: 'auto',
         }}
       >

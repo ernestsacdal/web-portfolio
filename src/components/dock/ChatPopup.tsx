@@ -52,7 +52,7 @@ const EASTER_EGGS: Record<string, string> = {
   'sudo': "nice try. you don't have root access here. // nobody does",
   'rm -rf': "whoa. I'm not doing that. Ernest still needs me.",
   'hello world': 'hey, a developer. Ernest will like you. // classic first program',
-  'hire ernest': "great taste. ernest@ernestsacdal.com — he's waiting. // not literally, he has a life",
+  'hire ernest': "great taste. sacdalernest01@gmail.com — he's waiting. // not literally, he has a life",
 }
 
 const SUGGESTED_CHIPS = [
@@ -264,15 +264,6 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
 
   return (
     <>
-      <style>{`
-        @keyframes mikhaiPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
-          50% { opacity: 0.75; box-shadow: 0 0 0 4px rgba(52, 199, 89, 0); }
-        }
-        .mikhai-dot {
-          animation: mikhaiPulse 2s ease-in-out infinite;
-        }
-      `}</style>
       <motion.div
         ref={popupRef}
         initial={{ opacity: 0, scale: 0.95, y: 8 }}
