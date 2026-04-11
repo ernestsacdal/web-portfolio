@@ -14,13 +14,8 @@ export function Footer() {
       }}
     >
       <FadeIn
-        style={{
-          maxWidth: 960,
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
-          alignItems: 'center',
-        }}
+        className="flex flex-col items-center gap-3 md:grid md:grid-cols-[1fr_auto_1fr]"
+        style={{ maxWidth: 960, margin: '0 auto', alignItems: 'center' }}
       >
         {/* Left — Logo */}
         <Image
@@ -38,7 +33,7 @@ export function Footer() {
         </p>
 
         {/* Right — Stack */}
-        <p style={{ fontSize: 12, color: 'var(--text2)', margin: 0, opacity: 0.7, textAlign: 'right' }}>
+        <p className="md:text-right" style={{ fontSize: 12, color: 'var(--text2)', margin: 0, opacity: 0.7, textAlign: 'center' }}>
           Next.js
         </p>
       </FadeIn>
