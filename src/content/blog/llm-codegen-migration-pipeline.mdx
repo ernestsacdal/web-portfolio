@@ -1,0 +1,50 @@
+---
+title: Why I ripped free-form LLM codegen out of my migration pipeline
+description: Building a multi-agent PHP-to-Laravel migrator, I rewrote the generation layer twice. The second pass stopped asking the LLM to write structural code — and got faster, cheaper, and more reliable for it.
+date: '2026-04-24'
+tag: Engineering
+published: true
+---
+
+The first version of my PHP-to-Laravel migration copilot did what every "AI agent" demo does: each stage of the pipeline was an LLM call. Spec generator, migrations, models, form requests, controllers, routes, views, middleware — nine stages, nine prompts, nine opportunities to hallucinate a closing brace or invent a column name.
+
+It worked. Sort of. The output compiled most of the time. The Blade views were usually pretty. But every run was a coin flip on structural correctness, and every module I added made the coin flip worse.
+
+## The observation
+
+Somewhere around the fifth run I noticed that the parts of the output that broke were the parts that didn't need creativity. Migrations are a direct function of the detected schema. Eloquent model scaffolds are a direct function of the tables and relationships. Form request classes mirror the validation rules I already extracted from the legacy app. Controllers follow a handful of shape templates: index/show/store/update/destroy. The routes file is literally a listing of `Route::get` / `Route::post` lines.
+
+None of that is creative work. All of it was being done by an LLM anyway, because the pipeline treated "generate code" as a single abstract primitive.
+
+The only stage where the LLM was actually adding value was Blade view rendering — where layout, semantics, and the legacy app's design-system classes interact in ways that are genuinely hard to template.
+
+## The rewrite
+
+I split the generator into two halves:
+
+- **Derive Patches** — a pure Python function that takes the migration plan and emits a list of typed patches (`add_migration`, `add_controller_action`, `add_module_routes`, `add_form_request`, `add_eloquent_model`). Deterministic, testable, schema-validated. Zero LLM calls.
+- **Render Views** — one LLM call per `add_module_view` patch. The LLM fills a single `content` field with Blade markup. It can't touch anything structural — the patch type doesn't let it.
+
+Then **Apply Patches** writes files using pure Python templates. Again, no LLM.
+
+The result is a pipeline where the LLM gets called roughly `N` times per migration, where `N` is the number of distinct views that need rendering — not `9 × M` where `M` is the number of modules. On a mid-sized app that's the difference between 40 calls and 5.
+
+## What got better
+
+Speed, obviously. A full migration used to take 6–8 minutes; the template engine does it in 60–90 seconds.
+
+Cost dropped by roughly an order of magnitude, for the same reason.
+
+But the surprising win was **debuggability**. When the legacy engine produced a broken controller, I had to read the prompt, read the output, and guess which one was wrong. When the template engine produces a broken controller, I can `diff` the emitted patch against the derivation function and the bug is always in the derivation. The LLM can no longer be the culprit for structural code because it never touched it.
+
+## What I kept the old path for
+
+I kept the legacy free-form engine behind a `--engine legacy` flag for one reason: comparison runs. When I add a new migration pattern, I want to see both paths' output side-by-side, because sometimes the LLM genuinely does something smart that my derivation function didn't think of. Those cases become new rules in the derivation, not new prompts.
+
+Over time the legacy engine has lost ground on every axis I care about. I haven't deleted it, but I also haven't shipped a user-facing feature through it in months.
+
+## The general lesson
+
+"Use the LLM" became, for me, "use the LLM *where creativity is actually needed*." Structural code — the stuff that's a pure function of inputs you already have — should be a pure function. The LLM's job is the part where a human would stop and think.
+
+If a stage of your pipeline never surprises you with its output, it probably shouldn't be an LLM call. That stage is a template. Write the template.
