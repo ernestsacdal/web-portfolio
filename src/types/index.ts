@@ -11,6 +11,8 @@ export interface Project {
   coverImage?: string
   screenshots?: string[]
   badgeCover?: boolean
+  imageFit?: 'cover' | 'contain'
+  imageLayout?: 'stack' | 'grid'
 }
 
 export interface BlogPost {

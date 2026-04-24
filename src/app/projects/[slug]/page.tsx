@@ -192,7 +192,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             : []
         if (!shots.length) return null
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }}>
+          <div
+            style={
+              meta.imageLayout === 'grid'
+                ? {
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gap: 16,
+                    marginBottom: 40,
+                  }
+                : { display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }
+            }
+          >
             {shots.map((src, i) => (
               <div
                 key={src}
@@ -208,7 +219,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   src={src}
                   alt={`${meta.title} screenshot ${i + 1}`}
                   fill
-                  style={{ objectFit: 'cover', objectPosition: 'top center' }}
+                  style={{
+                    objectFit: meta.imageFit ?? 'cover',
+                    objectPosition: meta.imageFit === 'contain' ? 'center' : 'top center',
+                  }}
                   priority={i === 0}
                 />
                 {/* Gradient overlay to obscure the Next.js dev badge at bottom-left */}
