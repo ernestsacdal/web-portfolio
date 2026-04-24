@@ -1,0 +1,49 @@
+---
+title: "Multi-Agent Laravel Migrator"
+description: "A multi-agent AI pipeline that analyzes legacy PHP apps and migrates them to a runnable Laravel 11 app — automatically."
+tags: ["AI", "LangGraph", "Python", "FastAPI", "Laravel", "Kimi K2", "OpenRouter"]
+status: "live"
+year: "2026"
+type: "case-study"
+githubUrl: "https://github.com/ernestsacdal/multi-agent-laravel-migrator"
+imageFit: "contain"
+imageLayout: "grid"
+screenshots:
+  - "/migration1.png"
+  - "/migration2.png"
+---
+
+## Problem
+
+Legacy PHP codebases accumulate years of implicit routing, inline SQL, ad-hoc sessions, and tangled includes. Rewriting them into a modern Laravel app is mechanically tedious but architecturally non-trivial — every migration project ends up being mostly the same work done manually, stage by stage, by a senior engineer.
+
+## Solution
+
+A typed, stateful LangGraph pipeline where specialized agents each own a single responsibility — static analysis, dependency auditing, migration planning, patch derivation, view rendering, approval — passing a shared state object through the graph until a runnable Laravel 11 app drops out the other side. Two engines share the same assessment front-half: a deterministic **template engine** that emits typed patches and restricts the LLM to view rendering, and a **legacy engine** that runs free-form LLM code generation per stage for comparison.
+
+## Architecture
+
+- **Orchestration** — LangGraph graph with typed edges; every agent is independently testable
+- **LLM layer** — Moonshot Kimi K2.6 via OpenRouter (default), Groq `llama-3.3-70b-versatile` fallback; routing abstracted so models swap in one line
+- **Static analysis** — pure-regex PHP walker; no PHP runtime needed, portable across any OS
+- **Patch schema** — typed dict kinds (`add_migration`, `add_controller_action`, `add_eloquent_model`, etc.) — deterministic, validated, no LLM hallucination in structural code
+- **Server** — FastAPI + SSE streaming (`mikhai serve`); tar.gz upload/download with live step counter
+- **Scaffolder** — ships a checked-in Laravel 11 skeleton; overlays generated files, seeds `.env`, runs `composer install`, copies legacy static assets for visual fidelity
+- **Parity validator** — httpx async; diffs identical HTTP requests against both apps and scores PASS / ACCEPTABLE / REVIEW / CRITICAL
+
+## Agent Pipeline
+
+**Repo Analyzer** → **Dependency Detector** → **Migration Planner** → **Derive Patches** → **Render Views** (LLM) → **Apply Patches** → **Approval Gate** → **Scaffolding**. The legacy engine replaces the middle three with 10 LLM-driven nodes (Spec → Migrations → Models → Form Requests → Controllers → Routes → Views → Middleware + Providers).
+
+## Key Features
+
+- Whole-app migration by default, single-module runs via `--module` flag
+- Deterministic typed patches for structural code; LLM constrained to Blade view rendering only
+- Live SSE-streamed progress with per-stage timing
+- Post-migration HTTP parity check against the legacy app
+- Runnable output: `laravel-app/` ships with `vendor/` installed and `SETUP.md` ready to apply migrations
+- Approval gate writes `run_summary.md` on pass, `MIGRATION_BLOCKED.md` with detailed reasoning on fail
+
+## Outcome
+
+Demonstrates end-to-end agentic system design — a pipeline where adding an agent is a graph wiring change, every agent writes its full output to disk before the next runs, and LLM involvement is restricted to the places where creativity is actually needed. Cuts per-module LLM spend to near-zero on structural code by pushing it through typed patches.

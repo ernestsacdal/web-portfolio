@@ -7,6 +7,16 @@ import { motion } from 'framer-motion'
 
 const PROJECTS = [
   {
+    slug: 'multi-agent-laravel-migrator',
+    title: 'Multi-Agent Laravel Migrator',
+    description:
+      'A multi-agent AI pipeline that analyzes legacy PHP apps and migrates them to a runnable Laravel 11 app — LangGraph orchestration, typed patches, and a deterministic template engine.',
+    tags: ['AI', 'LangGraph', 'Python', 'Laravel'],
+    status: 'live' as const,
+    year: '2026',
+    type: 'case-study' as const,
+  },
+  {
     slug: 'pretriage',
     title: 'PreTriage',
     description:
@@ -24,16 +34,6 @@ const PROJECTS = [
     tags: ['Next.js', 'Supabase', 'Resend', 'Client'],
     status: 'live' as const,
     year: '2026',
-    type: 'case-study' as const,
-  },
-  {
-    slug: 'proposal-ai',
-    title: 'ProposalAI',
-    description:
-      'AI-powered agent that generates end-to-end project proposals from user input — LangChain orchestration, OpenAI for content generation, and ElevenLabs for voice interaction.',
-    tags: ['Next.js', 'LangChain', 'OpenAI', 'ElevenLabs'],
-    status: 'nda' as const,
-    year: '2024',
     type: 'case-study' as const,
   },
 ]
