@@ -337,7 +337,7 @@ export function TerminalPopup({ onClose, triggerRef, dockRef }: TerminalPopupPro
         { k: 'link', label: '> linkedin.com/in/ernestmikhail', href: 'https://www.linkedin.com/in/ernestmikhail/' },
         { k: 'blank' },
       )
-    } else if (['joy', 'mj', 'mary', 'joyce', 'tin'].includes(cmd)) {
+    } else if (['joy', 'mj', 'mary', 'joyce'].includes(cmd)) {
       const PINK = '#FF6B9D'
       const heart = [
         '  ***   ***  ',
