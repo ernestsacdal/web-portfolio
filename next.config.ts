@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'i.scdn.co' },
+      { protocol: 'https', hostname: '*.mzstatic.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
     ],
   },

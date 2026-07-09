@@ -256,14 +256,14 @@ export function LogCard() {
 
   // ── Ambient background logs ───────────────────────────────────────────────────
   useEffect(() => {
-    function scheduleSpotify() {
+    function scheduleMusic() {
       if (!mountedRef.current || document.hidden) return
       const delay = 28_000 + Math.random() * 4_000
       const id = setTimeout(() => {
         if (!mountedRef.current || document.hidden) return
         const latency = Math.floor(Math.random() * 600 + 200)
-        addLog({ type: 'API', message: `GET /spotify → 200 OK (${latency}ms)` })
-        scheduleSpotify()
+        addLog({ type: 'API', message: `GET /apple-music → 200 OK (${latency}ms)` })
+        scheduleMusic()
       }, delay)
       timeoutIds.current.push(id)
     }
@@ -280,12 +280,12 @@ export function LogCard() {
 
     function onVisibilityChange() {
       if (!document.hidden) {
-        scheduleSpotify()
+        scheduleMusic()
         scheduleGithub()
       }
     }
 
-    scheduleSpotify()
+    scheduleMusic()
     scheduleGithub()
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)

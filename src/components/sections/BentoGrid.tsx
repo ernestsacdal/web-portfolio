@@ -3,7 +3,7 @@ import { GithubCard } from '@/components/bento/GithubCard'
 import { BuildCard } from '@/components/bento/BuildCard'
 import { TechStackCard } from '@/components/bento/TechStackCard'
 import { LocationCard } from '@/components/bento/LocationCard'
-import { SpotifyCard } from '@/components/bento/SpotifyCard'
+import { AppleMusicCard } from '@/components/bento/AppleMusicCard'
 import { QuoteCard } from '@/components/bento/QuoteCard'
 import { LogCard } from '@/components/bento/LogCard'
 import { SkillsMarqueeCard } from '@/components/bento/SkillsMarqueeCard'
@@ -43,12 +43,12 @@ export async function BentoGrid() {
           <LogCard />
         </div>
 
-        {/* Spotify — half width, order 4 (right of Services) */}
+        {/* Apple Music — half width, order 4 (right of Services) */}
         <div className="md:col-start-11 md:col-end-[24] md:row-start-[8] md:row-end-[10] max-md:col-span-1 max-md:order-4 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
-          <SpotifyCard />
+          <AppleMusicCard />
         </div>
 
-        {/* Services — half width, order 3 (left of Spotify) */}
+        {/* Services — half width, order 3 (left of Apple Music) */}
         <div className="md:col-start-[24] md:col-end-[37] md:row-start-1 md:row-end-4 max-md:col-span-1 max-md:order-3 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <SkillsMarqueeCard />
         </div>

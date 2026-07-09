@@ -25,7 +25,7 @@ export interface BlogPost {
   published: boolean
 }
 
-export interface SpotifyTrack {
+export interface MusicTrack {
   isPlaying: boolean
   title?: string
   artist?: string
