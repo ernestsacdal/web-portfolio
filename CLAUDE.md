@@ -9,7 +9,7 @@ Design direction: Apple-inspired — minimal, precise, intentional motion.
 - **Tailwind CSS v4** — CSS-first config, no `tailwind.config.ts`
 - **Framer Motion** · **MDX** (blog + projects) · **Lucide** icons
 - **simple-icons** — brand SVG icons in TechStackCard marquee
-- APIs: Spotify (now playing), GitHub (contribution graph), Anthropic Claude (chat popup), Groq (Connect 4 AI)
+- APIs: Apple Music (last played, MusicKit), GitHub (contribution graph), Anthropic Claude (chat popup), Groq (Connect 4 AI)
 
 ## Critical conventions
 
@@ -22,8 +22,8 @@ Design direction: Apple-inspired — minimal, precise, intentional motion.
 - **Server vs Client split**: `fs`-based data fetching (mdx.ts, github.ts) is server-only. Pages fetch server-side and pass to `*ClientGrid` client components.
 - **Scroll animations**: use `FadeIn` / `StaggerGrid` / `StaggerItem` from `src/components/ui/` — never convert server components to client just for animation.
 - **MDX content**: `src/content/projects/*.mdx` and `src/content/blog/*.mdx`. Parsed via `src/lib/mdx.ts`.
-- **Types**: shared interfaces in `src/types/index.ts` — `Project`, `BlogPost`, `SpotifyTrack`, `GithubData`.
-- **Images**: `next/image` with `width`, `height`, `alt`. Remote patterns for `i.scdn.co` and `avatars.githubusercontent.com` in `next.config.ts`.
+- **Types**: shared interfaces in `src/types/index.ts` — `Project`, `BlogPost`, `MusicTrack`, `GithubData`.
+- **Images**: `next/image` with `width`, `height`, `alt`. Remote patterns for `*.mzstatic.com` and `avatars.githubusercontent.com` in `next.config.ts`.
 - **Keyframe animations**: define in `globals.css` `@theme` block, reference via `var(--animate-*)`. For component-scoped animations, inject a `<style>` tag (see BuildCard `winPulse`, LogCard `logFadeIn`).
 - **Event bus**: `src/lib/logEvents.ts` — `emitLog()` / `onLog()` using native `CustomEvent` on `window`. SSR-safe. Used by BuildCard → LogCard.
 
@@ -32,13 +32,14 @@ Design direction: Apple-inspired — minimal, precise, intentional motion.
 All variables live in `.env.local` (gitignored). Copy `.env.example` to get started.
 
 ```
-GITHUB_TOKEN          # GitHub personal access token (read:user scope)
-GITHUB_USERNAME       # Your GitHub username
-SPOTIFY_CLIENT_ID     # Optional — Spotify Developer Dashboard
-SPOTIFY_CLIENT_SECRET # Optional — Spotify Developer Dashboard
-SPOTIFY_REFRESH_TOKEN # Optional — long-lived refresh token
-ANTHROPIC_API_KEY     # Anthropic Console — required for chat popup
-GROQ_API_KEY          # Optional — Groq free tier, Connect 4 AI; falls back to minimax if absent
+GITHUB_TOKEN             # GitHub personal access token (read:user scope)
+GITHUB_USERNAME          # Your GitHub username
+APPLE_TEAM_ID            # Optional — Apple Developer Membership page
+APPLE_MUSIC_KEY_ID       # Optional — MusicKit-enabled key ID
+APPLE_MUSIC_PRIVATE_KEY  # Optional — .p8 contents, one line, \n-escaped
+APPLE_MUSIC_USER_TOKEN   # Optional — from /apple-auth (dev only); expires ~6 months
+ANTHROPIC_API_KEY        # Anthropic Console — required for chat popup
+GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back to minimax if absent
 ```
 
 ## API routes
@@ -46,7 +47,7 @@ GROQ_API_KEY          # Optional — Groq free tier, Connect 4 AI; falls back to
 | Route | Cache | Description |
 |---|---|---|
 | `/api/github` | `revalidate = 3600` | Contribution graph, hourly ISR |
-| `/api/spotify` | `force-dynamic` | Now playing, live polling |
+| `/api/apple-music` | `force-dynamic` | Last played track via MusicKit (no now-playing endpoint exists) |
 | `/api/chat` | `force-dynamic` | Anthropic SDK, `claude-sonnet-4-0`, 300 tokens |
 | `/api/connect4` | `force-dynamic` | POST board state → Groq + minimax hybrid, returns `col` |
 
@@ -57,9 +58,9 @@ GROQ_API_KEY          # Optional — Groq free tier, Connect 4 AI; falls back to
 | Card | Grid position | Notes |
 |---|---|---|
 | `LocationCard` | col 1–11, row 1–8 | react-leaflet map, SSR-safe dynamic import |
-| `SpotifyCard` | col 1–11, row 8–10 | polls every 30s, shimmer fallback |
+| `AppleMusicCard` | col 11–24, row 8–10 | polls every 60s, shimmer fallback, always "Last played" |
 | `LogCard` | col 11–24, row 1–8 | live event log + flow visualizer |
-| `QuoteCard` | col 11–24, row 8–10 | static quote |
+| `QuoteCard` | col 1–11, row 8–10 | static quote |
 | `SkillsMarqueeCard` | col 24–37, row 1–4 | vertical marquee, 10s loop |
 | `BuildCard` | col 24–37, row 4–10 | Connect 4 game, emits log events |
 | `GithubCard` | col 1–19, row 10–16 | 52×7 heatmap, hover tooltips |
@@ -73,7 +74,8 @@ src/
 │   ├── globals.css          — @theme tokens, CSS vars, keyframes
 │   ├── layout.tsx           — OpenGraph metadata, ThemeProvider, Dock
 │   ├── page.tsx             — Hero + BentoGrid + Projects + Blog + Footer
-│   └── api/chat | github | spotify | connect4
+│   ├── apple-auth/          — dev-only MusicKit auth page (404s in production)
+│   └── api/chat | github | apple-music | connect4
 ├── components/
 │   ├── bento/               — all bento cards (see grid table above)
 │   ├── dock/                — Dock (useNavHandler, theme toggle, popups), TerminalPopup, ChatPopup
@@ -86,9 +88,9 @@ src/
 │   ├── logEvents.ts         — typed event bus (emitLog / onLog)
 │   ├── mdx.ts               — getAllPosts, getAllProjects, getBySlug
 │   ├── github.ts            — getGithubData (server-only)
-│   ├── spotify.ts           — getNowPlaying
+│   ├── appleMusic.ts        — getDeveloperToken (ES256 JWT via jose), getRecentlyPlayed
 │   └── theme.tsx            — ThemeProvider, useTheme
-└── types/index.ts           — Project, BlogPost, SpotifyTrack, GithubData
+└── types/index.ts           — Project, BlogPost, MusicTrack, GithubData
 ```
 
 ## Recent phases
@@ -113,3 +115,9 @@ src/
 - `src/components/dock/Dock.tsx` — `useNavHandler()` hook: scrolls to section on homepage, pushes anchor route on other pages; Sun/Moon theme toggle; TerminalPopup + ChatPopup via AnimatePresence
 - `src/app/projects/page.tsx` — server component fetching all projects via `getAllProjects()`, delegates to ProjectsClientGrid
 - `src/app/projects/[slug]/page.tsx` — uses ProjectLinkButton for footer liveUrl/githubUrl links
+
+### Phase 18 — Apple Music Card (replaces Spotify) ✅
+- `src/lib/appleMusic.ts` — ES256 developer JWT via `jose` (cached 12h), `getRecentlyPlayed()` from MusicKit API; no now-playing endpoint exists, card always shows "Last played"
+- `src/app/api/apple-music/route.ts` — replaces `/api/spotify`; s-maxage=60
+- `src/components/bento/AppleMusicCard.tsx` — replaces SpotifyCard; 60s polling, `#FA243C` branding
+- `src/app/apple-auth/` — dev-only page (404 in prod) to mint the Music User Token via MusicKit JS; token expires ~6 months
