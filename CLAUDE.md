@@ -48,6 +48,7 @@ GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back
 |---|---|---|
 | `/api/github` | `revalidate = 3600` | Contribution graph, hourly ISR |
 | `/api/apple-music` | `force-dynamic` | Last played track via MusicKit (no now-playing endpoint exists) |
+| `/api/spotify` | `force-dynamic` | Dormant — SpotifyCard/spotify.ts kept for a future swap back; not in BentoGrid |
 | `/api/chat` | `force-dynamic` | Anthropic SDK, `claude-sonnet-4-0`, 300 tokens |
 | `/api/connect4` | `force-dynamic` | POST board state → Groq + minimax hybrid, returns `col` |
 
