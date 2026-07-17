@@ -29,7 +29,7 @@ export async function BentoGrid() {
         ].join(' ')}
       >
         {/* Wednesday app feature — full width, order 1 */}
-        <div className="md:col-start-1 md:col-end-11 md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-1 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
+        <div className="md:col-start-11 md:col-end-[24] md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-1 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <WednesdayCard />
         </div>
 
@@ -39,7 +39,7 @@ export async function BentoGrid() {
         </div>
 
         {/* System Log — full width, order 2 */}
-        <div className="md:col-start-11 md:col-end-[24] md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-2 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
+        <div className="md:col-start-1 md:col-end-11 md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-2 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
           <LogCard />
         </div>
 

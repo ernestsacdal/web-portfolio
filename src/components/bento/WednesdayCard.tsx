@@ -2,6 +2,14 @@ import { siApple } from 'simple-icons'
 
 const APP_STORE_URL = 'https://apps.apple.com/au/app/wednesday'
 
+// Wednesday brand palette (from the app's icon spec)
+const INK = '#16140F'
+const PAPER = '#FBFAF6'
+const GREEN = '#157A42'
+const GREEN2 = '#3FB873'
+const COLES_RED = '#E1251B'
+const SUB = '#8D8A80'
+
 const CARD_CSS = `
   .wed-pill {
     transition: opacity 0.2s ease, transform 0.2s ease;
@@ -27,18 +35,8 @@ const CARD_CSS = `
       0 0 0 1px rgba(255,255,255,0.07),
       inset 0 0 0 1px rgba(255,255,255,0.22) !important;
   }
-  @keyframes wedPing {
-    0%   { transform: scale(1);   opacity: 0.45; }
-    75%  { transform: scale(2.6); opacity: 0; }
-    100% { transform: scale(2.6); opacity: 0; }
-  }
-  .wed-ping {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: wedPing 2.6s ease-out infinite;
-  }
   @media (prefers-reduced-motion: reduce) {
-    .wed-phone, .wed-ping { animation: none; }
+    .wed-phone { animation: none; }
   }
   @media (max-width: 767px) {
     .wed-head {
@@ -49,7 +47,7 @@ const CARD_CSS = `
     .wed-badge {
       width: 28px !important;
       height: 28px !important;
-      font-size: 13px !important;
+      border-radius: 7px !important;
     }
     .wed-title { font-size: 15px !important; }
     .wed-copy  { max-width: calc(100% - 128px) !important; }
@@ -80,64 +78,98 @@ const CARD_CSS = `
   }
 `
 
-/** Miniature grocery item row rendered inside the phone screen. */
-function ScreenItem({
+/** The real Wednesday app icon — price-line W with a drop marker. */
+function WednesdayLogo() {
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 100 100" aria-hidden>
+      <polyline
+        points="22,32 39,61 48,44.5 62.5,64.5 77.5,50.5"
+        fill="none"
+        stroke={PAPER}
+        strokeWidth="5.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="77.5" cy="50.5" r="8.5" fill={GREEN2} />
+      <path
+        d="M77.5 46.5v5.5M74.4 49.6l3.1 3.2 3.1-3.2"
+        fill="none"
+        stroke={INK}
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line x1="24" y1="74" x2="76" y2="74" stroke="#6E6B62" strokeWidth="3.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** Retailer chip inside the phone screen (Coles / Woolies counts). */
+function StoreChip({ letter, color, count }: { letter: string; color: string; count: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        background: '#FFFFFF',
+        borderRadius: 8,
+        padding: '4px 7px',
+        boxShadow: '0 1px 4px rgba(22,20,15,0.06)',
+      }}
+    >
+      <span
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: 3,
+          background: color,
+          color: '#FFFFFF',
+          fontSize: 6.5,
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {letter}
+      </span>
+      <span style={{ fontSize: 6.5, fontWeight: 600, color: INK }}>{count}</span>
+    </div>
+  )
+}
+
+/** Half-price drop row inside the phone screen. */
+function DropRow({
   name,
-  was,
   now,
-  chip,
-  sub,
+  was,
+  store,
+  storeColor,
 }: {
   name: string
-  was?: string
-  now?: string
-  chip?: string
-  sub?: string
+  now: string
+  was: string
+  store: string
+  storeColor: string
 }) {
   return (
     <div
       style={{
-        background: 'rgba(255,255,255,0.88)',
+        background: '#FFFFFF',
         borderRadius: 11,
-        padding: '8px 10px',
-        boxShadow: '0 1px 4px rgba(29,60,40,0.07)',
+        padding: '7px 10px',
+        boxShadow: '0 1px 4px rgba(22,20,15,0.06)',
         marginBottom: 7,
       }}
     >
-      <div style={{ fontSize: 8, fontWeight: 600, color: '#1D1D1F', whiteSpace: 'nowrap' }}>
-        {name}
+      <div style={{ fontSize: 8, fontWeight: 600, color: INK, whiteSpace: 'nowrap' }}>{name}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginTop: 3 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: GREEN }}>{now}</span>
+        <span style={{ fontSize: 7, color: '#A9A69D', textDecoration: 'line-through' }}>{was}</span>
+        <span style={{ fontSize: 6.5, fontWeight: 700, color: GREEN }}>½ price</span>
+        <span style={{ fontSize: 6.5, fontWeight: 600, color: storeColor }}>{store}</span>
       </div>
-      {(was || now || sub) && (
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginTop: 3 }}>
-          {was && (
-            <span style={{ fontSize: 7, color: '#98A29B', textDecoration: 'line-through' }}>
-              {was}
-            </span>
-          )}
-          {now && (
-            <span style={{ fontSize: 9.5, fontWeight: 700, color: '#1F9D4D' }}>{now}</span>
-          )}
-          {sub && <span style={{ fontSize: 7, color: '#98A29B' }}>{sub}</span>}
-        </div>
-      )}
-      {chip && (
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 3,
-            marginTop: 5,
-            padding: '2px 6px',
-            borderRadius: 999,
-            background: 'rgba(52,199,89,0.14)',
-          }}
-        >
-          <span
-            style={{ width: 4, height: 4, borderRadius: '50%', background: '#34C759' }}
-          />
-          <span style={{ fontSize: 6.5, fontWeight: 600, color: '#1F9D4D' }}>{chip}</span>
-        </div>
-      )}
     </div>
   )
 }
@@ -162,7 +194,7 @@ export function WednesdayCard() {
           height: 240,
           borderRadius: '50%',
           background:
-            'radial-gradient(closest-side, rgba(52,199,89,0.16), rgba(52,199,89,0))',
+            'radial-gradient(closest-side, rgba(63,184,115,0.16), rgba(63,184,115,0))',
           zIndex: 0,
           pointerEvents: 'none',
         }}
@@ -189,20 +221,15 @@ export function WednesdayCard() {
             style={{
               width: 34,
               height: 34,
-              borderRadius: '50%',
-              background: 'linear-gradient(145deg, #34C759 0%, #248A3D 100%)',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 15,
-              fontWeight: 700,
+              borderRadius: 9,
+              background: INK,
+              padding: 2,
               flexShrink: 0,
               boxShadow:
-                '0 4px 10px rgba(52,199,89,0.25), inset 0 1px 0 rgba(255,255,255,0.25)',
+                '0 4px 10px rgba(22,20,15,0.3), inset 0 0 0 1px rgba(255,255,255,0.07)',
             }}
           >
-            W
+            <WednesdayLogo />
           </div>
           <h3
             className="wed-title"
@@ -293,8 +320,7 @@ export function WednesdayCard() {
             borderRadius: 27,
             overflow: 'hidden',
             position: 'relative',
-            background:
-              'linear-gradient(170deg, #FAFDF9 0%, #ECF7EE 48%, #DDF1E3 100%)',
+            background: '#F7F5EF',
           }}
         >
           {/* Status bar + Dynamic Island */}
@@ -307,7 +333,7 @@ export function WednesdayCard() {
                 fontSize: 8.5,
                 fontWeight: 600,
                 letterSpacing: '0.02em',
-                color: '#1D1D1F',
+                color: INK,
               }}
             >
               9:41
@@ -329,7 +355,7 @@ export function WednesdayCard() {
               width={36}
               height={9}
               viewBox="0 0 36 9"
-              fill="#1D1D1F"
+              fill={INK}
             >
               {/* Signal */}
               <rect x="0" y="5.4" width="2" height="3.6" rx="0.7" />
@@ -340,14 +366,14 @@ export function WednesdayCard() {
               <path
                 d="M14.9 4.1a6.2 6.2 0 0 1 8.2 0"
                 fill="none"
-                stroke="#1D1D1F"
+                stroke={INK}
                 strokeWidth="1.3"
                 strokeLinecap="round"
               />
               <path
                 d="M16.4 6a3.7 3.7 0 0 1 5.2 0"
                 fill="none"
-                stroke="#1D1D1F"
+                stroke={INK}
                 strokeWidth="1.3"
                 strokeLinecap="round"
               />
@@ -360,7 +386,7 @@ export function WednesdayCard() {
                 height="5.8"
                 rx="1.9"
                 fill="none"
-                stroke="#1D1D1F"
+                stroke={INK}
                 strokeOpacity="0.4"
                 strokeWidth="1"
               />
@@ -369,93 +395,94 @@ export function WednesdayCard() {
             </svg>
           </div>
 
-          {/* App content — left-weighted so the crop never hides key info */}
-          <div style={{ padding: '8px 13px 0' }}>
-            <div style={{ margin: '4px 0 10px' }}>
-              <div
-                style={{
-                  fontSize: 6.5,
-                  fontWeight: 600,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: '#7A8A7E',
-                }}
-              >
-                Next specials
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginTop: 2 }}>
-                <span
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    color: '#1D1D1F',
-                  }}
-                >
-                  6 days
-                </span>
-                <span style={{ fontSize: 8, fontWeight: 600, color: '#1F9D4D' }}>
-                  Wed 22 Jul
-                </span>
-              </div>
-            </div>
-
-            <ScreenItem
-              name="Tim Tam Original 365g"
-              was="$6.00"
-              now="$3.00"
-              chip="½ price predicted · Wed"
-            />
-
-            {/* Price-cycle sparkline — prediction dot kept left of the crop zone */}
+          {/* App content — mirrors the real home screen, left-weighted for the crop */}
+          <div style={{ padding: '6px 13px 0' }}>
             <div
               style={{
-                background: 'rgba(255,255,255,0.88)',
-                borderRadius: 11,
-                padding: '8px 10px 7px',
-                boxShadow: '0 1px 4px rgba(29,60,40,0.07)',
-                marginBottom: 7,
+                fontSize: 6,
+                fontWeight: 600,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: SUB,
+              }}
+            >
+              Wednesday 8 July
+            </div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                color: INK,
+                marginTop: 2,
+              }}
+            >
+              G&apos;day, Ernest.
+            </div>
+            <div style={{ fontSize: 7, color: SUB, marginTop: 2 }}>
+              New specials dropped this morning.
+            </div>
+
+            {/* Retailer chips */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <StoreChip letter="C" color={COLES_RED} count="1,141" />
+              <StoreChip letter="W" color={GREEN} count="1,623" />
+            </div>
+
+            {/* Drops */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 6,
+                margin: '9px 0 5px',
               }}
             >
               <span
                 style={{
-                  fontSize: 6.5,
+                  fontSize: 6,
                   fontWeight: 600,
-                  letterSpacing: '0.1em',
+                  letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: '#7A8A7E',
+                  color: SUB,
                 }}
               >
-                Price cycle
+                This week&apos;s drops
               </span>
-              <svg
-                width="100%"
-                height={26}
-                viewBox="0 0 132 26"
-                fill="none"
-                style={{ display: 'block', marginTop: 4 }}
-                preserveAspectRatio="none"
+              <span
+                style={{
+                  fontSize: 6.5,
+                  fontWeight: 700,
+                  color: INK,
+                  borderBottom: `1.5px solid ${INK}`,
+                }}
               >
-                <path
-                  d="M2 7h18l8 12 8-12h18l8 12 8-12h16"
-                  stroke="#B9CDBE"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M86 7l9 12"
-                  stroke="#34C759"
-                  strokeWidth="1.4"
-                  strokeDasharray="3 3"
-                  strokeLinecap="round"
-                />
-                <circle className="wed-ping" cx="95" cy="19" r="2.4" fill="#34C759" opacity="0.35" />
-                <circle cx="95" cy="19" r="2.4" fill="#34C759" />
-              </svg>
+                Half-price
+              </span>
             </div>
 
-            <ScreenItem name="Pepsi Max 24 × 375ml" sub="tracking · Woolworths" />
+            <DropRow
+              name="Blackmores Omega Triple"
+              now="$42.50"
+              was="$85.00"
+              store="Woolies"
+              storeColor={GREEN}
+            />
+            <DropRow
+              name="Oral B iO2 Toothbrush"
+              now="$80.00"
+              was="$160.00"
+              store="Coles"
+              storeColor={COLES_RED}
+            />
+            <DropRow
+              name="Philips Sonicare"
+              now="$50.00"
+              was="$100.00"
+              store="Coles"
+              storeColor={COLES_RED}
+            />
           </div>
         </div>
       </div>

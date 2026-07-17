@@ -60,9 +60,9 @@ Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/
 
 | Card | Grid position | Notes |
 |---|---|---|
-| `WednesdayCard` | col 1–11, row 1–8 | Wednesday app feature — CSS iPhone mockup cropped by card edge, App Store pill |
+| `WednesdayCard` | col 11–24, row 1–8 | Wednesday app feature — real brand logo/palette, CSS iPhone mockup of the home screen cropped by card edge, App Store pill |
 | `AppleMusicCard` | col 11–24, row 8–10 | polls every 60s, shimmer fallback, always "Last played" |
-| `LogCard` | col 11–24, row 1–8 | live event log + flow visualizer |
+| `LogCard` | col 1–11, row 1–8 | live event log + flow visualizer |
 | `QuoteCard` | col 1–11, row 8–10 | static quote |
 | `SkillsMarqueeCard` | col 24–37, row 1–4 | vertical marquee, 10s loop |
 | `BuildCard` | col 24–37, row 4–10 | Connect 4 game, emits log events |
