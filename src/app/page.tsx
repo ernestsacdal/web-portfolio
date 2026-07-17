@@ -6,7 +6,7 @@ import { Footer } from '@/components/sections/Footer'
 import { getAllPosts } from '@/lib/mdx'
 
 export default function Home() {
-  const posts = getAllPosts().slice(0, 3)
+  const posts = getAllPosts().slice(0, 2)
   return (
     <main>
       <Hero />

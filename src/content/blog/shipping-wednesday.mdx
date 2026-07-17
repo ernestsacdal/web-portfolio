@@ -1,0 +1,66 @@
+---
+title: "Predicting groceries with statistics, not AI"
+description: "I shipped a free iOS app that predicts when Australian groceries hit half price — from a Windows laptop, on $0/month of infrastructure. What survived contact with real data: honesty as architecture, a marketplace junk purge, and a launch-week incident where every component worked."
+date: "2026-07-17"
+tag: "Shipping"
+readTime: "8 min read"
+published: true
+---
+
+## The itch
+
+If you shop in Australia, you know the ritual. Every Wednesday, Coles and Woolworths drop their new specials, and half the country checks whether their coffee, vitamins, or laundry detergent finally hit 50% off. The cycles are real — the same products drop to half price on a rhythm, every few weeks, like a tide.
+
+There are apps that show you this week's specials. But standing in the aisle, the question is never "what's on special today?" It's *"should I buy this now, or is it about to go half price?"* Nobody answered that one. Prediction was the gap, so prediction became the product: [Wednesday](https://apps.apple.com/app/wednesday-half-price-tracker/id6786205324), a free iOS app with no ads, no accounts, and no tracking.
+
+## Rule one: don't lie
+
+A prediction app lives or dies on trust, so I made honesty a structural property, not a copywriting choice.
+
+The predictor is statistics, not ML — cycle intervals, variance, recency. I say so everywhere, including to Apple. Under three observed cycles, the app says "warming up" instead of pretending to know. Every forecast ships with a confidence level and the predictor's real measured hit rate — I backtested it over ~44,000 historical windows, and the app publishes the result on every product page: **73.5% on high-confidence calls**. Not a marketing number. A measured one. And an expired prediction says "window passed." It never dresses up a stale date as a forecast.
+
+The uncomfortable part of publishing your accuracy is that you have to know it. That decision shaped the whole backend.
+
+## The data war
+
+Getting the data was the actual hard problem, and it fought back in ways I didn't expect.
+
+**Woolworths blocks datacenter IPs.** My cloud pipeline couldn't touch their API — but my laptop at home could. So the live Woolworths pull runs as a scheduled task on my own PC, from a residential IP, with the cloud falling back to a derived dataset when the laptop's off. Yes, my "infrastructure" includes my laptop. It has a 100% uptime bonus incentive: it's also where I work.
+
+**A third of my catalogue was junk.** Sorting deals by savings kept surfacing $999 dog strollers and $1,999 hair-removal lasers with fake was-prices — third-party marketplace listings polluting the feed. The tell turned out to be beautifully dumb: real product codes are ≤7 digits, marketplace ones are 10. One bimodal split later, ~53,000 junk rows were gone.
+
+**Products lied about their identity.** I originally keyed products by normalized name, which quietly merged distinct items that share one ("Bic Kids Colouring Pencils" — two different products, two different prices, one database row). Re-keying everything to real retailer SKUs fixed a whole class of price errors — and as a free bonus, image URLs became deterministic. Image coverage went to 100% and I deleted an entire scraping subsystem.
+
+**And I audit against ground truth, continuously.** Coles data is compared daily to Coles' own published catalogue; Woolworths against its live API. Current numbers: ~100% Coles recall, 100% price accuracy on matches, 98% Woolworths recall. When any of 21 data invariants drifts, the pipeline turns red and emails me — because early on I had three incidents in one week where everything ran green while the data was wrong. That week I learned the rule I now build everything by: **a green run must mean the data is right, not that the code didn't crash.**
+
+## Shipping from Windows
+
+I don't own a Mac. Conventional wisdom says that's disqualifying for iOS development. It isn't — Expo's cloud builds compile the app, TestFlight distributes it, and the only Apple hardware I ever touched was my own iPhone for testing.
+
+The builds still found ways to be exciting: my release binary crashed where dev builds ran fine, because Hermes (the release JS engine) can't parse a dynamic `import()` pattern that one of my dependencies shipped in an optional telemetry loader. Two failed builds, one local reproduction of the release bundle, one Babel plugin later — build three went to TestFlight.
+
+App Review approved version 1.0 the same day I submitted. No accounts meant no demo credentials, honest metadata meant nothing to question, and pre-written reviewer notes answered the "are you affiliated with the supermarkets?" question before it was asked.
+
+Total infrastructure bill: **$0/month.** Postgres on Supabase's free tier, pipelines on GitHub Actions, push through Expo, my laptop as the residential runner.
+
+## Launch week: it broke anyway
+
+Seven days after launch — a Wednesday, naturally — a user opened the app during the morning specials changeover and saw a fully stocked Woolworths next to "Coles: 0 items." That user was me. But it was every real user too.
+
+The post-mortem was humbling because every component was working. The app shows the newest week of data. My laptop wrote the new week's Woolworths at 10 AM. The cloud job that writes Coles was scheduled for noon — but GitHub's free-tier cron scheduler had been running 2.5–4 hours late all week. So the new week existed half-born for hours, and the app faithfully displayed the half.
+
+No single bug. An emergent failure from three correct systems and one congested scheduler.
+
+The fix became my project's first Architecture Decision Record: **atomic week rollover**. No writer may create a new week unless it arrives complete — the Woolworths job now refuses to open a week alone, the Coles job refuses to open one from a stale data dump (it demands proof: hundreds of price changes dated the new Wednesday), and a midday task rolls the whole week in one pass. The safety net underneath: creating a new week never deletes the old one, so the worst case is now a few hours of last week's complete data — never an empty store. The failure mode isn't rare anymore; it's unrepresentable.
+
+## What shipping taught me that building couldn't
+
+**Honesty is an architecture.** Every "honest" behavior in Wednesday — warming-up states, published hit rates, refusing half-born weeks — is enforced by code and failing tests, not by good intentions.
+
+**Your incident will be emergent.** Nothing in my launch-week failure was broken in isolation. Post-mortems that hunt for *the bug* miss the class; write down the invariant instead. (Hence the ADR habit.)
+
+**Constraints are features.** No Mac forced cloud builds. No budget forced an efficient stack. Datacenter blocks forced a hybrid cloud/residential design. Every one made the system simpler or more interesting.
+
+**The last 5% is a different job.** The predictor took weeks; privacy labels, screenshots, review notes, DNS, and a landing page took just as long and mattered just as much.
+
+Wednesday is [live on the App Store](https://apps.apple.com/app/wednesday-half-price-tracker/id6786205324) — free, no ads, no accounts, and it will honestly tell you whether to buy the Tim Tams now or wait two weeks. The [data pipeline is open source](https://github.com/ernestsacdal/wednesday-ingestion) if you want to see how the sausage is made.
