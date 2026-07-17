@@ -1,6 +1,6 @@
 import { siApple } from 'simple-icons'
 
-const APP_STORE_URL = 'https://apps.apple.com/au/app/wednesday'
+const APP_STORE_URL = 'https://apps.apple.com/au/app/wednesday-half-price-tracker/id6786205324'
 
 // Wednesday brand palette (from the app's icon spec)
 const INK = '#16140F'
@@ -252,10 +252,11 @@ export function WednesdayCard() {
             fontSize: 12.5,
             lineHeight: 1.5,
             color: 'var(--text2)',
-            maxWidth: 165,
+            maxWidth: 'min(165px, calc(100% - 132px))',
           }}
         >
-          AI that predicts when groceries hit half price.
+          Predicts when groceries hit half price — built on 18 months of
+          price-cycle data.
         </p>
 
         <a
