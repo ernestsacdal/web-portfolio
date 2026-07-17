@@ -1,0 +1,65 @@
+---
+title: "Wednesday — Half Price Tracker"
+description: "A free iOS app that predicts when Australian groceries will next drop to half price — built solo, end-to-end, and live on the App Store."
+tags: ["AI", "React Native", "Expo", "TypeScript", "Python", "Supabase", "GitHub Actions"]
+status: "live"
+year: "2026"
+type: "case-study"
+liveUrl: "https://apps.apple.com/app/wednesday-half-price-tracker/id6786205324"
+githubUrl: "https://github.com/ernestsacdal/wednesday-ingestion"
+coverImage: "/wednesday-home.png"
+imageLayout: "grid"
+imageFit: "contain"
+screenshots:
+  - "/wednesday-home.png"
+  - "/wednesday-prediction.png"
+  - "/wednesday-watchlist.png"
+---
+
+## The Idea
+
+Australian supermarkets run famously aggressive half-price cycles — the same Tim Tams, laundry detergent, and vitamins drop to 50% off on a rhythm, every few weeks, always landing on a Wednesday. Several apps show you this week's specials. None of them answer the question shoppers actually have: *"should I buy now, or is it about to go half price?"*
+
+Wednesday's wedge is forward prediction: search any product and see its predicted next half-price window, an honest confidence level, and the predictor's real measured track record. Free forever, no ads, no accounts, no tracking. Also live at [wednesday.ernestmikhail.com](https://wednesday.ernestmikhail.com/).
+
+## Data Pipeline
+
+Every day a Python pipeline (GitHub Actions + one scheduled task on a residential machine) ingests ~40,000+ products across Coles and Woolworths from three complementary public sources: the open-source hotprices.org daily price dumps, Woolworths' own browse API, and Coles' published weekly catalogue as a cross-check. Half-price events are derived from price-change history, not trusted from labels — a change-point counts only when the price genuinely drops ≥48% against a windowed regular price, with a recency guard against stale data. Woolworths blocks datacenter IPs, so the live API is pulled from the residential machine while the cloud pipeline falls back to dump-derived data — and a "sticky live" guard ensures the weaker source never overwrites the stronger one.
+
+## The Predictor
+
+Statistical, deliberately not ML. For every product with enough sale history (~18 months backfilled, ~62,000 historical half-price events), the engine computes cycle statistics — mean interval, variance, time since last sale — and projects the next likely window with a confidence score. Honesty is enforced structurally: under 3 observed cycles the app says "warming up" instead of guessing, confidence is capped, and expired windows display as "window passed," never as a forecast. A walk-forward backtest over ~44,000 historical windows measures the real hit rate — 73.5% on high-confidence calls — and that measured number is published inside the app on every product page.
+
+## Audited Accuracy
+
+The stored data is continuously compared against the retailers' own sources: Coles against its official weekly catalogue (recall driven to ~100% via automated corrections; price accuracy 100% on sampled matches) and Woolworths against its live API (98% recall, ~98% precision). A 21-invariant verification suite runs at the end of every pipeline job and fails the workflow loudly if anything drifts — a green run must mean the data is actually right, not merely that the code didn't crash.
+
+## The App
+
+React Native / Expo, TypeScript. Four tabs in a warm paper "ledger" design: this week's drops (both retailers interleaved by savings), full-catalogue search with deals ranked first, an on-device watchlist, and weekly "Half-Price Dinners" composed only from genuinely half-price items. The same product is matched across both supermarkets (~5,800 cross-store links built with precision-first matching, adversarially audited) so the app can honestly say which store is cheaper this week. Resilience is hand-rolled: transient-network retry, last-good snapshots with a Wednesday-cycle honesty guard (cached data never masquerades as the current week), and silent revalidation on foreground.
+
+## Notifications Without Accounts
+
+There is no sign-up anywhere. Watchlists live on-device; opting into alerts registers only an anonymous random UUID, the watched product IDs, and a push token — locked behind row-level security with a single validated RPC as the only public surface. One batched digest per week ("3 of your items are half-price this week"), deduplicated at the database level, with delivery receipts swept and dead tokens pruned.
+
+## Engineering War Stories
+
+**The SKU re-key.** Products were originally keyed by normalized name — which silently merged distinct same-name products. Re-keying everything to real retailer SKUs fixed a ~1% price-mismatch class and, as a bonus, made product image URLs deterministic: 100% image coverage with zero scraping.
+
+**The marketplace purge.** ~73% of the Woolworths feed turned out to be third-party marketplace junk ($999 dog strollers with fake was-prices, dominating any savings-sorted list). The detector: real stockcodes are ≤7 digits, marketplace IDs are 10 — a bimodal split that purged ~53k rows and made the catalogue honest.
+
+**The Hermes release crash.** A release build crashed where dev builds didn't: Hermes can't parse variable-specifier dynamic `import()`, which a dependency shipped in an optional telemetry loader. Fixed with a Babel plugin that rewrites them — found by reproducing the release bundle locally.
+
+**The week-rollover incident.** Launch week delivered a real incident: the app's "current week" rolled the moment the first data source wrote to it, so one morning users briefly saw a fully-stocked Woolworths next to "Coles: 0 items." The fix became the project's first Architecture Decision Record — atomic week rollover: no writer may create a new week unless it arrives complete and provably fresh. The worst case is now a few hours of last week's complete data instead of an empty store.
+
+**App Review.** Approved same-day, first submission — no login for reviewers to fight, honest metadata, and reviewer notes that pre-answered the affiliation and data-sourcing questions.
+
+## By the Numbers
+
+- ~41,600 supermarket products tracked daily
+- ~2,700 half-price deals live in a typical week
+- ~18 months of price history, ~62,000 historical half-price events
+- Backtested over ~44,000 windows: 73.5% hit rate on high-confidence forecasts, published in-app
+- Coles price accuracy 100% / recall ~100%; Woolworths 98% recall vs the live API
+- 130+ automated tests (Jest + pytest), 21 live-data invariants gating every pipeline run
+- Infrastructure cost: $0/month

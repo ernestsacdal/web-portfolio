@@ -7,6 +7,16 @@ import { motion } from 'framer-motion'
 
 const PROJECTS = [
   {
+    slug: 'wednesday',
+    title: 'Wednesday — Half Price Tracker',
+    description:
+      'A free iOS app that predicts when Australian groceries will next drop to half price — built solo, end-to-end, and live on the App Store.',
+    tags: ['iOS', 'React Native', 'Python', 'Supabase'],
+    status: 'live' as const,
+    year: '2026',
+    type: 'case-study' as const,
+  },
+  {
     slug: 'multi-agent-laravel-migrator',
     title: 'Multi-Agent Laravel Migrator',
     description:
@@ -22,16 +32,6 @@ const PROJECTS = [
     description:
       'PreTriage guides patients through a voice-assisted intake before their appointment — so clinicians start every consult with full context, not blank questions.',
     tags: ['Next.js', 'FastAPI', 'ElevenLabs', 'Anthropic'],
-    status: 'live' as const,
-    year: '2026',
-    type: 'case-study' as const,
-  },
-  {
-    slug: 'niks-automotive',
-    title: "Nik's Automotive",
-    description:
-      'Full-stack booking site for a mobile mechanic business — appointment scheduling via Supabase, email notifications via Resend, and an owner dashboard.',
-    tags: ['Next.js', 'Supabase', 'Resend', 'Client'],
     status: 'live' as const,
     year: '2026',
     type: 'case-study' as const,
