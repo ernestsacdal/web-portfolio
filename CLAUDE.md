@@ -49,6 +49,8 @@ GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back
 | `/api/github` | `revalidate = 3600` | Contribution graph, hourly ISR |
 | `/api/apple-music` | `force-dynamic` | Last played track via MusicKit (no now-playing endpoint exists) |
 | `/api/spotify` | `force-dynamic` | Dormant — SpotifyCard/spotify.ts kept for a future swap back; not in BentoGrid |
+
+Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/spotify) and `LocationCard` (+ LocationMap, react-leaflet).
 | `/api/chat` | `force-dynamic` | Anthropic SDK, `claude-sonnet-4-0`, 300 tokens |
 | `/api/connect4` | `force-dynamic` | POST board state → Groq + minimax hybrid, returns `col` |
 
@@ -58,7 +60,7 @@ GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back
 
 | Card | Grid position | Notes |
 |---|---|---|
-| `LocationCard` | col 1–11, row 1–8 | react-leaflet map, SSR-safe dynamic import |
+| `WednesdayCard` | col 1–11, row 1–8 | Wednesday app feature — CSS iPhone mockup cropped by card edge, App Store pill |
 | `AppleMusicCard` | col 11–24, row 8–10 | polls every 60s, shimmer fallback, always "Last played" |
 | `LogCard` | col 11–24, row 1–8 | live event log + flow visualizer |
 | `QuoteCard` | col 1–11, row 8–10 | static quote |

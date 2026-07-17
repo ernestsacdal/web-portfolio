@@ -2,7 +2,7 @@ import { getGithubData } from '@/lib/github'
 import { GithubCard } from '@/components/bento/GithubCard'
 import { BuildCard } from '@/components/bento/BuildCard'
 import { TechStackCard } from '@/components/bento/TechStackCard'
-import { LocationCard } from '@/components/bento/LocationCard'
+import { WednesdayCard } from '@/components/bento/WednesdayCard'
 import { AppleMusicCard } from '@/components/bento/AppleMusicCard'
 import { QuoteCard } from '@/components/bento/QuoteCard'
 import { LogCard } from '@/components/bento/LogCard'
@@ -28,9 +28,9 @@ export async function BentoGrid() {
           'md:gap-3',
         ].join(' ')}
       >
-        {/* Map — full width, order 1 */}
+        {/* Wednesday app feature — full width, order 1 */}
         <div className="md:col-start-1 md:col-end-11 md:row-start-1 md:row-end-[8] max-md:col-span-2 max-md:order-1 max-md:h-[170px] max-md:overflow-hidden max-md:rounded-[22px]">
-          <LocationCard />
+          <WednesdayCard />
         </div>
 
         {/* Quote — hidden on mobile */}
