@@ -27,6 +27,12 @@ const TYPE_COLORS: Record<LogType, string> = {
 const FLOW_NODES = ['User', 'Frontend', 'API', 'AI Engine', 'Response'] as const
 const MAX_LOGS = 13
 
+const AMBIENT_LINES: { type: LogType; message: () => string }[] = [
+  { type: 'API', message: () => `GET /projects → 200 OK (${Math.floor(Math.random() * 140 + 40)}ms)` },
+  { type: 'SYS', message: () => 'wednesday · ~2,700 deals live this week' },
+  { type: 'SYS', message: () => 'status · open_to_work · Sydney' },
+]
+
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 function getTimestamp(): string {
   const d = new Date()
@@ -256,14 +262,16 @@ export function LogCard() {
 
   // ── Ambient background logs ───────────────────────────────────────────────────
   useEffect(() => {
-    function scheduleMusic() {
+    let ambientIdx = 0
+    function scheduleAmbient() {
       if (!mountedRef.current || document.hidden) return
       const delay = 28_000 + Math.random() * 4_000
       const id = setTimeout(() => {
         if (!mountedRef.current || document.hidden) return
-        const latency = Math.floor(Math.random() * 600 + 200)
-        addLog({ type: 'API', message: `GET /apple-music → 200 OK (${latency}ms)` })
-        scheduleMusic()
+        const line = AMBIENT_LINES[ambientIdx % AMBIENT_LINES.length]
+        ambientIdx++
+        addLog({ type: line.type, message: line.message() })
+        scheduleAmbient()
       }, delay)
       timeoutIds.current.push(id)
     }
@@ -280,12 +288,12 @@ export function LogCard() {
 
     function onVisibilityChange() {
       if (!document.hidden) {
-        scheduleMusic()
+        scheduleAmbient()
         scheduleGithub()
       }
     }
 
-    scheduleMusic()
+    scheduleAmbient()
     scheduleGithub()
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
