@@ -2,12 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-const STATS: { value: string; plus?: boolean; label: string }[] = [
-  { value: '3', plus: true, label: 'yrs shipping' },
-  { value: '8', label: 'projects' },
-  { value: '3', label: 'countries' },
-]
-
 const CARD_CSS = `
   @keyframes statusPulse {
     0%, 100% { opacity: 1; }
@@ -25,14 +19,12 @@ const CARD_CSS = `
   }
   @media (max-width: 767px) {
     .status-row {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 0;
-      padding: 26px 8px 10px !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      gap: 14px;
+      padding: 30px 8px 14px !important;
     }
     .status-div { display: none !important; }
-    .status-num { font-size: 15px !important; }
-    .status-label { font-size: 7.5px !important; }
   }
 `
 
@@ -45,14 +37,13 @@ export function StatusCard() {
       timeZone: 'Australia/Sydney',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
       hour12: false,
       timeZoneName: 'short',
     })
     function tick() {
       const parts = fmt.formatToParts(new Date())
       const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
-      setTime(`${get('hour')}:${get('minute')}:${get('second')}`)
+      setTime(`${get('hour')}:${get('minute')}`)
       const name = get('timeZoneName')
       if (name) setTz(name)
     }
@@ -91,7 +82,7 @@ export function StatusCard() {
         </span>
       </div>
 
-      {/* Clock + stats */}
+      {/* Clock + stat */}
       <div
         className="status-row"
         style={{
@@ -105,7 +96,6 @@ export function StatusCard() {
       >
         <div style={{ textAlign: 'center' }}>
           <div
-            className="status-num"
             suppressHydrationWarning
             style={{
               fontSize: 19,
@@ -115,10 +105,9 @@ export function StatusCard() {
               color: 'var(--text)',
             }}
           >
-            {time || '--:--:--'}
+            {time || '--:--'}
           </div>
           <div
-            className="status-label"
             style={{
               fontSize: 8.5,
               fontWeight: 500,
@@ -132,41 +121,35 @@ export function StatusCard() {
           </div>
         </div>
 
-        {STATS.map((stat) => (
-          <div key={stat.label} style={{ display: 'contents' }}>
-            <div
-              className="status-div"
-              style={{ width: 1, height: 30, background: 'var(--border)', flexShrink: 0 }}
-            />
-            <div style={{ textAlign: 'center' }}>
-              <div
-                className="status-num"
-                style={{
-                  fontSize: 19,
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--text)',
-                }}
-              >
-                {stat.value}
-                {stat.plus && <span className="status-plus">+</span>}
-              </div>
-              <div
-                className="status-label"
-                style={{
-                  fontSize: 8.5,
-                  fontWeight: 500,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text2)',
-                  marginTop: 3,
-                }}
-              >
-                {stat.label}
-              </div>
-            </div>
+        <div
+          className="status-div"
+          style={{ width: 1, height: 30, background: 'var(--border)', flexShrink: 0 }}
+        />
+
+        <div style={{ textAlign: 'center' }}>
+          <div
+            style={{
+              fontSize: 19,
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: 'var(--text)',
+            }}
+          >
+            4<span className="status-plus">+</span>
           </div>
-        ))}
+          <div
+            style={{
+              fontSize: 8.5,
+              fontWeight: 500,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--text2)',
+              marginTop: 3,
+            }}
+          >
+            yrs shipping
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -61,7 +61,7 @@ Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/
 | Card | Grid position | Notes |
 |---|---|---|
 | `WednesdayCard` | col 11–24, row 1–8 | Wednesday app feature — real brand logo/palette, CSS iPhone mockup of the home screen cropped by card edge, App Store pill |
-| `StatusCard` | col 11–24, row 8–10 | live Sydney clock (ticks 1s, AEST/AEDT auto) + 3 stats + pulsing "Open to work" |
+| `StatusCard` | col 11–24, row 8–10 | live Sydney clock (HH:mm, AEST/AEDT auto) + "4+ yrs shipping" + pulsing "Open to work" |
 | `LogCard` | col 1–11, row 1–8 | live event log + flow visualizer |
 | `QuoteCard` | col 1–11, row 8–10 | static quote |
 | `SkillsMarqueeCard` | col 24–37, row 1–4 | vertical marquee, 10s loop |
