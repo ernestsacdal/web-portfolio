@@ -45,8 +45,12 @@ export function Blog({ posts }: BlogProps) {
   return (
     <section
       id="blog"
-      className="min-h-screen flex flex-col justify-center"
-      style={{ width: '100%', padding: '2rem 1.25rem 6rem', maxWidth: 1280, margin: '0 auto' }}
+      style={{
+        width: '100%',
+        padding: 'clamp(3.5rem, 6vw, 5rem) 1.25rem',
+        maxWidth: 1280,
+        margin: '0 auto',
+      }}
     >
       <motion.div
         variants={fadeUp}
