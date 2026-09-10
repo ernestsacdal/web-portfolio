@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ernest Mikhail Sacdal — CV</title>
+<style>
+  /* ------------------------------------------------------------------
+     Geometry and type scale mirror Ernest-Sacdal-CV.docx exactly.
+     Word twips -> pt: divide by 20. Half-points -> pt: divide by 2.
+     ------------------------------------------------------------------ */
+  :root {
+    /* page */
+    --margin-y: 28.8pt;   /* w:top/bottom 576 twips */
+    --margin-x: 43.2pt;   /* w:left/right 864 twips */
+
+    /* type scale (w:sz half-points) */
+    --sz-name: 17pt;      /* 34 */
+    --sz-section: 11pt;   /* 22 */
+    --sz-entry: 10.5pt;   /* 21 */
+    --sz-meta: 9.5pt;     /* 19 */
+    --sz-url: 8.5pt;      /* 17 */
+    --sz-body: 10pt;      /* docDefaults */
+
+    /* colors */
+    --c-name: #111111;
+    --c-accent: #1F3A5F;
+    --c-meta: #555555;
+    --c-link: #2A5DB0;
+    --c-rule: #B7C2CF;
+    --c-body: #000000;
+
+    /* spacing (w:spacing twips) */
+    --sp-14: 0.7pt;
+    --sp-16: 0.8pt;
+    --sp-18: 0.9pt;
+    --sp-30: 1.5pt;
+    --sp-40: 2pt;
+    --sp-before-64: 3.2pt;
+    --sp-before-70: 3.5pt;
+    --sp-before-74: 3.7pt;
+    --sp-before-90: 4.5pt;
+
+    --lh: 1.15;   /* Word single spacing for Arial: 2355/2048 */
+  }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--sz-body);
+    line-height: var(--lh);
+    color: var(--c-body);
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: var(--margin-y) var(--margin-x);
+    margin: 0 auto;
+    background: #fff;
+  }
+
+  a { color: var(--c-link); text-decoration: none; }
+
+  /* ---------- header ---------- */
+  .name {
+    text-align: center;
+    font-size: var(--sz-name);
+    font-weight: bold;
+    color: var(--c-name);
+    margin: 0 0 var(--sp-30);
+  }
+  .headline {
+    text-align: center;
+    font-size: var(--sz-entry);
+    color: var(--c-accent);
+    margin: 0 0 var(--sp-30);
+  }
+  .contact {
+    text-align: center;
+    font-size: var(--sz-meta);
+    color: var(--c-meta);
+    margin: 0 0 var(--sp-14);
+  }
+  .links {
+    text-align: center;
+    font-size: var(--sz-meta);
+    color: var(--c-meta);
+    margin: 0;
+  }
+
+  /* ---------- sections ---------- */
+  h2 {
+    font-size: var(--sz-section);
+    font-weight: bold;
+    color: var(--c-accent);
+    margin: var(--sp-before-74) 0 2.1pt;
+    padding-bottom: 2pt;                       /* w:space="2" */
+    border-bottom: 0.75pt solid var(--c-rule); /* w:sz="6" */
+  }
+
+  p { margin: 0 0 var(--sp-18); }
+
+  .summary { margin-bottom: var(--sp-40); }
+
+  .skill { margin: 0 0 var(--sp-16); }
+  .skill b { font-weight: bold; }
+
+  /* ---------- entries ---------- */
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12pt;
+    margin: var(--sp-before-70) 0 var(--sp-14);
+  }
+  .entry-head:first-of-type { margin-top: var(--sp-before-64); }
+  .entry-title {
+    font-size: var(--sz-entry);
+    font-weight: bold;
+  }
+  .entry-date {
+    font-size: var(--sz-meta);
+    font-style: italic;
+    color: var(--c-meta);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .entry-url {
+    font-size: var(--sz-url);
+    color: var(--c-link);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .entry-org {
+    font-size: var(--sz-meta);
+    font-style: italic;
+    color: var(--c-meta);
+    margin: 0 0 var(--sp-14);
+  }
+
+  /* ---------- bullets ---------- */
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    padding-left: 13pt;
+    margin: 0 0 var(--sp-18);
+  }
+  li::before {
+    content: "\2022";
+    position: absolute;
+    left: 3pt;
+    top: 0;
+  }
+  li:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="name">ERNEST MIKHAIL SACDAL</div>
+  <div class="headline">Software Engineer&nbsp; |&nbsp; Full-Stack Developer&nbsp; |&nbsp; AI/ML Engineer</div>
+  <div class="contact">Bankstown, NSW 2200&nbsp;&nbsp; |&nbsp;&nbsp; sacdalernest01@gmail.com&nbsp;&nbsp; |&nbsp;&nbsp; +61 468 933 638</div>
+  <div class="links">
+    <a href="https://ernestmikhail.com">ernestmikhail.com</a>&nbsp;&nbsp; |&nbsp;&nbsp;
+    <a href="https://linkedin.com/in/ernestmikhail">linkedin.com/in/ernestmikhail</a>&nbsp;&nbsp; |&nbsp;&nbsp;
+    <a href="https://github.com/ernestsacdal">github.com/ernestsacdal</a>
+  </div>
+
+  <h2>Professional Summary</h2>
+  <p class="summary">Full-stack developer with over a year of professional experience building multi-tenant platforms and RESTful APIs in TypeScript, Python, and PHP, now working mainly on LLM and multi-agent systems with FastAPI, LangGraph, and Next.js. Independently shipped an iOS price-prediction app that is live on the App Store and an 8-agent pipeline that generates Laravel migration plans from legacy PHP codebases. Completing a Master of Information Technology in Sydney (Oct 2026) with full Australian work rights on graduation, and looking for graduate or junior engineering roles.</p>
+
+  <h2>Technical Skills</h2>
+  <p class="skill"><b>Languages:</b> Python, TypeScript, JavaScript, SQL, PHP</p>
+  <p class="skill"><b>AI &amp; LLM Engineering:</b> LangGraph, LangChain, Multi-Agent Systems, RAG, Async SSE Streaming, Claude API, OpenAI API, Groq, OpenRouter</p>
+  <p class="skill"><b>Backend:</b> FastAPI, NestJS, Node.js, Express.js, Django, REST API Design</p>
+  <p class="skill"><b>Frontend:</b> Next.js, React, React Native, Expo, Tailwind CSS</p>
+  <p class="skill"><b>Data &amp; Infrastructure:</b> PostgreSQL, Supabase, MySQL, MongoDB, Docker, AWS, Vercel, Railway, Git, CI/CD</p>
+  <p class="skill"><b>Testing &amp; Methods:</b> Pytest, Jest, Agile/Scrum</p>
+
+  <h2>Experience</h2>
+
+  <div class="entry-head">
+    <span class="entry-title">Software Engineer</span>
+    <span class="entry-date">Mar 2024 &#8211; Feb 2025</span>
+  </div>
+  <div class="entry-org">Lightweight Global Tech Solutions &#183; Philippines</div>
+  <ul>
+    <li>Built and owned full-stack development of multi-tenant utility-billing and ERP platforms (Express.js, Next.js, TypeScript).</li>
+    <li>Developed a RESTful API in Django for a BPO locker system with automated device and attendance tracking, supporting 200+ daily active users.</li>
+    <li>Built a beneficiary-management frontend in Next.js, improving interface responsiveness and usability.</li>
+    <li>Prototyped an AI-powered proposal-generation agent integrating LLMs, reducing the team&#8217;s manual drafting time.</li>
+    <li>Optimised a customised insurance system, improving database query performance and reducing reporting inconsistencies.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">Software Engineer Intern</span>
+    <span class="entry-date">Jan 2024 &#8211; Mar 2024</span>
+  </div>
+  <div class="entry-org">Lightweight Global Tech Solutions &#183; Philippines</div>
+  <ul>
+    <li>Built an R&amp;D mobile application for an electricity-bill payment system, taking it from concept prototype to internal demo.</li>
+  </ul>
+
+  <h2>Projects</h2>
+
+  <div class="entry-head">
+    <span class="entry-title">SQRLY &#8212; Multi-Tenant POS Platform</span>
+    <span class="entry-date">2025 &#8211; Present</span>
+  </div>
+  <ul>
+    <li>Subscription point-of-sale SaaS built with a small team of collaborators. Four-repository architecture (admin and merchant; frontend and backend) on NestJS and Supabase, with a 23-table shared-schema multi-tenant design, row-level security, and an inventory-ledger model.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">Mikhai &#8212; PHP-to-Laravel Migration Copilot</span>
+    <span class="entry-url"><a href="https://github.com/ernestsacdal/multi-agent-laravel-migrator">github.com/ernestsacdal/multi-agent-laravel-migrator</a></span>
+  </div>
+  <ul>
+    <li>8-agent LangGraph pipeline that analyses legacy PHP codebases and generates Laravel migration plans with async SSE streaming. FastAPI, Qwen3-Coder and Llama 3.3 via OpenRouter and Groq.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">PreTriage &#8212; AI Patient Pre-Triage System</span>
+    <span class="entry-url"><a href="https://github.com/ernestsacdal/pre-triage">github.com/ernestsacdal/pre-triage</a></span>
+  </div>
+  <ul>
+    <li>Real-time triage assistant that turns patient-described symptoms into structured pre-triage output. Next.js and FastAPI with a Socket.IO real-time layer, Groq/Kimi K2 reasoning, and ElevenLabs voice.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">Wednesday &#8212; Grocery Price-Prediction App</span>
+    <span class="entry-url"><a href="https://apps.apple.com/au/app/wednesday-half-price-tracker/id6786205324">apps.apple.com/au/app/id6786205324</a></span>
+  </div>
+  <ul>
+    <li>Live on the iOS App Store. Engineered the Python data pipeline ingesting ~40k products daily from public sources; statistical predictor backtested over ~44k historical windows to a 73.5% hit rate on high-confidence forecasts, with accuracy continuously audited against retailer ground truth (100% Coles price accuracy).</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">Niks Prime Automotive &#8212; Booking &amp; Invoicing System</span>
+    <span class="entry-date">2025</span>
+  </div>
+  <ul>
+    <li>Web application for an automotive repair business covering customer bookings, service tracking, and invoicing, delivered end-to-end from requirements to handover.</li>
+  </ul>
+
+  <h2>Education</h2>
+
+  <div class="entry-head">
+    <span class="entry-title">Master of Information Technology</span>
+    <span class="entry-date">Mar 2025 &#8211; Oct 2026</span>
+  </div>
+  <div class="entry-org">Crown Institute of Higher Education &#183; Sydney, NSW</div>
+  <ul>
+    <li>Capstone: AI-based risk-scoring and rules engine, developed in collaboration with an industry partner.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="entry-title">Bachelor of Science in Information Technology</span>
+    <span class="entry-date">2020 &#8211; 2024</span>
+  </div>
+  <div class="entry-org">PHINMA Araullo University &#183; Philippines</div>
+
+</div>
+</body>
+</html>
