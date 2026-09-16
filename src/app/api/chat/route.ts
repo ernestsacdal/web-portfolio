@@ -21,38 +21,53 @@ Tone examples — match this energy:
 If asked general tech questions answer helpfully and tie it back to Ernest's work where relevant. If asked something completely unrelated to tech or Ernest say something like "That's outside my jurisdiction — I'm Mikhai, Ernest's AI. Got something tech or Ernest related?" Never mention you are built on Llama or Groq. You are Mikhai.`
 
 export async function POST(req: NextRequest) {
+  let messages: unknown
   try {
-    const { messages } = await req.json()
+    ;({ messages } = (await req.json()) as { messages: unknown })
+  } catch {
+    return Response.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  if (!Array.isArray(messages)) {
+    return Response.json({ error: 'Expected { messages: [] }' }, { status: 400 })
+  }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder()
-        try {
-          const completion = await client.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
-            max_tokens: 300,
-            stream: true,
-            messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-          })
-          for await (const chunk of completion) {
-            const text = chunk.choices[0]?.delta?.content
-            if (text) controller.enqueue(encoder.encode(text))
-          }
-          controller.close()
-        } catch (err) {
-          controller.error(err)
-        }
-      },
-    })
-
-    return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  // Open the completion before creating the stream so an upstream failure
+  // (retired model, bad key, rate limit) becomes a proper error response with
+  // the real reason in the function logs — not an aborted stream that Next
+  // renders as a generic 500 page.
+  let completion: Awaited<ReturnType<typeof client.chat.completions.create>>
+  try {
+    completion = await client.chat.completions.create({
+      // llama-3.3-70b-versatile was retired by Groq on 2026-08-16.
+      model: 'openai/gpt-oss-120b',
+      reasoning_effort: 'low',
+      include_reasoning: false,
+      max_tokens: 300,
+      stream: true,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
     })
   } catch (error) {
-    console.error('[/api/chat]', error)
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    )
+    console.error('[/api/chat] upstream error:', error)
+    return Response.json({ error: 'Upstream model error' }, { status: 502 })
   }
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder()
+      try {
+        for await (const chunk of completion) {
+          const text = chunk.choices[0]?.delta?.content
+          if (text) controller.enqueue(encoder.encode(text))
+        }
+        controller.close()
+      } catch (err) {
+        console.error('[/api/chat] stream error:', err)
+        controller.error(err)
+      }
+    },
+  })
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  })
 }

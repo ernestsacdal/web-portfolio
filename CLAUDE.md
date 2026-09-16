@@ -39,7 +39,7 @@ APPLE_MUSIC_KEY_ID       # Optional — MusicKit-enabled key ID
 APPLE_MUSIC_PRIVATE_KEY  # Optional — .p8 contents, one line, \n-escaped
 APPLE_MUSIC_USER_TOKEN   # Optional — from /apple-auth (dev only); expires ~6 months
 ANTHROPIC_API_KEY        # Not referenced in src/ — chat runs on Groq (kept in .env.example for now)
-GROQ_API_KEY             # Required — chat popup (Mikhai), `llama-3.3-70b-versatile`
+GROQ_API_KEY             # Required — chat popup (Mikhai), `openai/gpt-oss-120b`
 ```
 
 ## API routes
@@ -51,7 +51,7 @@ GROQ_API_KEY             # Required — chat popup (Mikhai), `llama-3.3-70b-vers
 | `/api/spotify` | `force-dynamic` | Dormant — SpotifyCard/spotify.ts kept for a future swap back; not in BentoGrid |
 
 Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/spotify), `LocationCard` (+ LocationMap, react-leaflet), and `AppleMusicCard` (+ lib/appleMusic.ts, /api/apple-music, /apple-auth).
-| `/api/chat` | `force-dynamic` | Groq SDK, `llama-3.3-70b-versatile`, 300 tokens |
+| `/api/chat` | `force-dynamic` | Groq SDK, `openai/gpt-oss-120b` (`reasoning_effort: low`, `include_reasoning: false`), 300 tokens, streamed; 502 JSON on upstream failure. Groq retired `llama-3.3-70b-versatile` on 2026-08-16 — check console.groq.com/docs/deprecations before changing models |
 | `/api/connect4` | `force-dynamic` | POST `{ board, aiColor }` → `bestMove()` from `src/lib/connect4.ts`, 800ms budget; returns `{ col, depth, nodes, ms, forced?, source }`; 400 on malformed body |
 
 ## Bento grid layout
