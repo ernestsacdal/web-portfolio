@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { House, LayoutGrid, Briefcase, FileText, Terminal, MessageCircle, Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
 import { TerminalPopup } from './TerminalPopup'
@@ -111,10 +111,14 @@ export function Dock() {
 
         <div style={{ ...dividerStyle }} className="hidden sm:block" />
 
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          style={btnBase}
+        {/* Theme toggle — the switch animation expands from this button */}
+        <motion.button
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect()
+            toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
+          }}
+          whileTap={{ scale: 0.88 }}
+          style={{ ...btnBase, transition: 'background 0.2s ease, color 0.2s ease' }}
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
@@ -123,8 +127,22 @@ export function Dock() {
             e.currentTarget.style.background = 'transparent'
           }}
         >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+          {/* Sun sets one way, moon rises from the other; fixed box so the dock never reflows */}
+          <span style={{ position: 'relative', width: 18, height: 18, display: 'block' }}>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={theme}
+                initial={{ rotate: -90, scale: 0.4, opacity: 0 }}
+                animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                exit={{ rotate: 90, scale: 0.4, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 26 }}
+                style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              </motion.span>
+            </AnimatePresence>
+          </span>
+        </motion.button>
 
         {/* Terminal */}
         <button

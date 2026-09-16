@@ -33,12 +33,12 @@ export function Footer() {
         />
 
         {/* Center — Copyright */}
-        <p style={{ fontSize: 12, color: 'var(--text2)', margin: 0, opacity: 0.7, textAlign: 'center' }}>
+        <p style={{ fontSize: 12, color: 'var(--text2)', margin: 0, textAlign: 'center' }}>
           © {year} Ernest Mikhail Sacdal · Sydney, Australia
         </p>
 
         {/* Right — Stack */}
-        <p className="md:text-right" style={{ fontSize: 12, color: 'var(--text2)', margin: 0, opacity: 0.7, textAlign: 'center' }}>
+        <p className="md:text-right" style={{ fontSize: 12, color: 'var(--text2)', margin: 0, textAlign: 'center' }}>
           Built with Next.js
         </p>
       </FadeIn>

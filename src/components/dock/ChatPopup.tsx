@@ -363,7 +363,7 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
                     lineHeight: 1.45,
                     background:
                       msg.role === 'user'
-                        ? '#0071E3'
+                        ? 'var(--accent)'
                         : isDark
                           ? 'rgba(255,255,255,0.08)'
                           : 'rgba(0,0,0,0.06)',
@@ -496,7 +496,7 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
             onClick={() => sendMessage()}
             disabled={!input.trim() || isLoading}
             style={{
-              background: '#0071E3',
+              background: 'var(--accent)',
               border: 'none',
               borderRadius: '50%',
               width: 30,

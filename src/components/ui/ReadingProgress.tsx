@@ -23,7 +23,7 @@ export function ReadingProgress() {
         left: 0,
         height: 2,
         width: `${progress}%`,
-        background: '#0071E3',
+        background: 'var(--accent)',
         zIndex: 50,
         transition: 'width 0.1s linear',
         pointerEvents: 'none',

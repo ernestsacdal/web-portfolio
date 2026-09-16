@@ -78,7 +78,7 @@ export function Hero() {
             border: '0.5px solid color-mix(in srgb, var(--text) 15%, transparent)',
             fontSize: 12,
             fontWeight: 500,
-            color: '#0071E3',
+            color: 'var(--accent)',
           }}
         >
           <span

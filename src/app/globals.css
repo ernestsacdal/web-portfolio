@@ -130,11 +130,11 @@
   --bg2: #ebebed;
   --bg3: #e0e0e2;
   --text: #1d1d1f;
-  --text2: #6e6e73;
+  --text2: #636369;   /* 5.0:1 on --bg2 (was #6e6e73 at 4.26) */
   --border: rgba(0, 0, 0, 0.08);
   --glass: rgba(245, 245, 247, 0.75);
   --glass-border: rgba(0, 0, 0, 0.10);
-  --accent: #0071e3;
+  --accent: #0066cc;  /* 5.1:1 on --bg (was #0071e3 at 4.3) */
 }
 
 .dark {
@@ -146,6 +146,7 @@
   --border: rgba(255, 255, 255, 0.09);
   --glass: rgba(20, 20, 20, 0.75);
   --glass-border: rgba(255, 255, 255, 0.13);
+  --accent: #0a84ff;  /* 5.05:1 on --bg; same blue as the game / GAME log colour */
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
@@ -166,9 +167,31 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-  transition: background 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Theme switch ─────────────────────────────────────────────────────── */
+/* View Transitions: disable the default crossfade so the circular clip-path
+   reveal driven from ThemeProvider is the only motion. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Fallback for browsers without View Transitions: ThemeProvider adds this
+   class for ~350ms so every colour crossfades together, not just <body>. */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease !important;
 }
 
 ::selection {

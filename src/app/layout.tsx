@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Ernest Mikhail Sacdal — Software Engineer',
     description: 'Software Engineer based in Sydney, Australia.',
-    url: 'https://yourdomainhere.com',
+    url: 'https://ernestmikhail.com',
     siteName: 'Ernest Mikhail Sacdal',
     locale: 'en_AU',
     type: 'website',
