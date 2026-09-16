@@ -332,10 +332,20 @@ export function LogCard() {
             addLog({
               type: 'API',
               message: `POST ${detail.path} → ${ok} (${detail.latencyMs}ms)`,
-              ...(detail.fallback ? { sub: '↳ fallback: local minimax' } : {}),
+              ...(detail.fallback ? { sub: '↳ fallback: local engine' } : {}),
             })
             await sleep(200)
-            addLog({ type: 'AI', message: `Placed → col ${detail.aiCol + 1} (${detail.latencyMs}ms)` })
+            // Why this move: a proven outcome beats raw search stats
+            const fmtNodes = (n: number) =>
+              n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`
+            const why =
+              detail.reason === 'block'   ? ' · forced block'
+              : detail.forced === 'win'   ? (detail.nodes ? ` · forced win · depth ${detail.depth}` : ' · winning move')
+              : detail.forced === 'loss'  ? ' · no escape'
+              : detail.depth && detail.nodes
+                ? ` · depth ${detail.depth} · ${fmtNodes(detail.nodes)} nodes`
+                : ''
+            addLog({ type: 'AI', message: `Placed → col ${detail.aiCol + 1}${why} (${detail.latencyMs}ms)` })
           })
           break
 

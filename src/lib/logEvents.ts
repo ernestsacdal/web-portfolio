@@ -3,7 +3,18 @@ export type LogEventDetail =
   | { type: 'game:move'; player: 'human'; col: number }
   | { type: 'game:end'; winner: 'human_win' | 'ai_win' | 'draw' }
   | { type: 'api:start'; path: string; method: string }
-  | { type: 'api:done'; path: string; status: number; latencyMs: number; aiCol: number; fallback?: boolean }
+  | {
+      type: 'api:done'
+      path: string
+      status: number
+      latencyMs: number
+      aiCol: number
+      fallback?: boolean
+      depth?: number
+      nodes?: number
+      forced?: 'win' | 'loss' | 'draw'
+      reason?: 'block'
+    }
   | { type: 'user:action'; action: string }
   | { type: 'nav:change'; to: string }
 

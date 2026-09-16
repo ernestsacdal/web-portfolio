@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { emitLog } from '@/lib/logEvents'
+import { bestMove, type Cell, type Board, type SearchResult } from '@/lib/connect4'
 
 const COLS = 7
 const ROWS = 6
@@ -12,8 +13,6 @@ const HUMAN_COLOR = 'Y' as const
 const HUMAN_HEX = '#0A84FF'
 const AI_HEX = '#FF453A'
 
-type Cell = '.' | 'Y' | 'R'
-type Board = Cell[][]
 type Status = 'playing' | 'human_win' | 'ai_win' | 'draw'
 
 function emptyBoard(): Board {
@@ -52,71 +51,6 @@ function isBoardFull(board: Board): boolean {
   return board[0].every(cell => cell !== '.')
 }
 
-function scoreWindow(window: Cell[], color: Cell): number {
-  const opp = color === 'R' ? 'Y' : 'R' as Cell
-  const mine = window.filter(c => c === color).length
-  const empty = window.filter(c => c === '.').length
-  const theirs = window.filter(c => c === opp).length
-  if (mine === 4) return 100
-  if (mine === 3 && empty === 1) return 5
-  if (mine === 2 && empty === 2) return 2
-  if (theirs === 3 && empty === 1) return -4
-  return 0
-}
-
-function scoreBoard(board: Board, color: Cell): number {
-  let score = board.map(r => r[3]).filter(c => c === color).length * 3
-  for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c <= COLS - 4; c++)
-      score += scoreWindow([board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]], color)
-  for (let r = 0; r <= ROWS - 4; r++)
-    for (let c = 0; c < COLS; c++)
-      score += scoreWindow([board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]], color)
-  for (let r = 0; r <= ROWS - 4; r++)
-    for (let c = 0; c <= COLS - 4; c++)
-      score += scoreWindow([board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]], color)
-  for (let r = 0; r <= ROWS - 4; r++)
-    for (let c = 3; c < COLS; c++)
-      score += scoreWindow([board[r][c], board[r + 1][c - 1], board[r + 2][c - 2], board[r + 3][c - 3]], color)
-  return score
-}
-
-function minimax(board: Board, depth: number, alpha: number, beta: number, maximizing: boolean, aiColor: Cell): number {
-  const opp = aiColor === 'R' ? 'Y' : 'R' as Cell
-  if (checkWin(board, aiColor)) return 1000000 + depth
-  if (checkWin(board, opp)) return -1000000 - depth
-  if (isBoardFull(board) || depth === 0) return scoreBoard(board, aiColor)
-  const validCols = Array.from({ length: COLS }, (_, i) => i).filter(c => board[0][c] === '.')
-  if (maximizing) {
-    let best = -Infinity
-    for (const col of validCols) {
-      best = Math.max(best, minimax(dropPiece(board, col, aiColor)!, depth - 1, alpha, beta, false, aiColor))
-      alpha = Math.max(alpha, best)
-      if (alpha >= beta) break
-    }
-    return best
-  } else {
-    let best = Infinity
-    for (const col of validCols) {
-      best = Math.min(best, minimax(dropPiece(board, col, opp)!, depth - 1, alpha, beta, true, aiColor))
-      beta = Math.min(beta, best)
-      if (alpha >= beta) break
-    }
-    return best
-  }
-}
-
-function localBestCol(board: Board, aiColor: Cell): number {
-  const validCols = Array.from({ length: COLS }, (_, i) => i).filter(c => board[0][c] === '.')
-  let bestScore = -Infinity
-  let bestCol = validCols[Math.floor(validCols.length / 2)]
-  for (const col of validCols) {
-    const score = minimax(dropPiece(board, col, aiColor)!, 6, -Infinity, Infinity, false, aiColor)
-    if (score > bestScore) { bestScore = score; bestCol = col }
-  }
-  return bestCol
-}
-
 // ─── Start Screen ──────────────────────────────────────────────────────────────
 function StartScreen({ onPlay }: { onPlay: () => void }) {
   return (
@@ -140,7 +74,7 @@ function StartScreen({ onPlay }: { onPlay: () => void }) {
           Connect 4
         </p>
         <p style={{ fontSize: 10, color: 'var(--text2)', margin: '3px 0 0', letterSpacing: '0.02em' }}>
-          Human vs Hybrid AI
+          Human vs Search Engine
         </p>
       </div>
 
@@ -209,8 +143,9 @@ export function BuildCard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ board: b, aiColor: AI_COLOR }),
       })
-      const { col } = await res.json() as { col: number }
-      emitLog({ type: 'api:done', path: '/connect4', status: 200, latencyMs: Date.now() - startTime, aiCol: col })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const { col, depth, nodes, forced, reason } = await res.json() as SearchResult
+      emitLog({ type: 'api:done', path: '/connect4', status: 200, latencyMs: Date.now() - startTime, aiCol: col, depth, nodes, forced, reason })
       const next = dropPiece(b, col, AI_COLOR)
       if (!next) return
       const resolved = resolveStatus(next)
@@ -218,8 +153,9 @@ export function BuildCard() {
       if (resolved.status !== 'playing') emitLog({ type: 'game:end', winner: resolved.status })
       if (resolved.status === 'playing') setIsHumanTurn(true)
     } catch {
-      const col = localBestCol(b, AI_COLOR)
-      emitLog({ type: 'api:done', path: '/connect4', status: 0, latencyMs: Date.now() - startTime, aiCol: col, fallback: true })
+      // API unreachable — run the same engine locally on a shorter budget.
+      const { col, depth, nodes, forced, reason } = bestMove(b, AI_COLOR, 400)
+      emitLog({ type: 'api:done', path: '/connect4', status: 0, latencyMs: Date.now() - startTime, aiCol: col, depth, nodes, forced, reason, fallback: true })
       const next = dropPiece(b, col, AI_COLOR)
       if (!next) return
       const resolved = resolveStatus(next)
@@ -398,11 +334,11 @@ export function BuildCard() {
           {/* About the AI */}
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
-              Hybrid AI Engine
+              The Engine
             </p>
             <p style={{ fontSize: 10, color: 'var(--text2)', lineHeight: 1.6, margin: 0 }}>
-              <span style={{ color: HUMAN_HEX, fontWeight: 600 }}>LLM</span> suggests strategic moves.{' '}
-              <span style={{ color: 'var(--text)', fontWeight: 600 }}>Minimax depth&nbsp;7</span> validates every suggestion — blunders are overridden. Good luck.
+              <span style={{ color: 'var(--text)', fontWeight: 600 }}>Minimax</span> with alpha-beta pruning, searching{' '}
+              <span style={{ color: HUMAN_HEX, fontWeight: 600 }}>12–16 moves ahead</span> in under a second. Its evaluation knows Connect&nbsp;4&apos;s parity rule, so it plays for the endgame, not just the next threat. Good luck.
             </p>
           </div>
 
