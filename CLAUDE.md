@@ -9,12 +9,12 @@ Design direction: Apple-inspired — minimal, precise, intentional motion.
 - **Tailwind CSS v4** — CSS-first config, no `tailwind.config.ts`
 - **Framer Motion** · **MDX** (blog + projects) · **Lucide** icons
 - **simple-icons** — brand SVG icons in TechStackCard marquee
-- APIs: Apple Music (last played, MusicKit), GitHub (contribution graph), Anthropic Claude (chat popup), Groq (Connect 4 AI)
+- APIs: Apple Music (last played, MusicKit), GitHub (contribution graph), Groq (chat popup — Mikhai). Connect 4 runs a local minimax engine, no external API
 
 ## Critical conventions
 
 - **Tailwind v4**: design tokens live in `src/app/globals.css` inside `@theme {}`. Do not create `tailwind.config.ts`.
-- **Dark mode**: `.dark` class on `<html>`. `ThemeProvider` in `src/lib/theme.tsx` manages it (localStorage + system preference).
+- **Dark mode**: `.dark` class on `<html>`. `ThemeProvider` in `src/lib/theme.tsx` manages it — `sessionStorage` only, no system-preference detection. Switching animates via the View Transitions API as a circular reveal from the dock toggle (`toggleTheme(origin)`), with a `.theme-fade` crossfade fallback; the mount restore is never animated. Theme-aware accent is `var(--accent)` (`#0066cc` light / `#0a84ff` dark) — never hardcode `#0071E3`.
 - **Inline styles primary**: use CSS vars (`var(--bg)`, `var(--text)`, etc.) for all theme-aware colors. Never hardcode hex values. Tailwind only for responsive grid utilities.
 - **Named exports**: all components use `export function X()`, never default exports.
 - **`use client`**: only where interactivity requires it — prefer Server Components.
@@ -38,8 +38,8 @@ APPLE_TEAM_ID            # Optional — Apple Developer Membership page
 APPLE_MUSIC_KEY_ID       # Optional — MusicKit-enabled key ID
 APPLE_MUSIC_PRIVATE_KEY  # Optional — .p8 contents, one line, \n-escaped
 APPLE_MUSIC_USER_TOKEN   # Optional — from /apple-auth (dev only); expires ~6 months
-ANTHROPIC_API_KEY        # Anthropic Console — required for chat popup
-GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back to minimax if absent
+ANTHROPIC_API_KEY        # Not referenced in src/ — chat runs on Groq (kept in .env.example for now)
+GROQ_API_KEY             # Required — chat popup (Mikhai), `llama-3.3-70b-versatile`
 ```
 
 ## API routes
@@ -51,8 +51,8 @@ GROQ_API_KEY             # Optional — Groq free tier, Connect 4 AI; falls back
 | `/api/spotify` | `force-dynamic` | Dormant — SpotifyCard/spotify.ts kept for a future swap back; not in BentoGrid |
 
 Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/spotify), `LocationCard` (+ LocationMap, react-leaflet), and `AppleMusicCard` (+ lib/appleMusic.ts, /api/apple-music, /apple-auth).
-| `/api/chat` | `force-dynamic` | Anthropic SDK, `claude-sonnet-4-0`, 300 tokens |
-| `/api/connect4` | `force-dynamic` | POST board state → Groq + minimax hybrid, returns `col` |
+| `/api/chat` | `force-dynamic` | Groq SDK, `llama-3.3-70b-versatile`, 300 tokens |
+| `/api/connect4` | `force-dynamic` | POST `{ board, aiColor }` → `bestMove()` from `src/lib/connect4.ts`, 800ms budget; returns `{ col, depth, nodes, ms, forced?, source }`; 400 on malformed body |
 
 ## Bento grid layout
 
@@ -88,6 +88,7 @@ src/
 │   ├── projects/pretriage.mdx
 │   └── blog/placeholder.mdx
 ├── lib/
+│   ├── connect4.ts          — Connect 4 engine: minimax/alpha-beta, iterative deepening, Zobrist TT, parity eval (shared by route + client fallback)
 │   ├── logEvents.ts         — typed event bus (emitLog / onLog)
 │   ├── mdx.ts               — getAllPosts, getAllProjects, getBySlug
 │   ├── github.ts            — getGithubData (server-only)
@@ -124,3 +125,10 @@ src/
 - `src/app/api/apple-music/route.ts` — replaces `/api/spotify`; s-maxage=60
 - `src/components/bento/AppleMusicCard.tsx` — replaces SpotifyCard; 60s polling, `#FA243C` branding
 - `src/app/apple-auth/` — dev-only page (404 in prod) to mint the Music User Token via MusicKit JS; token expires ~6 months
+
+### Phase 19 — Connect 4 Engine (supersedes the Phase 14 hybrid) ✅
+- `src/lib/connect4.ts` — single shared engine. Minimax in negamax form with alpha-beta; iterative deepening on a time budget (800ms server / 400ms client fallback), returning the best move from the last fully-completed depth; Zobrist-hashed transposition table (typed arrays, 52-bit Number keys — no BigInt); `Int8Array` board with make/unmake and O(1) win check from the landing cell; centre-first ordering; win-in-1 / forced-block shortcuts; moves that hand the opponent a win searched last. Evaluation weights three-in-a-window threats by **row parity** (odd rows → first player, even → second) with a dominance bonus for an unanswered good-parity threat, plus per-cell positional weights (windows-through-cell ÷ 2). Reaches depth 12–16 per move at ~2.4M nodes/s.
+- `api/connect4/route.ts` — Groq removed from move selection (the 8B model was choosing near-random moves and the depth-5 gate accepted every column in normal positions). Validates the body, calls `bestMove`, returns search stats.
+- `BuildCard.tsx` — duplicated minimax deleted; fallback uses the shared engine; info-overlay copy describes the real engine.
+- `logEvents.ts` / `LogCard.tsx` — `api:done` carries optional `depth` / `nodes`; the feed shows `Placed → col N · depth D · X.XM nodes (ms)`.
+- Measured: prototype won 14/14 vs the old depth-7 minimax while playing second at 500ms/move.
