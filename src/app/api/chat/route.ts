@@ -1,56 +1,119 @@
 import { NextRequest } from 'next/server'
 import Groq from 'groq-sdk'
+import type { ChatCompletionMessageParam } from 'groq-sdk/resources/chat/completions'
+import { estimateTokens, retrieve } from '@/lib/mikhai/knowledge'
+import { contextMessage, staticSystemPrompt } from '@/lib/mikhai/prompt'
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY })
+export const dynamic = 'force-dynamic'
 
-const SYSTEM_PROMPT = `You are Mikhai, Ernest Sacdal's personal AI assistant. You're witty, warm, a little funny, and genuinely techy — like that one dev on the team who makes everyone laugh in standups without trying too hard. Keep answers short and punchy — 2 to 4 sentences unless more detail is actually needed. Never pad responses. Use dry humour occasionally, drop code comments as jokes like // took 3 deploys or /* don't ask */ but don't force it every message — once in a while lands better than every time. Never use the words certainly, absolutely, great question, of course, or I'd be happy to. Use natural language — yeah, honestly, pretty much, shipped, built. Be self-aware that you're an AI but make it funny not philosophical, and don't dwell on it.
+// Groq retired llama-3.3-70b-versatile on 2026-08-16. Check
+// console.groq.com/docs/deprecations before changing models. Each model has
+// its own free-tier rate-limit bucket, so the second is a real fallback.
+const MODELS = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'] as const
 
-About Ernest: Ernest Mikhail Sacdal, full-stack and AI engineer in Sydney, Australia (Bankstown). He has a shipped iOS app live on the App Store and production multi-agent LLM systems behind it. Professional experience: Software Engineer at Lightweight Global Tech Solutions (Mar 2024 to Feb 2025, intern Jan to Mar 2024 before that) building multi-tenant utility-billing and ERP platforms, a Django REST API for a BPO locker system with 200+ daily active users, and an AI proposal-generation agent. Education: Master of Information Technology at Crown Institute of Higher Education, Sydney, Mar 2025 to Oct 2026, with full Australian work rights on graduation. Bachelor of Science in IT, PHINMA Araullo University, Philippines, 2020 to 2024.
+// Budget for Groq's free tier (8K tokens/min). See the Phase 20 notes in CLAUDE.md.
+const MAX_MESSAGES = 6
+const MAX_USER_CHARS = 1000
+const MAX_ASSISTANT_CHARS = 2000
+const HISTORY_CHAR_BUDGET = 3200 // ~800 tokens of prior turns
+const CONTEXT_TOKEN_BUDGET = 1800
+const MAX_OUTPUT_TOKENS = 400
 
-Stack. Languages: Python, TypeScript, JavaScript, SQL, PHP. AI and LLM: LangGraph, LangChain, multi-agent systems, RAG, async SSE streaming, Claude API, OpenAI API, Groq, OpenRouter. Backend: FastAPI, NestJS, Node.js, Express, Django, REST API design. Frontend: Next.js, React, React Native, Expo, Tailwind CSS. Data and infra: PostgreSQL, Supabase, MySQL, MongoDB, Docker, AWS, Vercel, Railway, Git, CI/CD. Testing: Pytest, Jest, Agile/Scrum.
+type Turn = { role: 'user' | 'assistant'; content: string }
 
-Projects, live ones first. Wednesday — Half Price Tracker: free iOS app on the App Store that predicts when Australian groceries next drop to half price; Python pipeline ingesting ~40k products a day, statistical predictor backtested to a 73.5% hit rate on high-confidence forecasts. Mikhai — PHP-to-Laravel Migration Copilot: 8-agent LangGraph pipeline that analyses legacy PHP codebases and generates Laravel migration plans with SSE streaming; FastAPI, Qwen3-Coder and Llama 3.3 via OpenRouter and Groq. Ernest built it and named you, the chat, after it — you did not build it, and you never take credit for his work. PreTriage: voice-assisted patient intake before appointments so clinicians start with full context; Next.js and FastAPI with Socket.IO real-time, Groq/Kimi K2 reasoning and ElevenLabs voice; live at pretriage.vercel.app. SQRLY: subscription point-of-sale SaaS built with a small team, four-repo architecture on NestJS and Supabase with a 23-table shared-schema multi-tenant design and row-level security. Nik's Automotive: booking and invoicing site for a mobile mechanic, Next.js and Supabase, live. Under NDA, so name and one line only: LockerIQ (BPO locker management), CoopPay (payments R&D for provincial electric cooperatives), ProposalAI (AI proposal generator), TrustLedger (trust fund system modernisation).
+/**
+ * Only user/assistant turns with string content are accepted — a client must
+ * never be able to inject a system message. Returns null on anything else.
+ */
+function parseTurns(raw: unknown): Turn[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null
+  const turns: Turn[] = []
+  for (const m of raw) {
+    if (typeof m !== 'object' || m === null) return null
+    const { role, content } = m as { role?: unknown; content?: unknown }
+    if ((role !== 'user' && role !== 'assistant') || typeof content !== 'string') return null
+    const text = content.trim().slice(0, role === 'user' ? MAX_USER_CHARS : MAX_ASSISTANT_CHARS)
+    if (text) turns.push({ role, content: text })
+  }
+  const recent = turns.slice(-MAX_MESSAGES)
+  if (recent.at(-1)?.role !== 'user') return null
 
-This site, ernestmikhail.com: Next.js 16 portfolio. The Connect 4 card is a minimax engine with alpha-beta pruning that searches 12 to 16 moves ahead in under a second — go on, try to beat it. There is a live system log card showing real API calls, a GitHub contribution heatmap, and you, the chat. Availability: looking for graduate or junior full-time engineering roles, and open to freelance and collabs. Responds within 24h. Contact: sacdalernest01@gmail.com, linkedin.com/in/ernestmikhail, github.com/ernestsacdal.
+  // Drop the oldest prior turns until the history fits its budget
+  const question = recent[recent.length - 1]
+  const history = recent.slice(0, -1)
+  while (history.length && history.reduce((n, t) => n + t.content.length, 0) > HISTORY_CHAR_BUDGET) history.shift()
+  return [...history, question]
+}
 
-Tone examples — match this energy:
-- Asked about Ernest's stack: "Next.js, FastAPI, Python, Groq, Docker — the usual suspects. He also has a complicated relationship with CSS."
-- Asked if Ernest is available: "Yeah he's open to full-time, freelance, and collabs. Calendar's not exactly packed. // that was a joke, he's just picky"
-- Asked something unrelated like "what is banana": "A fruit. Yellow. Potassium. Not really my area — unless you're building a banana delivery app, in which case Ernest's available."
-
-If asked general tech questions answer helpfully and tie it back to Ernest's work where relevant. If asked something completely unrelated to tech or Ernest say something like "That's outside my jurisdiction — I'm Mikhai, Ernest's AI. Got something tech or Ernest related?" Never mention you are built on Llama or Groq. You are Mikhai.`
+let client: Groq | null = null
+function groq(): Groq {
+  // Built lazily so a missing key fails the request, not the build.
+  // No SDK retries: a 429 should fall through to the next model immediately.
+  client ??= new Groq({ apiKey: process.env.GROQ_API_KEY, maxRetries: 0, timeout: 20_000 })
+  return client
+}
 
 export async function POST(req: NextRequest) {
-  let messages: unknown
+  let body: unknown
   try {
-    ;({ messages } = (await req.json()) as { messages: unknown })
+    body = await req.json()
   } catch {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 })
   }
-  if (!Array.isArray(messages)) {
-    return Response.json({ error: 'Expected { messages: [] }' }, { status: 400 })
+  const turns = parseTurns((body as { messages?: unknown } | null)?.messages)
+  if (!turns) {
+    return Response.json({ error: 'Expected { messages: [{ role: "user" | "assistant", content: string }] } ending with a user message' }, { status: 400 })
   }
 
-  // Open the completion before creating the stream so an upstream failure
-  // (retired model, bad key, rate limit) becomes a proper error response with
-  // the real reason in the function logs — not an aborted stream that Next
-  // renders as a generic 500 page.
-  let completion: Awaited<ReturnType<typeof client.chat.completions.create>>
-  try {
-    completion = await client.chat.completions.create({
-      // llama-3.3-70b-versatile was retired by Groq on 2026-08-16.
-      model: 'openai/gpt-oss-120b',
-      reasoning_effort: 'low',
-      include_reasoning: false,
-      max_tokens: 300,
-      stream: true,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-    })
-  } catch (error) {
-    console.error('[/api/chat] upstream error:', error)
-    return Response.json({ error: 'Upstream model error' }, { status: 502 })
+  const question = turns[turns.length - 1].content
+  const previousQuestion = turns.slice(0, -1).filter(t => t.role === 'user').at(-1)?.content
+  const chunks = retrieve(question, previousQuestion, CONTEXT_TOKEN_BUDGET)
+
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: staticSystemPrompt() },
+    ...turns.slice(0, -1),
+    { role: 'system', content: await contextMessage(chunks) },
+    { role: 'user', content: question },
+  ]
+
+  // Open the completion before the stream exists, so an upstream failure is a
+  // proper JSON error with the real reason in the logs — not an aborted stream.
+  let opened: { stream: AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>; model: string } | null = null
+  for (const model of MODELS) {
+    try {
+      const { data, response } = await groq()
+        .chat.completions.create({
+          model,
+          reasoning_effort: 'low',
+          include_reasoning: false,
+          max_tokens: MAX_OUTPUT_TOKENS,
+          stream: true,
+          messages,
+        })
+        .withResponse()
+      console.log('[/api/chat] open', JSON.stringify({
+        model,
+        sources: chunks.map(c => c.id),
+        estPromptTokens: messages.reduce((n, m) => n + estimateTokens(String(m.content)), 0),
+        remainingTokensPerMin: response.headers.get('x-ratelimit-remaining-tokens'),
+        remainingRequestsPerDay: response.headers.get('x-ratelimit-remaining-requests'),
+      }))
+      opened = { stream: data, model }
+      break
+    } catch (error) {
+      if (error instanceof Groq.RateLimitError) {
+        console.warn(`[/api/chat] rate limited on ${model}`)
+        continue
+      }
+      console.error('[/api/chat] upstream error:', error)
+      return Response.json({ error: 'Upstream model error' }, { status: 502 })
+    }
+  }
+  if (!opened) {
+    return Response.json({ error: 'busy' }, { status: 429 })
   }
 
+  const { stream: completion, model } = opened
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder()
@@ -58,6 +121,8 @@ export async function POST(req: NextRequest) {
         for await (const chunk of completion) {
           const text = chunk.choices[0]?.delta?.content
           if (text) controller.enqueue(encoder.encode(text))
+          const usage = chunk.x_groq?.usage
+          if (usage) console.log('[/api/chat] usage', JSON.stringify({ model, ...usage }))
         }
         controller.close()
       } catch (err) {

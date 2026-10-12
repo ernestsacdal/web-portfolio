@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
     ],
   },
+  // Mikhai reads the site's content at runtime (src/lib/mikhai/knowledge.ts);
+  // ship those files with the chat function.
+  outputFileTracingIncludes: {
+    '/api/chat': ['./src/content/**/*', './cv/ernest-sacdal-cv.html'],
+  },
   experimental: {
     optimizePackageImports: ['lucide-react', 'simple-icons', 'framer-motion'],
   },

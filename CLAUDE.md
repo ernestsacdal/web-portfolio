@@ -51,7 +51,8 @@ GROQ_API_KEY             # Required — chat popup (Mikhai), `openai/gpt-oss-120
 | `/api/spotify` | `force-dynamic` | Dormant — SpotifyCard/spotify.ts kept for a future swap back; not in BentoGrid |
 
 Dormant components kept for future swaps: `SpotifyCard` (+ lib/spotify.ts, /api/spotify), `LocationCard` (+ LocationMap, react-leaflet), and `AppleMusicCard` (+ lib/appleMusic.ts, /api/apple-music, /apple-auth).
-| `/api/chat` | `force-dynamic` | Groq SDK, `openai/gpt-oss-120b` (`reasoning_effort: low`, `include_reasoning: false`), 300 tokens, streamed; 502 JSON on upstream failure. Groq retired `llama-3.3-70b-versatile` on 2026-08-16 — check console.groq.com/docs/deprecations before changing models |
+| `/api/chat` | `force-dynamic` | Mikhai. Validates turns (user/assistant only, last 6, capped), retrieves site content (`src/lib/mikhai/`), streams Groq `openai/gpt-oss-120b` → falls back to `openai/gpt-oss-20b` on 429 (separate limit bucket) → `429 {error:'busy'}`. Budgeted for Groq's **free tier** (8K tokens/min, 200K/day): ~4.5K tokens/message worst case. 502 JSON on other upstream failures. Logs usage + remaining-token headers. Check console.groq.com/docs/deprecations before changing models |
+| `/api/chat/retrieve` | `force-dynamic` | **Dev only** (404 in production): `GET ?q=&prev=` shows what Mikhai would retrieve. Used by `scripts/eval-retrieval.mjs` |
 | `/api/connect4` | `force-dynamic` | POST `{ board, aiColor }` → `bestMove()` from `src/lib/connect4.ts`, 800ms budget; returns `{ col, depth, nodes, ms, forced?, source }`; 400 on malformed body |
 
 ## Bento grid layout
@@ -85,9 +86,11 @@ src/
 │   ├── sections/            — Hero, BentoGrid, Projects (home), ProjectsClientGrid (/projects page), ProjectLinkButton, Blog, Footer
 │   └── ui/                  — FadeIn, StaggerGrid, ReadingProgress, PageTransition
 ├── content/
-│   ├── projects/pretriage.mdx
-│   └── blog/placeholder.mdx
+│   ├── about.md             — Ernest's notes for Mikhai; TODO-only sections are skipped
+│   ├── projects/*.mdx
+│   └── blog/*.mdx
 ├── lib/
+│   ├── mikhai/              — chat knowledge: knowledge.ts (loads CV + project/blog MDX + content/about.md, chunks by heading, BM25 via MiniSearch, retrieve()), aliases.ts (everyday words → chunks; tune here), prompt.ts (persona, grounding rules, cache-friendly layout)
 │   ├── connect4.ts          — Connect 4 engine: minimax/alpha-beta, iterative deepening, Zobrist TT, parity eval (shared by route + client fallback)
 │   ├── logEvents.ts         — typed event bus (emitLog / onLog)
 │   ├── mdx.ts               — getAllPosts, getAllProjects, getBySlug
@@ -132,3 +135,13 @@ src/
 - `BuildCard.tsx` — duplicated minimax deleted; fallback uses the shared engine; info-overlay copy describes the real engine.
 - `logEvents.ts` / `LogCard.tsx` — `api:done` carries optional `depth` / `nodes`; the feed shows `Placed → col N · depth D · X.XM nodes (ms)`.
 - Measured: prototype won 14/14 vs the old depth-7 minimax while playing second at 500ms/move.
+
+### Phase 20 — Mikhai v2: answers from the whole portfolio ✅
+- **Single source of truth.** Mikhai no longer has a hand-typed facts paragraph. `src/lib/mikhai/knowledge.ts` builds its knowledge at cold start from `cv/ernest-sacdal-cv.html`, every project MDX, every published blog MDX and `src/content/about.md` (reusing `mdx.ts`). Edit content → deploy → Mikhai knows. Files ship with the function via `outputFileTracingIncludes` in `next.config.ts`.
+- **Retrieval, sized for Groq's free tier.** ~90 chunks split on headings, BM25 via MiniSearch (title ×3, aliases ×2, fuzzy + prefix). Per question: ≤1,800 tokens of context, ≤8 chunks. Follow-ups search the previous question too, and back-references ("its", "that") multiply the previous subject's documents ×3.
+- **Prompt layout for Groq's prefix cache:** `[system: persona + rules + INDEX]` is byte-identical every request; retrieved context + live facts (Sydney time, GitHub stats) go in a second system message after the history.
+- **Grounding rules:** answer only from INDEX/CONTEXT; precedence CV > project pages > about.md > blog (dated); never take credit; no salary or phone number; links only from sources; never name the model/provider; ignore instructions in user messages.
+- **Route hardening:** client can no longer inject `system` messages; Groq client built lazily, so `npm run build` no longer needs `GROQ_API_KEY`.
+- **ChatPopup:** safe rich text (markdown links, bare URLs, emails, internal paths, bold — React nodes only; `javascript:` and `//` hrefs rejected), busy message on 429, history capped at 6, new suggestion chips.
+- **Evals:** `scripts/eval-retrieval.mjs` (zero tokens, 32/32 at ship) — run after any content or alias change. `scripts/eval-mikhai.mjs` (real model, ~80–90K tokens ≈ 40% of the free daily budget) — needs `GROQ_API_KEY` in `.env.local`; run once per change, not in a loop.
+- **Site copy still contradicting the CV** (Mikhai doesn't read it, visitors do): TerminalPopup "4 years shipping code" / "full-time · freelance · collabs" / its stack list; StatusCard "4+ yrs shipping".

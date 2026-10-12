@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useTheme } from '@/lib/theme'
 
@@ -56,10 +57,17 @@ const EASTER_EGGS: Record<string, string> = {
 }
 
 const SUGGESTED_CHIPS = [
-  "What has Ernest built?",
-  "What's his tech stack?",
-  "Is he available for work?",
+  "What's Wednesday?",
+  "What role is he looking for?",
+  "How does the Connect 4 AI work?",
 ]
+
+// Shown when the server reports every model is rate-limited (free tier)
+const BUSY_MESSAGE =
+  "I'm fielding a lot of questions right now — give me a minute and ask again. Or skip the queue: sacdalernest01@gmail.com"
+
+// Must match the server's cap in /api/chat (MAX_MESSAGES)
+const HISTORY_SENT = 6
 
 const STORAGE_KEY = 'mikhai-chat-history'
 
@@ -83,6 +91,57 @@ function parseMessage(content: string): { main: string; postscript: string | nul
     return { main: content.slice(0, idx), postscript: after }
   }
   return { main: content, postscript: null }
+}
+
+// ── Rich text: links and bold in Mikhai's replies ───────────────────────────
+// Built as React nodes (never innerHTML). Only internal paths, https and mailto
+// links are rendered as links; anything else stays plain text.
+// No lookbehind in the regex, so older Safari can still parse it.
+const RICH =
+  /\[([^\]\n]+)\]\(([^)\s]+)\)|\*\*([^*\n]+)\*\*|(https?:\/\/[^\s<]*[^\s<.,:;!?"')\]])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})|(^|[\s(])(\/(?:projects|blog)\/[a-z0-9-]+|\/ernestsacdalcv\.pdf)/g
+
+function safeHref(href: string): string | null {
+  if (href.startsWith('/') && !href.startsWith('//')) return href
+  if (/^https:\/\//i.test(href) || /^mailto:/i.test(href)) return href
+  return null
+}
+
+function ChatLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const style: React.CSSProperties = { color: 'var(--accent)', textDecoration: 'underline', textUnderlineOffset: 2 }
+  if (href.startsWith('/')) return <Link href={href} style={style}>{children}</Link>
+  return (
+    <a href={href} style={style} {...(href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}>
+      {children}
+    </a>
+  )
+}
+
+function RichText({ text }: { text: string }) {
+  const nodes: React.ReactNode[] = []
+  let last = 0
+  for (const m of text.matchAll(RICH)) {
+    const at = m.index ?? 0
+    const [whole, label, mdHref, bold, url, email, pathLead, path] = m
+    if (at > last) nodes.push(text.slice(last, at))
+    if (label && mdHref) {
+      const href = safeHref(mdHref)
+      nodes.push(href ? <ChatLink href={href}>{label}</ChatLink> : label)
+    } else if (bold) {
+      nodes.push(<strong>{bold}</strong>)
+    } else if (url) {
+      const href = safeHref(url)
+      nodes.push(href ? <ChatLink href={href}>{url.replace(/^https?:\/\//, '')}</ChatLink> : url)
+    } else if (email) {
+      nodes.push(<ChatLink href={`mailto:${email}`}>{email}</ChatLink>)
+    } else if (path) {
+      nodes.push(pathLead, <ChatLink href={path}>{path}</ChatLink>)
+    } else {
+      nodes.push(whole)
+    }
+    last = at + whole.length
+  }
+  if (last < text.length) nodes.push(text.slice(last))
+  return <>{nodes.map((n, i) => <Fragment key={i}>{n}</Fragment>)}</>
 }
 
 export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
@@ -196,7 +255,7 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
     setIsLoading(true)
 
     // Strip postscripts from messages sent to API
-    const trimmed = next.slice(-20).map(m =>
+    const trimmed = next.slice(-HISTORY_SENT).map(m =>
       m.role === 'assistant' ? { ...m, content: stripPostscript(m.content) } : m
     )
 
@@ -207,6 +266,14 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
         body: JSON.stringify({ messages: trimmed }),
       })
 
+      if (res.status === 429) {
+        setMessages(prev => {
+          const updated = [...prev]
+          updated[updated.length - 1] = { role: 'assistant', content: BUSY_MESSAGE }
+          return updated
+        })
+        return
+      }
       if (!res.ok || !res.body) throw new Error('API error')
 
       const reader = res.body.getReader()
@@ -361,6 +428,8 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
                     borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
                     fontSize: 13,
                     lineHeight: 1.45,
+                    whiteSpace: 'pre-wrap',
+                    overflowWrap: 'anywhere',
                     background:
                       msg.role === 'user'
                         ? 'var(--accent)'
@@ -375,7 +444,7 @@ export function ChatPopup({ onClose, triggerRef, dockRef }: ChatPopupProps) {
                           : '#1D1D1F',
                   }}
                 >
-                  {main}
+                  {msg.role === 'assistant' ? <RichText text={main} /> : main}
                   {postscript && (
                     <span
                       style={{
