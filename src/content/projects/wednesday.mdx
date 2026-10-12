@@ -24,15 +24,15 @@ Wednesday's wedge is forward prediction: search any product and see its predicte
 
 ## Data Pipeline
 
-Every day a Python pipeline (GitHub Actions + one scheduled task on a residential machine) ingests ~40,000+ products across Coles and Woolworths from three complementary public sources: the open-source hotprices.org daily price dumps, Woolworths' own browse API, and Coles' published weekly catalogue as a cross-check. Half-price events are derived from price-change history, not trusted from labels — a change-point counts only when the price genuinely drops ≥48% against a windowed regular price, with a recency guard against stale data. Woolworths blocks datacenter IPs, so the live API is pulled from the residential machine while the cloud pipeline falls back to dump-derived data — and a "sticky live" guard ensures the weaker source never overwrites the stronger one.
+Every day a Python pipeline (GitHub Actions + one scheduled task on a residential machine) ingests ~41,000 products across Coles and Woolworths from three complementary public sources: the open-source hotprices.org daily price dumps, Woolworths' own browse API, and Coles' published weekly catalogue as a cross-check. Half-price events are derived from price-change history, not trusted from labels — a change-point counts only when the price genuinely drops ≥48% against a windowed regular price, with a recency guard against stale data. Woolworths blocks datacenter IPs, so the live API is pulled from the residential machine while the cloud pipeline falls back to dump-derived data — and a "sticky live" guard ensures the weaker source never overwrites the stronger one.
 
 ## The Predictor
 
-Statistical, deliberately not ML. For every product with enough sale history (~18 months backfilled, ~62,000 historical half-price events), the engine computes cycle statistics — mean interval, variance, time since last sale — and projects the next likely window with a confidence score. Honesty is enforced structurally: under 3 observed cycles the app says "warming up" instead of guessing, confidence is capped, and expired windows display as "window passed," never as a forecast. A walk-forward backtest over ~44,000 historical windows measures the real hit rate — 73.5% on high-confidence calls — and that measured number is published inside the app on every product page.
+Statistical, deliberately not ML. For every product with enough sale history (~18 months backfilled, ~62,000 historical half-price events), the engine computes cycle statistics — mean interval, variance, time since last sale — and forecasts the 1–3 week window when each item next goes half price, with a confidence score. Honesty is enforced structurally: under 3 observed cycles the app says "warming up" instead of guessing, confidence is capped, and expired windows display as "window passed," never as a forecast. Tested on ~91,000 past forecasts: when the model is at least 70% confident, it is right 81% of the time — and that measured track record is published inside the app on every product page.
 
 ## Audited Accuracy
 
-The stored data is continuously compared against the retailers' own sources: Coles against its official weekly catalogue (recall driven to ~100% via automated corrections; price accuracy 100% on sampled matches) and Woolworths against its live API (98% recall, ~98% precision). A 21-invariant verification suite runs at the end of every pipeline job and fails the workflow loudly if anything drifts — a green run must mean the data is actually right, not merely that the code didn't crash.
+Half-price deals are checked daily against Coles' and Woolworths' own lists: ~99% found, ~99% correct. A 21-invariant verification suite runs at the end of every pipeline job and fails the workflow loudly if anything drifts — a green run must mean the data is actually right, not merely that the code didn't crash.
 
 ## The App
 
@@ -59,7 +59,7 @@ There is no sign-up anywhere. Watchlists live on-device; opting into alerts regi
 - ~41,600 supermarket products tracked daily
 - ~2,700 half-price deals live in a typical week
 - ~18 months of price history, ~62,000 historical half-price events
-- Backtested over ~44,000 windows: 73.5% hit rate on high-confidence forecasts, published in-app
-- Coles price accuracy 100% / recall ~100%; Woolworths 98% recall vs the live API
+- Forecasts right 81% of the time when ≥70% confident, tested on ~91,000 past forecasts — published in-app
+- Deals checked daily against Coles' and Woolworths' own lists: ~99% found, ~99% correct
 - 130+ automated tests (Jest + pytest), 21 live-data invariants gating every pipeline run
 - Infrastructure cost: $0/month
