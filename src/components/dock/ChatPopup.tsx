@@ -98,10 +98,15 @@ function parseMessage(content: string): { main: string; postscript: string | nul
 // links are rendered as links; anything else stays plain text.
 // No lookbehind in the regex, so older Safari can still parse it.
 const RICH =
-  /\[([^\]\n]+)\]\(([^)\s]+)\)|\*\*([^*\n]+)\*\*|(https?:\/\/[^\s<]*[^\s<.,:;!?"')\]])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})|(^|[\s(])(\/(?:projects|blog)\/[a-z0-9-]+|\/ernestsacdalcv\.pdf)/g
+  /\[([^\]\n]+)\]\(([^)\s]+)\)|\*\*([^*\n]+)\*\*|(https?:\/\/[^\s<]*[^\s<.,:;!?"')\]])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})|(^|[\s(])(\/(?:projects|blog)\/[a-z0-9‐‑-]+|\/ernestsacdalcv\.pdf)/g
 
-function safeHref(href: string): string | null {
-  if (href.startsWith('/') && !href.startsWith('//')) return href
+// Pages that exist. Anything else internal (an invented path) stays plain text.
+const INTERNAL_PATH = /^\/(?:projects(?:\/[a-z0-9-]+)?|blog(?:\/[a-z0-9-]+)?|ernestsacdalcv\.pdf)?$/
+
+function safeHref(raw: string): string | null {
+  // the model often writes non-breaking hyphens (U+2011) in slugs
+  const href = raw.replace(/[‐-―−]/g, '-')
+  if (href.startsWith('/')) return INTERNAL_PATH.test(href) ? href : null
   if (/^https:\/\//i.test(href) || /^mailto:/i.test(href)) return href
   return null
 }
@@ -134,7 +139,8 @@ function RichText({ text }: { text: string }) {
     } else if (email) {
       nodes.push(<ChatLink href={`mailto:${email}`}>{email}</ChatLink>)
     } else if (path) {
-      nodes.push(pathLead, <ChatLink href={path}>{path}</ChatLink>)
+      const href = safeHref(path)
+      nodes.push(pathLead, href ? <ChatLink href={href}>{path}</ChatLink> : path)
     } else {
       nodes.push(whole)
     }
