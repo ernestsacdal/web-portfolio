@@ -241,11 +241,12 @@
   </ul>
 
   <div class="entry-head">
-    <span class="entry-title">Wednesday &#8212; Grocery Price-Prediction App</span>
+    <span class="entry-title">Wednesday &#8212; Half-Price Prediction App (iOS)</span>
     <span class="entry-url"><a href="https://apps.apple.com/au/app/wednesday-half-price-tracker/id6786205324">apps.apple.com/au/app/id6786205324</a></span>
   </div>
   <ul>
-    <li>Live on the iOS App Store. Engineered the Python data pipeline ingesting ~40k products daily from public sources; statistical predictor backtested over ~44k historical windows to a 73.5% hit rate on high-confidence forecasts, with accuracy continuously audited against retailer ground truth (100% Coles price accuracy).</li>
+    <li>Solo-built, live on the iOS App Store (React Native/Expo, Supabase, Python). Tracks ~41k products daily; half-price deals are checked daily against Coles' and Woolworths' own lists: ~99% found, ~99% correct.</li>
+    <li>Forecasts the 1&#8211;3 week window when each item next goes half price: when the model is at least 70% confident, it is right 81% of the time (tested on ~91k past forecasts).</li>
   </ul>
 
   <div class="entry-head">
